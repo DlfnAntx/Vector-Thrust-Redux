@@ -1,0 +1,12 @@
+{
+  "TrimmedApplications": [],
+  "TrimmedDeclarations": [],
+  "PreservedApplications": [
+    {
+      "Symbol": "System.FlagsAttribute",
+      "File": "C:\\Users\\User\\Documents\\scripts\\Space Engineers\\VectorThrustRedux\\Classes.cs",
+      "Line": 23,
+      "Reason": "External"
+    }
+  ]
+}
