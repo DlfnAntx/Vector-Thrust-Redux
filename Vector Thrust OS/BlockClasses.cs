@@ -1,508 +1,1288 @@
-﻿using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
+// <mdk sortorder="30" />   // BlockClasses.cs
+using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
+using VRage.Game.ModAPI.Ingame;
 using VRageMath;
+
 
 namespace IngameScript
 {
     partial class Program
     {
-        //bool usepid = true;
+        // ===== Thrusters =====
 
-        class VectorThrust
+        sealed class Thruster
         {
-            readonly Program p;
+            readonly Program program;
 
-            // physical parts
-            public Rotor rotor;
-            public List<Thruster> thrusters;// all the thrusters
-            public List<Thruster> availableThrusters;// <= thrusters: the ones the user chooses to be used (ShowInTerminal)
-            public List<Thruster> activeThrusters;// <= activeThrusters: the ones that are facing the direction that produces the most thrust (only recalculated if available thrusters changes)
+            float lastOverridePercentage = float.NaN;
 
-            public Vector3D requiredVec = Vector3D.Zero;
+            public readonly IMyThrust TheBlock;
+            public readonly BlockTags Tags;
 
-            public float totalEffectiveThrust = 0;
+            public VectorThrust Nacelle;
 
-            public int detectThrustCounter = 0;
-            public Vector3D currDir = Vector3D.Zero;
-            
-            readonly SequenceAssigner ThrusterS;
-            double angleCos = 0;
+            public bool Controlled;
+            public bool IsPrimaryNacelleThruster;
 
-            public VectorThrust(Rotor rotor, Program program)
+            public double DesiredEffectiveThrust;
+
+            public long EntityId
             {
-                this.p = program;
-                this.rotor = rotor;
-                this.thrusters = new List<Thruster>();
-                this.availableThrusters = new List<Thruster>();
-                this.activeThrusters = new List<Thruster>();
-                ThrusterS = new SequenceAssigner(program, ThrusterSeq(), true);
+                get { return TheBlock.EntityId; }
             }
 
-            // final calculations and setting physical components
-            public void Go()
+            public Vector3D ForceDirectionWorld
             {
-                angleCos = rotor.Point(requiredVec);
-
-                // the clipping value 'thrustModifier' defines how far the rotor can be away from the desired direction of thrust, and have the power still at max
-                // if 'thrustModifier' is at 1, the thruster will be at full desired power when it is at 90 degrees from the direction of travel
-                // if 'thrustModifier' is at 0, the thruster will only be at full desired power when it is exactly at the direction of travel, (it's never exactly in-line)
-
-                double tmod = MathHelper.Clamp(p.thrustermodifier, 0, 1); //Temporal
-
-                // put it in some graphing calculator software where 'angleCos' is cos(x) and adjust the thrustModifier values between 0 and 1, then you can visualise it
-                //double thrustOffset = ((((angleCos + 1) * (1 + tmod)) / 2) - tmod) * (((angleCos + 1) * (1 + tmod)) / 2);// the other one is simpler, but this one performs better
-
-                ThrusterS.Run();
+                get { return TheBlock.WorldMatrix.Backward; }
             }
 
-            IEnumerable<int> ThrusterSeq()
+            public Vector3D ExhaustDirectionWorld
             {
-                while (true)
+                get { return TheBlock.WorldMatrix.Forward; }
+            }
+
+            public double MaximumEffectiveThrust
+            {
+                get
                 {
-                    //double angleCos = this.angleCos;
-
-                    double tmod = MathHelper.Clamp(p.thrustermodifier, 0, 1);
-                    double thrustOffset = ((((angleCos + 1) * (1 + tmod) / 2) - tmod) * (((angleCos + 1) * (1 + tmod)) / 2)).Clamp(0, 1);
-
-                    List<Thruster> acthr = new List<Thruster>(activeThrusters);
-
-                    int div = (acthr.Count / p.tdividers[1]).Clamp(1, acthr.Count);
-                    //int i = 1;
-
-                    //p.Echo($"div2 {acthr.Count} {div}");
-                    for (int i = 0; i < acthr.Count; i++)
-                    //foreach (Thruster thruster in acthr)
+                    if (TheBlock == null ||
+                        TheBlock.Closed ||
+                        !TheBlock.IsFunctional)
                     {
-                        Thruster thruster = acthr[i];
-                        bool enabledop = div != acthr.Count;
-                        //double angleCos = this.angleCos;
-                        if (enabledop) {
-                            //p.Print("Enabled Thruster");
-                            thrustOffset = ((((angleCos + 1) * (1 + tmod) / 2) - tmod) * (((angleCos + 1) * (1 + tmod)) / 2)).Clamp(0, 1); 
-                        }
-
-                        Vector3D thrust = (thrustOffset * requiredVec * thruster.TheBlock.MaxEffectiveThrust / totalEffectiveThrust);// + p.residuethrust;
-                        bool noThrust = thrust.LengthSquared() < 0.001f || (p.wgv == 0 && angleCos < 0.85);//|| (p.wgv != 0 && angleCos < 0);
-                        //p.tthrust += noThrust ? 0 : MathHelper.Clamp(thrust.Length(), 0, thruster.TheBlock.MaxEffectiveThrust);
-
-                        if (!p.thrustOn || noThrust)
-                        {
-                            thruster.SetThrust(0);
-                            if (thruster.prevOnOff) thruster.TheBlock.Enabled = thruster.prevOnOff = false;
-                            thruster.IsOffBecauseDampeners = !p.thrustOn || noThrust;
-                        }
-                        else
-                        {
-                            thruster.SetThrust(thrust);
-                            if (!thruster.prevOnOff) thruster.TheBlock.Enabled = thruster.prevOnOff = true;
-                            thruster.IsOffBecauseDampeners = false;
-                        }
-
-                        if (enabledop && i+1 % div == 0)
-                        {
-                            //p.echosb.AppendLine($"Dividing 2 {i+1}/{div}");
-                            yield return 1;
-                        }
+                        return 0;
                     }
-                    yield return 1;
+
+                    double thrust = TheBlock.MaxEffectiveThrust;
+
+                    return thrust > ForceEpsilon ? thrust : 0;
                 }
             }
 
-            // New thruster group assigning system
-            public void AssignGroup()
+            public Vector3D CurrentForceWorld
             {
-                bool foundGroup = false;
-
-                IMyMotorStator crt = rotor.TheBlock;
-                MatrixD wm1 = crt.WorldMatrix;
-                Vector3D wmu1 = wm1.Up;
-
-                foreach (List<VectorThrust> g in p.VTThrGroups)
+                get
                 {
-                    if (g.Empty()) continue; // THis solves a really rare bug
-                    IMyMotorStator nrt = g[0].rotor.TheBlock;
-                    MatrixD wm2 = nrt.WorldMatrix;
-                    Vector3D wmu2 = wm2.Up;
-
-                    if (Vector3D.Dot(wmu1, wmu2).Abs() > 0.9)
+                    if (TheBlock == null ||
+                        TheBlock.Closed ||
+                        !TheBlock.IsFunctional)
                     {
-
-                        if (rotor.IsHinge.Equals(g[0].rotor.IsHinge))
-                        {
-
-                            if ((rotor.IsHinge && Vector3D.Dot(wm1.Left, wm2.Left) > 0.9) || !rotor.IsHinge)
-                            {
-                                if (!g.Contains(this)) g.Add(this);
-                                foundGroup = true;
-                                //p.Echo($"Found Group");
-                                break;
-                            }
-                        }
+                        return Vector3D.Zero;
                     }
-                }
-                if (!foundGroup)
-                {// if it never found a group, add a group
-                    p.VTThrGroups.Add(new List<VectorThrust>());
-                    p.VTThrGroups[p.VTThrGroups.Count - 1].Add(this);
-                    p.tets.Add(0); //Add empty slot of TotalEffectiveThrust, just in case it crashes
+
+                    return ForceDirectionWorld * TheBlock.CurrentThrust;
                 }
             }
 
-            public double CalcTotalEffectiveThrust()
+            public bool IsIgnored
             {
-                totalEffectiveThrust = 0;
-                foreach (Thruster t in activeThrusters)
-                {
-                    totalEffectiveThrust += t.TheBlock.MaxEffectiveThrust;
-                }
-                return totalEffectiveThrust;
+                get { return (Tags & BlockTags.Ignore) != 0; }
             }
 
-            //true if all thrusters are good
-            public bool ValidateThrusters()
+            public bool IsUsable
             {
-                bool needsUpdate = false;
-                foreach (Thruster curr in thrusters)
+                get
                 {
-
-                    bool shownAndFunctional = ((p.wgv == 0 || !curr.NeedsGas || p.justCompiled) && curr.TheBlock.IsFunctional) || (curr.NeedsGas && curr.TheBlock.IsConnected());
-
-                    if (availableThrusters.Contains(curr))
-                    {//is available
-
-                        bool wasOnAndIsNowOff = curr.IsOn && !curr.TheBlock.Enabled && !curr.IsOffBecauseDampeners;
-
-                        if ((!shownAndFunctional || wasOnAndIsNowOff))
-                        {
-                            if (wasOnAndIsNowOff) curr.IsOn = false;
-                            //remove the thruster
-                            availableThrusters.Remove(curr);
-                            needsUpdate = true;
-                        }
-
-                    }
-                    else
-                    {//not available
-                        bool wasOffAndIsNowOn = !curr.IsOn && curr.TheBlock.Enabled;
-                        if (shownAndFunctional && (wasOffAndIsNowOn || (curr.IsOn && !availableThrusters.Contains(curr))))
-                        {
-                            availableThrusters.Add(curr);
-                            needsUpdate = true;
-                            curr.IsOn = true;
-                        }
-                    }
-                }
-                return !needsUpdate;
-            }
-
-            public void DetectThrustDirection()
-            {
-                Vector3D engineDirection = Vector3D.Zero;
-                Vector3D engineDirectionNeg = Vector3D.Zero;
-                Vector3I thrustDir = Vector3I.Zero;
-                Base6Directions.Direction rotTopUp = rotor.TheBlock.Top.Orientation.Up;
-
-                // add all the thrusters effective power
-                foreach (Thruster t in availableThrusters)
-                {
-                    Base6Directions.Direction thrustForward = t.TheBlock.Orientation.Forward; // Exhaust goes this way
-
-                    //if its not facing rotor up or rotor down
-                    if (!(thrustForward == rotTopUp || thrustForward == Base6Directions.GetFlippedDirection(rotTopUp)))
+                    if (TheBlock == null ||
+                        TheBlock.Closed ||
+                        !TheBlock.IsFunctional ||
+                        MaximumEffectiveThrust <= ForceEpsilon)
                     {
-                        // add it in
-                        var thrustForwardVec = Base6Directions.GetVector(thrustForward);
-                        if (thrustForwardVec.X < 0 || thrustForwardVec.Y < 0 || thrustForwardVec.Z < 0)
-                        {
-                            engineDirectionNeg += Base6Directions.GetVector(thrustForward) * t.TheBlock.MaxEffectiveThrust;
-                        }
-                        else
-                        {
-                            engineDirection += Base6Directions.GetVector(thrustForward) * t.TheBlock.MaxEffectiveThrust;
-                        }
+                        return false;
                     }
-                }
 
-                // get single most powerful direction
-                double max = Math.Max(engineDirection.Z, Math.Max(engineDirection.X, engineDirection.Y));
-                double min = Math.Min(engineDirectionNeg.Z, Math.Min(engineDirectionNeg.X, engineDirectionNeg.Y));
-                double maxAbs;
-                if (max > -1 * min)
-                {
-                    maxAbs = max;
-                }
-                else
-                {
-                    maxAbs = min;
-                }
-
-                // TODO: swap onbool for each thruster that isn't in this
-                float DELTA = 0.1f;
-                if (Math.Abs(maxAbs - engineDirection.X) < DELTA)
-                {
-                    thrustDir.X = 1;
-                }
-                else if (Math.Abs(maxAbs - engineDirection.Y) < DELTA)
-                {
-                    thrustDir.Y = 1;
-                }
-                else if (Math.Abs(maxAbs - engineDirection.Z) < DELTA)
-                {
-                    thrustDir.Z = 1;
-                }
-                else if (Math.Abs(maxAbs - engineDirectionNeg.X) < DELTA)
-                {
-                    thrustDir.X = -1;
-                }
-                else if (Math.Abs(maxAbs - engineDirectionNeg.Y) < DELTA)
-                {
-                    thrustDir.Y = -1;
-                }
-                else if (Math.Abs(maxAbs - engineDirectionNeg.Z) < DELTA)
-                {
-                    thrustDir.Z = -1;
-                }
-                else
-                {
-                   return;
-                }
-
-                // use thrustDir to set rotor offset
-                if (!availableThrusters.Empty()) rotor.direction = (Vector3D)thrustDir;
-
-                // put thrusters into the active list
-                Base6Directions.Direction thrDir = Base6Directions.GetDirection(thrustDir);
-                ActiveList(thrDir);
-            }
-
-            public void ActiveList(Base6Directions.Direction? thrDir = null, bool Override = false) {
-                if (!Override) {
-                    foreach (Thruster t in thrusters)
-                    {
-                        if (!t.IsOn) t.TheBlock.Enabled = false;
-                        //t.IsOn = false;
-                    }
-                    activeThrusters.Clear();
-                }
-                //if (program.thrustOn) { //IDK IF THIS DOES SOMETHING USEFUL
-                foreach (Thruster t in availableThrusters)
-                {
-                    Base6Directions.Direction thrustForward = t.TheBlock.Orientation.Forward; // Exhaust goes this way
-
-                    if ((thrDir == thrustForward || Override) && ((t.TheBlock.MaxEffectiveThrust != 0 && t.TheBlock.Enabled) || (!p.parked && !t.TheBlock.Enabled)))
-                    {
-                        t.TheBlock.Enabled = true;
-                        t.IsOn = true;
-                        if (!activeThrusters.Contains(t)) activeThrusters.Add(t);
-                    }
+                    // A thruster disabled by Redux while parked remains a valid
+                    // source after unpark. A player-disabled active thruster is
+                    // respected and remains unavailable.
+                    return TheBlock.Enabled ||
+                           program.WasThrusterDisabledByPark(EntityId);
                 }
             }
-        }
 
-        class Thruster : BlockWrapper<IMyThrust>
-        {
-
-            // stays the same when in standby, if not in standby, this gets updated to weather or not the thruster is on
-            public bool IsOn;
-
-            public bool NeedsGas;
-
-            float prevOv = 0;
-
-            public bool prevOnOff;
-
-            // this indicate the thruster was turned off from the script, and should be kept in the active list
-            public bool IsOffBecauseDampeners = true;
-
-            public Thruster(IMyThrust thruster, Program program) : base(thruster, program)
+            public Thruster(
+                IMyThrust block,
+                Program program,
+                BlockTags tags,
+                bool controlled)
             {
-                this.IsOn = false;
-                this.TheBlock.Enabled = true;
-                prevOnOff = true;
-                NeedsGas = TheBlock.BlockDefinition.SubtypeId.Contains("Hydrogen");
-            }
-
-            // sets the thrust in newtons (N)
-            // thrustVec is in worldspace, who'se length is the desired thrust
-            public void SetThrust(Vector3D thrustVec)
-            {
-                SetThrust(thrustVec.Length());
-            }
-
-            // sets the thrust in newtons (N)
-            public void SetThrust(double thrust)
-            {
-                if (thrust > TheBlock.MaxThrust)
-                {
-                    thrust = TheBlock.MaxThrust;
-                }
-                else if (thrust < 0)
-                {
-                    thrust = 0;
-                }
-
-                float val = (float)(thrust * TheBlock.MaxThrust / TheBlock.MaxEffectiveThrust);
-
-                //p.Print($"{(val.Abs() - prevOv.Abs()).Abs().Truncate(4)} {(val.Abs() - prevOv.Abs()).Abs().Truncate(4)/TheBlock.MaxThrust}");
-
-                if ((val != 0 && (val.Abs() - prevOv.Abs()).Abs().Truncate(4) / TheBlock.MaxThrust < 0.0075) || (val == 0 && prevOv == 0)) {
-                    return; 
-                }
-                //p.echosb.AppendLine("bt");
-                TheBlock.ThrustOverride = prevOv = val;
-            }
-        }
-        class Rotor : BlockWrapper<IMyMotorStator>
-        {
-            // don't want IMyMotorBase, that includes wheels
-
-            public Vector3D direction = Vector3D.Zero; //offset relative to the head
-
-            public double LastAngleCos = 0;
-
-            public bool IsHinge { get; }
-
-            readonly PID pid;
-
-            int ErrCount = 0;
-
-            float prevTar = 0;
-
-            public Rotor(IMyMotorStator rotor, Program program) : base(rotor, program)
-            {
-                p = program;
-               
-                pid = new PID(4, 0, 0, 1.0 / 60.0);
-
-                IsHinge = TheBlock.BlockDefinition.SubtypeId.Contains("Hinge");
-            }
-
-            public double Point(Vector3D requiredVec)
-            {
-                Vector3D desiredVec = requiredVec.Normalized();
-                Vector3D currentDir = Vector3D.TransformNormal(direction, TheBlock.Top.CubeGrid.WorldMatrix);
-                double cutoff = p.velprecisionmode * p.force;
-
-                //Better vector pointing system by Whiplash141
-                double angleCos = VectorMath.CosBetween(desiredVec, currentDir);
-                double angleCosPercent = angleCos * 100;
-                double angle = Math.Acos(angleCos) * 2; //previous version was like that (* 2)
-                Vector3D axis = Vector3D.Cross(desiredVec, currentDir);
-                angle *= Math.Sign(Vector3D.Dot(axis, TheBlock.WorldMatrix.Up)); // angle is the error (facepalm, thanks Whip)
-
-                if (requiredVec.Length() < cutoff && p.thrustOn)
-                {
-                    if (((p.wgv == 0 && p.dampeners) || (p.wgv != 0)) && p.thrustOn && Math.Abs(angleCosPercent - LastAngleCos) <= p.ErrorMargin && angleCosPercent < 90)
-                    {
-                        pid.Kp += p.Aggressivity[0];
-                    }
-                    else if (angleCosPercent > 98 || Math.Abs(angleCosPercent - LastAngleCos) > p.ErrorMargin)
-                    {
-                        pid.Kp = p.Aggressivity[0];
-                    }
-                }
-                else if (!p.thrustOn)
-                {
-                    pid.Kp = p.Aggressivity[1];
-                }
-                else
-                {
-                    pid.Kp = p.Aggressivity[2];
-                }
-
-                LastAngleCos = angleCosPercent;
-                float result = (float)pid.Control(angle);
-
-
-                //If it's a hinge, and the RPM is the maximum possible, and the cos of angle is -1 (the most far distance), 
-                //it'll asume that hinge is stuck in one of the limits
-                if (IsHinge)
-                {
-
-                    if (p.ShowMetrics) p.Print($"- {angleCosPercent.Round(4)} - {ErrCount}");
-
-                    if (angleCosPercent <= -99.89)
-                    {
-                        ErrCount++;
-                        if (ErrCount > 10) result = -result;
-                    }
-                    else if (ErrCount > 10 && angleCosPercent > -98.5)
-                    {
-                        ErrCount = 0;
-                    }
-                }
-                //p.Print($"{(result.Abs() - prevTar.Abs()).Abs().Truncate(4)}");
-
-                if ((result.Abs() - prevTar.Abs()).Abs() < 0.03 || (prevTar == 0 && result == 0)) {
-                    return angleCos;
-                }
-
-                TheBlock.TargetVelocityRad = prevTar = result;
-
-                return angleCos;
-            }
-
-            public bool GetPointOrientation(Vector3D targetDirection, Vector3D currentDirection)
-            {
-                Vector3D angle = Vector3D.Cross(targetDirection, currentDirection);
-                double err = Vector3D.Dot(angle, TheBlock.WorldMatrix.Up);
-                return err >= 0;
-            }
-
-            // doesn't calculate length because thats expensive
-            public double AngleBetweenCos(Vector3D a, Vector3D b)
-            {
-                double dot = Vector3D.Dot(a, b);
-                return dot / b.Length();
-            }
-
-        }
-        class ShipController : BlockWrapper<IMyShipController>
-        {
-            public bool Dampener;
-            public List<IMyThrust> nThrusters = new List<IMyThrust>();
-            public List<IMyThrust> cruiseThrusters = new List<IMyThrust>();
-
-            public ShipController(IMyShipController theBlock, Program program) : base(theBlock, program)
-            {
-                Dampener = theBlock.DampenersOverride;
-            }
-
-            public void SetDampener(bool val)
-            {
-                Dampener = val;
-                TheBlock.DampenersOverride = val;
-            }
-        }
-
-        interface IBlockWrapper
-        {
-            IMyTerminalBlock TheBlock { get; set; }
-            string CName { get; }
-        }
-
-        abstract class BlockWrapper<T> : IBlockWrapper where T : class, IMyTerminalBlock
-        {
-            public T TheBlock { get; set; }
-
-            public Program p;
-
-            public BlockWrapper(T block, Program p)
-            {
-                this.p = p;
                 TheBlock = block;
+                this.program = program;
+                Tags = tags;
+                Controlled = controlled;
             }
 
-            // not allowed for some reason
-            IMyTerminalBlock IBlockWrapper.TheBlock
+            public void ResetDemand()
             {
-                get { return TheBlock; }
-                set { TheBlock = (T)value; }
+                DesiredEffectiveThrust = 0;
             }
 
-            public string CName => TheBlock.CustomName;
+            public double AddOptimalContribution(ref Vector3D residual)
+            {
+                if (!Controlled || !IsUsable)
+                {
+                    return 0;
+                }
+
+                Vector3D direction = VectorMath.SafeNormalize(
+                    ForceDirectionWorld);
+
+                double projection = Vector3D.Dot(residual, direction);
+
+                if (projection <= ForceEpsilon)
+                {
+                    return 0;
+                }
+
+                double available =
+                    MaximumEffectiveThrust - DesiredEffectiveThrust;
+
+                if (available <= ForceEpsilon)
+                {
+                    return 0;
+                }
+
+                double added = Math.Min(projection, available);
+
+                DesiredEffectiveThrust += added;
+                residual -= direction * added;
+
+                return added;
+            }
+
+            public void ApplyDemand()
+            {
+                if (!Controlled ||
+                    TheBlock == null ||
+                    TheBlock.Closed)
+                {
+                    return;
+                }
+
+                double maximumEffective = MaximumEffectiveThrust;
+
+                float requestedPercentage =
+                    maximumEffective > ForceEpsilon
+                        ? (float)MathHelper.Clamp(
+                            DesiredEffectiveThrust / maximumEffective,
+                            0,
+                            1)
+                        : 0;
+
+                if (!float.IsNaN(lastOverridePercentage) &&
+                    Math.Abs(
+                        requestedPercentage -
+                        lastOverridePercentage) < 1e-4f &&
+                    Math.Abs(
+                        TheBlock.ThrustOverridePercentage -
+                        requestedPercentage) < 1e-4f)
+                {
+                    return;
+                }
+
+                TheBlock.ThrustOverridePercentage =
+                    lastOverridePercentage =
+                        requestedPercentage;
+            }
+
+            public void ClearOverride()
+            {
+                DesiredEffectiveThrust = 0;
+
+                if (TheBlock == null || TheBlock.Closed)
+                {
+                    return;
+                }
+
+                if (Math.Abs(TheBlock.ThrustOverridePercentage) > 1e-5f)
+                {
+                    TheBlock.ThrustOverridePercentage = 0;
+                }
+
+                lastOverridePercentage = 0;
+            }
+
+            public void Release()
+            {
+                ClearOverride();
+                Controlled = false;
+            }
+        }
+
+        // ===== Rotors and hinges =====
+
+        sealed class Rotor
+        {
+            readonly Program program;
+
+            double lastWrittenTargetVelocity = double.NaN;
+
+            double parkTargetAngle;
+            bool parkTargetInitialized;
+            bool parkSettled;
+
+            public readonly IMyMotorStator TheBlock;
+            public readonly BlockTags Tags;
+
+            public VectorThrust Nacelle;
+
+            public bool Controlled;
+
+            public long EntityId
+            {
+                get { return TheBlock.EntityId; }
+            }
+
+            public bool IsHinge
+            {
+                get
+                {
+                    return TheBlock.BlockDefinition.SubtypeId
+                        .IndexOf(
+                            "Hinge",
+                            StringComparison.OrdinalIgnoreCase) >= 0;
+                }
+            }
+
+            public Vector3D AxisWorld
+            {
+                get { return TheBlock.WorldMatrix.Up; }
+            }
+
+            public bool IsPhysicallyMovable
+            {
+                get
+                {
+                    if (TheBlock == null ||
+                        TheBlock.Closed ||
+                        TheBlock.Top == null ||
+                        !TheBlock.IsFunctional ||
+                        !TheBlock.Enabled ||
+                        TheBlock.RotorLock)
+                    {
+                        return false;
+                    }
+
+                    double lower = TheBlock.LowerLimitRad;
+                    double upper = TheBlock.UpperLimitRad;
+
+                    return !HasFiniteLowerLimit(lower) ||
+                           !HasFiniteUpperLimit(upper) ||
+                           Math.Abs(upper - lower) >
+                               EqualLimitEpsilon;
+                }
+            }
+
+            public Rotor(
+                IMyMotorStator block,
+                Program program,
+                BlockTags tags,
+                bool controlled)
+            {
+                TheBlock = block;
+                this.program = program;
+                Tags = tags;
+                Controlled = controlled;
+            }
+
+            public double Point(Vector3D desiredForceWorld)
+            {
+                if (!Controlled ||
+                    !IsPhysicallyMovable ||
+                    Nacelle == null)
+                {
+                    SetTargetVelocity(0);
+                    return 0;
+                }
+
+                CancelPark();
+
+                Vector3D currentForce =
+                    Nacelle.PrimaryForceDirectionWorld;
+
+                double rawCommandAngle =
+                    VectorMath.RotorCommandAngle(
+                        desiredForceWorld,
+                        currentForce,
+                        AxisWorld);
+
+                double reachableCommandAngle =
+                    ClampCommandDeltaToLimits(rawCommandAngle);
+
+                SetTargetVelocity(
+                    reachableCommandAngle * JointResponseGain);
+
+                Vector3D predictedForce =
+                    VectorMath.RotateAroundAxis(
+                        currentForce,
+                        AxisWorld,
+                        -reachableCommandAngle);
+
+                return VectorMath.CosBetween(
+                    predictedForce,
+                    desiredForceWorld);
+            }
+
+            public bool TryGetReachableCommandAngle(
+                Vector3D desiredForceWorld,
+                out double commandAngle,
+                out double predictedAlignment)
+            {
+                commandAngle = 0;
+                predictedAlignment = 0;
+
+                if (!Controlled ||
+                    !IsPhysicallyMovable ||
+                    Nacelle == null)
+                {
+                    return false;
+                }
+
+                Vector3D currentForce =
+                    Nacelle.PrimaryForceDirectionWorld;
+
+                if (currentForce.LengthSquared() <= VectorEpsilon ||
+                    desiredForceWorld.LengthSquared() <= VectorEpsilon)
+                {
+                    return false;
+                }
+
+                double rawCommandAngle =
+                    VectorMath.RotorCommandAngle(
+                        desiredForceWorld,
+                        currentForce,
+                        AxisWorld);
+
+                commandAngle =
+                    ClampCommandDeltaToLimits(rawCommandAngle);
+
+                Vector3D predictedForce =
+                    VectorMath.RotateAroundAxis(
+                        currentForce,
+                        AxisWorld,
+                        -commandAngle);
+
+                predictedAlignment = VectorMath.CosBetween(
+                    predictedForce,
+                    desiredForceWorld);
+
+                return true;
+            }
+
+            public void BeginPark(
+                Vector3D naturalGravity,
+                Vector3D localRootCenter)
+            {
+                parkTargetInitialized = false;
+                parkSettled = false;
+
+                if (!Controlled ||
+                    !IsPhysicallyMovable ||
+                    Nacelle == null)
+                {
+                    SetTargetVelocity(0);
+                    parkSettled = true;
+                    return;
+                }
+
+                double commandAngle;
+                double predictedAlignment;
+
+                if (naturalGravity.LengthSquared() > VectorEpsilon)
+                {
+                    Vector3D gravityOpposingForce =
+                        -VectorMath.SafeNormalize(naturalGravity);
+
+                    if (TryGetReachableCommandAngle(
+                            gravityOpposingForce,
+                            out commandAngle,
+                            out predictedAlignment) &&
+                        predictedAlignment >=
+                            DirectParkAlignmentCosine)
+                    {
+                        SetParkTargetFromCommandDelta(commandAngle);
+                        return;
+                    }
+                }
+
+                Vector3D branchCenter =
+                    Nacelle.GetBranchCenterWorld();
+
+                Vector3D pivot = TheBlock.GetPosition();
+                Vector3D branchOffset = branchCenter - pivot;
+                Vector3D rootOffset = localRootCenter - pivot;
+
+                Vector3D branchPlanar =
+                    VectorMath.Rejection(branchOffset, AxisWorld);
+
+                Vector3D rootPlanar =
+                    VectorMath.Rejection(rootOffset, AxisWorld);
+
+                if (branchPlanar.LengthSquared() <= VectorEpsilon ||
+                    rootPlanar.LengthSquared() <= VectorEpsilon)
+                {
+                    SetParkTargetFromCommandDelta(0);
+                    return;
+                }
+
+                commandAngle = VectorMath.RotorCommandAngle(
+                    rootPlanar,
+                    branchPlanar,
+                    AxisWorld);
+
+                commandAngle =
+                    ClampCommandDeltaToLimits(commandAngle);
+
+                SetParkTargetFromCommandDelta(commandAngle);
+            }
+
+            public void UpdatePark()
+            {
+                if (parkSettled)
+                {
+                    return;
+                }
+
+                if (!parkTargetInitialized ||
+                    !Controlled ||
+                    !IsPhysicallyMovable)
+                {
+                    SetTargetVelocity(0);
+                    parkSettled = true;
+                    return;
+                }
+
+                double error = parkTargetAngle - TheBlock.Angle;
+
+                if (!HasAnyFiniteLimit())
+                {
+                    error = VectorMath.NormalizeAngle(error);
+                }
+
+                if (Math.Abs(error) <= AngleEpsilon)
+                {
+                    SetTargetVelocity(0);
+                    parkSettled = true;
+                    return;
+                }
+
+                SetTargetVelocity(error * JointResponseGain);
+            }
+
+            public void CancelPark()
+            {
+                parkTargetInitialized = false;
+                parkSettled = false;
+            }
+
+            public void Release()
+            {
+                SetTargetVelocity(0);
+                Controlled = false;
+            }
+
+            void SetParkTargetFromCommandDelta(
+                double commandAngle)
+            {
+                parkTargetAngle =
+                    TheBlock.Angle + commandAngle;
+
+                if (HasFiniteLowerLimit(TheBlock.LowerLimitRad))
+                {
+                    parkTargetAngle = Math.Max(
+                        parkTargetAngle,
+                        TheBlock.LowerLimitRad);
+                }
+
+                if (HasFiniteUpperLimit(TheBlock.UpperLimitRad))
+                {
+                    parkTargetAngle = Math.Min(
+                        parkTargetAngle,
+                        TheBlock.UpperLimitRad);
+                }
+
+                parkTargetInitialized = true;
+            }
+
+            double ClampCommandDeltaToLimits(
+                double rawCommandDelta)
+            {
+                rawCommandDelta =
+                    VectorMath.NormalizeAngle(rawCommandDelta);
+
+                bool finiteLower =
+                    HasFiniteLowerLimit(TheBlock.LowerLimitRad);
+
+                bool finiteUpper =
+                    HasFiniteUpperLimit(TheBlock.UpperLimitRad);
+
+                if (!finiteLower && !finiteUpper)
+                {
+                    return rawCommandDelta;
+                }
+
+                double currentAngle = TheBlock.Angle;
+                double bestDelta = double.NaN;
+                double bestMagnitude = double.MaxValue;
+
+                // Equivalent rotations can land inside a multi-turn rotor's
+                // user-defined range. Trying nearby turns is cheaper and safer
+                // than assuming Angle and the limits use the same wrapping.
+                for (int turn = -2; turn <= 2; turn++)
+                {
+                    double candidateDelta =
+                        rawCommandDelta +
+                        turn * MathHelper.TwoPi;
+
+                    double candidateAngle =
+                        currentAngle + candidateDelta;
+
+                    if (finiteLower &&
+                        candidateAngle <
+                            TheBlock.LowerLimitRad - AngleEpsilon)
+                    {
+                        continue;
+                    }
+
+                    if (finiteUpper &&
+                        candidateAngle >
+                            TheBlock.UpperLimitRad + AngleEpsilon)
+                    {
+                        continue;
+                    }
+
+                    double magnitude = Math.Abs(candidateDelta);
+
+                    if (magnitude < bestMagnitude)
+                    {
+                        bestMagnitude = magnitude;
+                        bestDelta = candidateDelta;
+                    }
+                }
+
+                if (!double.IsNaN(bestDelta))
+                {
+                    return bestDelta;
+                }
+
+                double requestedAngle =
+                    currentAngle + rawCommandDelta;
+
+                if (finiteLower)
+                {
+                    requestedAngle = Math.Max(
+                        requestedAngle,
+                        TheBlock.LowerLimitRad);
+                }
+
+                if (finiteUpper)
+                {
+                    requestedAngle = Math.Min(
+                        requestedAngle,
+                        TheBlock.UpperLimitRad);
+                }
+
+                return requestedAngle - currentAngle;
+            }
+
+            void SetTargetVelocity(double velocityRad)
+            {
+                if (TheBlock == null || TheBlock.Closed)
+                {
+                    return;
+                }
+
+                velocityRad = MathHelper.Clamp(
+                    velocityRad,
+                    -MaximumJointVelocityRad,
+                    MaximumJointVelocityRad);
+
+                if (Math.Abs(velocityRad) <=
+                    JointWriteDeadbandRad)
+                {
+                    velocityRad = 0;
+                }
+
+                if (!double.IsNaN(lastWrittenTargetVelocity) &&
+                    Math.Abs(
+                        lastWrittenTargetVelocity -
+                        velocityRad) <
+                            JointWriteDeadbandRad &&
+                    Math.Abs(
+                        TheBlock.TargetVelocityRad -
+                        velocityRad) <
+                            JointWriteDeadbandRad)
+                {
+                    return;
+                }
+
+                TheBlock.TargetVelocityRad =
+                    (float)velocityRad;
+
+                lastWrittenTargetVelocity = velocityRad;
+            }
+
+            bool HasAnyFiniteLimit()
+            {
+                return HasFiniteLowerLimit(
+                           TheBlock.LowerLimitRad) ||
+                       HasFiniteUpperLimit(
+                           TheBlock.UpperLimitRad);
+            }
+
+            static bool HasFiniteLowerLimit(double value)
+            {
+                return !double.IsNaN(value) &&
+                       !double.IsInfinity(value) &&
+                       value > -1e20;
+            }
+
+            static bool HasFiniteUpperLimit(double value)
+            {
+                return !double.IsNaN(value) &&
+                       !double.IsInfinity(value) &&
+                       value < 1e20;
+            }
+        }
+
+        // ===== Vector nacelles =====
+
+        sealed class VectorThrust
+        {
+            sealed class DirectionBucket
+            {
+                public Vector3D LocalExhaustDirection;
+                public double EffectiveThrust;
+            }
+
+            readonly Program program;
+            readonly List<DirectionBucket> directionBuckets =
+                new List<DirectionBucket>();
+
+            public readonly Rotor Rotor;
+
+            public readonly List<Thruster> Thrusters =
+                new List<Thruster>();
+
+            public readonly List<IMyCubeGrid> BranchGrids =
+                new List<IMyCubeGrid>();
+
+            public Vector3D PrimaryExhaustDirectionLocal =
+                Vector3D.Zero;
+
+            public double PrimaryEffectiveThrust;
+
+            public Vector3D RequiredForceWorld =
+                Vector3D.Zero;
+
+            public VectorThrust(
+                Rotor rotor,
+                Program program)
+            {
+                Rotor = rotor;
+                this.program = program;
+
+                rotor.Nacelle = this;
+            }
+
+            public Vector3D AxisWorld
+            {
+                get { return Rotor.AxisWorld; }
+            }
+
+            public Vector3D PrimaryForceDirectionWorld
+            {
+                get
+                {
+                    IMyCubeGrid topGrid =
+                        Rotor.TheBlock.TopGrid;
+
+                    if (topGrid == null ||
+                        PrimaryExhaustDirectionLocal
+                            .LengthSquared() <= VectorEpsilon)
+                    {
+                        return Vector3D.Zero;
+                    }
+
+                    Vector3D exhaust =
+                        VectorMath.LocalToWorldDirection(
+                            PrimaryExhaustDirectionLocal,
+                            topGrid.WorldMatrix);
+
+                    return -VectorMath.SafeNormalize(exhaust);
+                }
+            }
+
+            public void RefreshPrimaryDirection()
+            {
+                directionBuckets.Clear();
+
+                for (int i = 0; i < Thrusters.Count; i++)
+                {
+                    Thrusters[i].IsPrimaryNacelleThruster =
+                        false;
+                }
+
+                IMyCubeGrid topGrid =
+                    Rotor.TheBlock.TopGrid;
+
+                if (topGrid == null)
+                {
+                    PrimaryExhaustDirectionLocal =
+                        Vector3D.Zero;
+
+                    PrimaryEffectiveThrust = 0;
+                    return;
+                }
+
+                MatrixD topWorldMatrix =
+                    topGrid.WorldMatrix;
+
+                for (int i = 0; i < Thrusters.Count; i++)
+                {
+                    Thruster thruster = Thrusters[i];
+
+                    if (!thruster.Controlled)
+                    {
+                        continue;
+                    }
+
+                    double effective =
+                        thruster.MaximumEffectiveThrust;
+
+                    if (effective <= ForceEpsilon)
+                    {
+                        continue;
+                    }
+
+                    Vector3D localExhaust =
+                        VectorMath.SafeNormalize(
+                            VectorMath.WorldToLocalDirection(
+                                thruster.ExhaustDirectionWorld,
+                                topWorldMatrix));
+
+                    DirectionBucket bucket = null;
+
+                    for (int j = 0;
+                        j < directionBuckets.Count;
+                        j++)
+                    {
+                        if (Vector3D.Dot(
+                                directionBuckets[j]
+                                    .LocalExhaustDirection,
+                                localExhaust) >=
+                            DirectionBucketCosine)
+                        {
+                            bucket = directionBuckets[j];
+                            break;
+                        }
+                    }
+
+                    if (bucket == null)
+                    {
+                        bucket = new DirectionBucket
+                        {
+                            LocalExhaustDirection =
+                                localExhaust
+                        };
+
+                        directionBuckets.Add(bucket);
+                    }
+
+                    bucket.EffectiveThrust += effective;
+                }
+
+                DirectionBucket strongest = null;
+
+                for (int i = 0;
+                    i < directionBuckets.Count;
+                    i++)
+                {
+                    if (strongest == null ||
+                        directionBuckets[i]
+                            .EffectiveThrust >
+                        strongest.EffectiveThrust)
+                    {
+                        strongest = directionBuckets[i];
+                    }
+                }
+
+                if (strongest == null)
+                {
+                    PrimaryExhaustDirectionLocal =
+                        Vector3D.Zero;
+
+                    PrimaryEffectiveThrust = 0;
+                    return;
+                }
+
+                PrimaryExhaustDirectionLocal =
+                    strongest.LocalExhaustDirection;
+
+                PrimaryEffectiveThrust =
+                    strongest.EffectiveThrust;
+
+                for (int i = 0; i < Thrusters.Count; i++)
+                {
+                    Thruster thruster = Thrusters[i];
+
+                    Vector3D localExhaust =
+                        VectorMath.SafeNormalize(
+                            VectorMath.WorldToLocalDirection(
+                                thruster.ExhaustDirectionWorld,
+                                topWorldMatrix));
+
+                    thruster.IsPrimaryNacelleThruster =
+                        Vector3D.Dot(
+                            localExhaust,
+                            PrimaryExhaustDirectionLocal) >=
+                        DirectionBucketCosine;
+                }
+            }
+
+            public double Aim(Vector3D desiredForceWorld)
+            {
+                RequiredForceWorld = desiredForceWorld;
+
+                if (desiredForceWorld.LengthSquared() <=
+                    VectorEpsilon)
+                {
+                    Rotor.Point(Vector3D.Zero);
+                    return 0;
+                }
+
+                return Rotor.Point(desiredForceWorld);
+            }
+
+            public double AllocatePrimary(
+                ref Vector3D residual,
+                Vector3D centerOfMassWorld,
+                ref Vector3D inducedTorque)
+            {
+                double allocated = 0;
+
+                for (int i = 0; i < Thrusters.Count; i++)
+                {
+                    Thruster thruster = Thrusters[i];
+
+                    if (!thruster
+                            .IsPrimaryNacelleThruster)
+                    {
+                        continue;
+                    }
+
+                    double contribution =
+                        thruster.AddOptimalContribution(
+                            ref residual);
+
+                    if (contribution <= ForceEpsilon)
+                    {
+                        continue;
+                    }
+
+                    Vector3D force =
+                        thruster.ForceDirectionWorld *
+                        contribution;
+
+                    Vector3D lever =
+                        thruster.TheBlock.GetPosition() -
+                        centerOfMassWorld;
+
+                    inducedTorque +=
+                        Vector3D.Cross(lever, force);
+
+                    allocated += contribution;
+                }
+
+                return allocated;
+            }
+
+            public double AllocateSecondary(
+                ref Vector3D residual,
+                Vector3D centerOfMassWorld,
+                ref Vector3D inducedTorque)
+            {
+                double allocated = 0;
+
+                for (int i = 0; i < Thrusters.Count; i++)
+                {
+                    Thruster thruster = Thrusters[i];
+
+                    if (thruster
+                        .IsPrimaryNacelleThruster)
+                    {
+                        continue;
+                    }
+
+                    // These thrusters move with the nacelle but do not choose
+                    // its angle. At the current angle they are ordinary static
+                    // thrust sources and are solved by scalar projection.
+                    double contribution =
+                        thruster.AddOptimalContribution(
+                            ref residual);
+
+                    if (contribution <= ForceEpsilon)
+                    {
+                        continue;
+                    }
+
+                    Vector3D force =
+                        thruster.ForceDirectionWorld *
+                        contribution;
+
+                    Vector3D lever =
+                        thruster.TheBlock.GetPosition() -
+                        centerOfMassWorld;
+
+                    inducedTorque +=
+                        Vector3D.Cross(lever, force);
+
+                    allocated += contribution;
+                }
+
+                return allocated;
+            }
+
+            public Vector3D GetBranchCenterWorld()
+            {
+                if (BranchGrids.Count == 0)
+                {
+                    return Rotor.TheBlock.TopGrid != null
+                        ? Rotor.TheBlock.TopGrid
+                            .WorldAABB.Center
+                        : Rotor.TheBlock.GetPosition();
+                }
+
+                Vector3D center = Vector3D.Zero;
+                int validGrids = 0;
+
+                for (int i = 0;
+                    i < BranchGrids.Count;
+                    i++)
+                {
+                    IMyCubeGrid grid = BranchGrids[i];
+
+                    if (grid == null || grid.Closed)
+                    {
+                        continue;
+                    }
+
+                    center += grid.WorldAABB.Center;
+                    validGrids++;
+                }
+
+                return validGrids > 0
+                    ? center / validGrids
+                    : Rotor.TheBlock.GetPosition();
+            }
+        }
+
+        sealed class VectorThrustGroup
+        {
+            public readonly List<VectorThrust> Nacelles =
+                new List<VectorThrust>();
+
+            public Vector3D AxisWorld
+            {
+                get
+                {
+                    return Nacelles.Count > 0
+                        ? VectorMath.SafeNormalize(
+                            Nacelles[0].AxisWorld)
+                        : Vector3D.Zero;
+                }
+            }
+
+            public double EffectiveCapacity
+            {
+                get
+                {
+                    double capacity = 0;
+
+                    for (int i = 0;
+                        i < Nacelles.Count;
+                        i++)
+                    {
+                        capacity +=
+                            Nacelles[i]
+                                .PrimaryEffectiveThrust;
+                    }
+
+                    return capacity;
+                }
+            }
+
+            public Vector3D ReachableComponent(
+                Vector3D force)
+            {
+                return VectorMath.Rejection(
+                    force,
+                    AxisWorld);
+            }
+
+            public double Score(Vector3D residual)
+            {
+                Vector3D reachable =
+                    ReachableComponent(residual);
+
+                if (reachable.LengthSquared() <=
+                    VectorEpsilon)
+                {
+                    return 0;
+                }
+
+                return Math.Min(
+                    reachable.Length(),
+                    EffectiveCapacity);
+            }
+        }
+
+        // ===== Gyroscopes =====
+
+        sealed class Gyro
+        {
+            readonly Program program;
+
+            bool lastOverride;
+            float lastPitch = float.NaN;
+            float lastYaw = float.NaN;
+            float lastRoll = float.NaN;
+
+            public readonly IMyGyro TheBlock;
+            public readonly BlockTags Tags;
+
+            public readonly double NominalCapacity;
+
+            public bool Controlled;
+
+            public double EffectiveCapacity
+            {
+                get
+                {
+                    if (!Controlled ||
+                        TheBlock == null ||
+                        TheBlock.Closed ||
+                        !TheBlock.IsFunctional ||
+                        !TheBlock.Enabled)
+                    {
+                        return 0;
+                    }
+
+                    return NominalCapacity *
+                           MathHelper.Clamp(
+                               TheBlock.GyroPower,
+                               0,
+                               1);
+                }
+            }
+
+            public Gyro(
+                IMyGyro block,
+                Program program,
+                BlockTags tags,
+                bool controlled)
+            {
+                TheBlock = block;
+                this.program = program;
+                Tags = tags;
+                Controlled = controlled;
+
+                bool smallGrid =
+                    block.CubeGrid.GridSizeEnum ==
+                    VRage.Game.MyCubeSize.Small;
+
+                bool prototech =
+                    block.BlockDefinition.SubtypeId
+                        .IndexOf(
+                            "Prototech",
+                            StringComparison.OrdinalIgnoreCase) >= 0;
+
+                if (prototech)
+                {
+                    NominalCapacity = smallGrid
+                        ? SmallGridPrototechGyroCapacity
+                        : LargeGridPrototechGyroCapacity;
+                }
+                else
+                {
+                    NominalCapacity = smallGrid
+                        ? SmallGridGyroCapacity
+                        : LargeGridGyroCapacity;
+                }
+            }
+
+            public void ApplyWorldCommand(
+                Vector3D worldAngularCommand)
+            {
+                if (!Controlled ||
+                    TheBlock == null ||
+                    TheBlock.Closed ||
+                    EffectiveCapacity <= VectorEpsilon)
+                {
+                    ReleaseOverride();
+                    return;
+                }
+
+                worldAngularCommand =
+                    VectorMath.ClampMagnitude(
+                        worldAngularCommand,
+                        GyroCommandAtFullTorque);
+
+                Vector3D localCommand =
+                    VectorMath.WorldToLocalDirection(
+                        worldAngularCommand,
+                        TheBlock.WorldMatrix);
+
+                // World-to-local gyro transformation follows the standard
+                // Whiplash141 subgrid gyro-control method used throughout the
+                // Space Engineers scripting community.
+                float pitch = (float)localCommand.X;
+                float yaw = (float)localCommand.Y;
+                float roll = (float)localCommand.Z;
+
+                bool shouldOverride =
+                    localCommand.LengthSquared() >
+                    GyroWriteDeadband *
+                    GyroWriteDeadband;
+
+                if (!shouldOverride)
+                {
+                    ReleaseOverride();
+                    return;
+                }
+
+                if (!lastOverride ||
+                    Math.Abs(pitch - lastPitch) >
+                        GyroWriteDeadband)
+                {
+                    TheBlock.Pitch = pitch;
+                    lastPitch = pitch;
+                }
+
+                if (!lastOverride ||
+                    Math.Abs(yaw - lastYaw) >
+                        GyroWriteDeadband)
+                {
+                    TheBlock.Yaw = yaw;
+                    lastYaw = yaw;
+                }
+
+                if (!lastOverride ||
+                    Math.Abs(roll - lastRoll) >
+                        GyroWriteDeadband)
+                {
+                    TheBlock.Roll = roll;
+                    lastRoll = roll;
+                }
+
+                if (!lastOverride ||
+                    !TheBlock.GyroOverride)
+                {
+                    TheBlock.GyroOverride = true;
+                }
+
+                lastOverride = true;
+            }
+
+            public void ReleaseOverride()
+            {
+                if (TheBlock == null || TheBlock.Closed)
+                {
+                    return;
+                }
+
+                if (TheBlock.GyroOverride)
+                {
+                    TheBlock.GyroOverride = false;
+                }
+
+                if (Math.Abs(TheBlock.Pitch) >
+                    GyroWriteDeadband)
+                {
+                    TheBlock.Pitch = 0;
+                }
+
+                if (Math.Abs(TheBlock.Yaw) >
+                    GyroWriteDeadband)
+                {
+                    TheBlock.Yaw = 0;
+                }
+
+                if (Math.Abs(TheBlock.Roll) >
+                    GyroWriteDeadband)
+                {
+                    TheBlock.Roll = 0;
+                }
+
+                lastOverride = false;
+                lastPitch = 0;
+                lastYaw = 0;
+                lastRoll = 0;
+            }
+
+            public void Release()
+            {
+                ReleaseOverride();
+                Controlled = false;
+            }
+        }
+
+        // ===== Status surfaces =====
+
+        sealed class StatusSurface
+        {
+            public readonly IMyTerminalBlock Owner;
+            public readonly IMyTextSurface Surface;
+            public readonly int SurfaceIndex;
+
+            bool initialized;
+
+            public string Key
+            {
+                get
+                {
+                    return Owner.EntityId +
+                           ":" +
+                           SurfaceIndex;
+                }
+            }
+
+            public StatusSurface(
+                IMyTerminalBlock owner,
+                IMyTextSurface surface,
+                int surfaceIndex)
+            {
+                Owner = owner;
+                Surface = surface;
+                SurfaceIndex = surfaceIndex;
+            }
+
+            public void Write(string text)
+            {
+                if (Owner == null ||
+                    Owner.Closed ||
+                    Surface == null)
+                {
+                    return;
+                }
+
+                if (!initialized)
+                {
+                    Surface.ContentType =
+                        VRage.Game.GUI.TextPanel
+                            .ContentType.TEXT_AND_IMAGE;
+
+                    Surface.Font = "Monospace";
+                    Surface.FontSize = 0.8f;
+                    Surface.Alignment =
+                        VRage.Game.GUI.TextPanel
+                            .TextAlignment.LEFT;
+
+                    initialized = true;
+                }
+
+                Surface.WriteText(text, false);
+            }
         }
     }
 }

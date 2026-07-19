@@ -1,890 +1,2108 @@
-﻿using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
+// <mdk sortorder="50" />   // Functions.cs
+using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using VRage.Game.GUI.TextPanel;
+using VRage.Game.ModAPI.Ingame;
 using VRageMath;
 
 namespace IngameScript
 {
     partial class Program
     {
-        void LClone<T>(ref List<T> list, List<T> listc) {
-            list = new List<T>(listc);
+        readonly List<VectorThrustGroup> groupAllocationWork =
+            new List<VectorThrustGroup>();
+
+        readonly HashSet<VectorThrust> aimedNacelles =
+            new HashSet<VectorThrust>();
+
+        IMyShipController heartbeatController;
+
+        // ===== Scheduled work =====
+
+        void RunUpdate100()
+        {
+            LoadConfiguration(false);
+            RequestRescan();
         }
 
-        void ParkVector(ref Vector3D requiredVec, float shipmass)
+        void RunUpdate10()
         {
-            if (thrustOn) return;
-            ShipController c = mainController ?? controlledControllers[0];
-            List<double> tdm = thrdirmultiplier;
-            Vector3D zero_G_accel;
-            Vector3D v1 = thrdiroverride ? Vector3D.Zero : requiredVec;
-            Vector3D v2 = thrdiroverride ? Vector3D.Zero : requiredVec - shipVelocity;
-            zero_G_accel = (c.TheBlock.WorldMatrix.Forward * tdm[0] + c.TheBlock.WorldMatrix.Up * tdm[1] + c.TheBlock.WorldMatrix.Right * tdm[2]) * zeroGAcceleration/* / 1.414f*/;
-            requiredVec = dampeners ? zero_G_accel * shipmass + v1 : v2 + zero_G_accel;
-            setTOV = true;
-        }
+            SelectReferenceController();
+            DetectTopologyChanges();
+            RefreshEffectiveCapacity();
 
-        void ThrustOnHandler()
-        {
-            force = gravCutoff * myshipmass.PhysicalMass;
-            double cutoffcruise = lowThrustCutCruiseOff * force;
-            double cutoncruise = lowThrustCutCruiseOn * force;
+            potentialMaster =
+                settings.CanMaster &&
+                referenceController != null &&
+                referenceController.IsUnderControl;
 
-            if (mvin != 0 || (dampchanged && dampeners) || (!cruise && sv > lowThrustCutOn) || (cruise && len > cutoncruise) || (trulyparked && wgv != 0 && sv != 0))
+            UpdateAutomaticParkRequest();
+
+            if (settings.CanSlave &&
+                !potentialMaster &&
+                !manualParkRequested)
             {
-                thrustOn = true;
-                trulyparked = false;
+                TryReadAnySlaveHeartbeat();
             }
 
-            if (mvin == 0)
+            if (slaveHeartbeatChangedThisWindow)
             {
-                bool trigger = wgv != 0 && sv == 0 && !parked;
-
-                if ((wgv == 0 && ((!cruise && sv < lowThrustCutOff) || ((cruise || !dampeners) && len < cutoffcruise))) || !(!parked || !alreadyparked) || trigger)
-                {
-                    thrustOn = false;
-                    if (trigger) trulyparked = true;
-                }
+                slaveHeartbeatAgeUpdate10 = 0;
             }
-        }
-
-        void GetAcceleration()
-        {
-            //TODO MAKE MULTIPLIER BY NUMBER OF THRUSTERS
-
-            double gravtdefac = gravLength * defaultAccel;
-            double efectiveaccel = totaleffectivethrust/ myshipmass.BaseMass; //1.4675
-
-            //getting max & gear accel
-            gearaccel = efectiveaccel * Accelerations[gear] / 100;
-            displaygearaccel = rawgearaccel * Accelerations[gear] / 100;
-            maxaccel = efectiveaccel * Accelerations[Accelerations.Count - 1] / 100;
-
-            double gravaccel = accelBase * gravtdefac;
-            bool cond = mvin == 0 && !cruise && dampeners && sv > velprecisionmode && gearaccel > gravaccel;
-            accel = mvin != 0 || cond ? gearaccel : gravaccel;
-
-            accel_aux = !thrustOn || almostbraked ? (float)displaygearaccel.Round(2) : (float)((shipVelocity - lastvelocity) * updatespersecond).Length();
-        }
-
-        void Printer(bool force)
-        {
-            if (!tracker.CanPrint && !force) return;
-
-            Echo(echosb.ToString());
-            echosb.Clear();
-
-            WH.Process(force);
-            screensb.Clear();
-
-            string cstr = mainController != null ? mainController.TheBlock.CustomName : "DEAD";
-
-            if (ShowMetrics)
+            else if (lastSlaveHeartbeatSequence !=
+                     long.MinValue)
             {
-                string rt = $" {tracker.LastRuntime.Round(3)}   {tracker.AverageRuntime.Round(3)}";
-                echosb.AppendLine(rt);
-                screensb.AppendLine(rt);
+                slaveHeartbeatAgeUpdate10++;
             }
-            echosb.AppendLine("VT OS\n22117\n");
 
-            if (greedy) echosb.AppendLine("WARNING, TAGS ARE NOT APPLIED\nAPPLY THEM WITH \"applytags\"\n");
-            if (tgotTOV <= TOVval) echosb.AppendLine($" > Thrusters Total Precision: {totalVTThrprecision.Round(1)}%");
-            echosb.AppendLine($" > Main/Ref Controller:\n  {cstr}");
-            echosb.AppendLine($" > Runtime (MS):\n  {Runtime.LastRunTimeMs.Round(3)} / Avg: {tracker.AverageRuntime.Round(3)} / Max: {tracker.MaxRuntime.Round(3)}");
-            if (SkipFrames > 0) echosb.AppendLine($" > Skipping {SkipFrames} Frames");
-            echosb.Append(surfaceProviderErrorStr);
+            slaveHeartbeatFresh =
+                lastSlaveHeartbeatSequence !=
+                    long.MinValue &&
+                slaveHeartbeatAgeUpdate10 < 2;
 
-            if (isstation) echosb.AppendLine("CAN'T FLY A STATION, RUNNING WITH LESS RUNTIME.");
+            slaveHeartbeatChangedThisWindow = false;
 
-            if (ShowMetrics)
+            EvaluateOperatingMode();
+
+            if (mode == OperatingMode.Parked)
             {
-                StringBuilder metrics = new StringBuilder($"\n > Metrics:\n  Total VectorThrusters: {vectorthrusters.Count}\n");
-                metrics.AppendLine($"  Main/Ref Cont: {cstr}");
-                metrics.AppendLine($"  Parked: {parkedcompletely}/{unparkedcompletely}");
-                metrics.AppendLine($"  ThrustOn: {thrustOn}");
-
-                echosb.Append(metrics);
-                screensb.Append(metrics);
-
-                echosb.Append($"\n > Log [{tracker.FrameCount}/{tracker.MaxCapacity}]:\n").Append(log);
+                UpdateParkedRotors();
             }
+
+            WriteStatus(false);
         }
 
-        
-        bool SkipFrameHandler(string argument)
+        void RunFlightControl(double timeStep)
         {
-            bool tagArg =
-            argument.Contains(applyTagsArg) ||
-            argument.Contains(cruiseArg) ||
-            argument.Contains(removeTagsArg);
+            SelectReferenceController();
 
-            bool handlers = false;
-            if (!isstation)
+            if (mode == OperatingMode.Parked ||
+                mode == OperatingMode.Initializing ||
+                referenceController == null)
             {
-
-                MainChecker.Run();//RUNS VARIOUS PROCESSES SEPARATED BY A TIMER
-                handlers = PerformanceHandler();
-                handlers = ParkHandler() || handlers;
-                if (!cruise) handlers = VTThrHandler() || handlers;
-                
-                if (tagArg) MainTag(argument);
-            }
-            if (error)
-            {
-                ShutDown();
-                return true;
-            }
-            else if (isstation) {
-                rotorsstopped = rotorsstopped || vtrotors.All(x => x.TargetVelocityRPM == 0) && vtthrusters.All(x => !x.Enabled && x.ThrustOverridePercentage == 0);
-                ShutOffVTS();
-                return true;
-            }
-            return handlers;
-        }
-        void ShutDown()
-        {
-            if (wgv == 0)
-            {
-                vtthrusters.ForEach(tr => tr.Brake());
-                log.AppendLine("0G Detected -> Braking Thrusters");
-            }
-            vtrotors.ForEach(rt => rt.Brake());
-            log.AppendLine("Braking Rotors");
-
-            if (WH != null) WH.BSOD();
-            Echo(log.ToString());
-            ChangeRuntime(4);
-        }
-
-        public bool CheckRotor(IMyMotorStator rt)
-        {
-            return rt != null && rt.Top != null && GridTerminalSystem.CanAccess(rt);
-        }
-
-        public void Print(string sp, bool e = true, params object[] args)
-        {
-            if (!tracker.CanPrint) return;
-            StringBuilder result = args.Length != 0 ? new StringBuilder().Append(string.Join(sp, args)) : new StringBuilder(sp);
-            screensb.Append(result + "\n");
-            if (e) echosb.Append(result + "\n");
-        }
-
-        void LND<T>(ref List<T> obj)
-        {
-            obj = obj.Distinct().ToList();
-        }
-        public bool FilterThis(IMyTerminalBlock block)
-        {
-            return block.CubeGrid == Me.CubeGrid;
-        }
-
-        void ShutOffVTS() {
-            foreach (VectorThrust n in vectorthrusters)
-            {
-                foreach (Thruster t in n.thrusters)
-                {
-                    t.TheBlock.Brake();
-                    t.TheBlock.Enabled = false;
-                }
-                n.rotor.TheBlock.Brake();
-            }
-        }
-
-        ShipController FindACockpit()
-        {
-            if (mainController.TheBlock.IsWorking) return mainController;
-
-            foreach (ShipController cont in controlledControllers)
-            {
-                if (cont.TheBlock.IsWorking)
-                {
-                    return cont;
-                }
-            }
-
-            return null;
-        }
-
-        void OneRunMainChecker(bool run = true)
-        {
-            ResetVTHandlers();
-            check = true;
-            if (run) MainChecker.Run();
-        }
-
-        void MainTag(string argument)
-        {
-            //tags and getting blocks
-            TagAll = argument.Contains(applyTagsAllArg);
-            this.applyTags = argument.Contains(applyTagsArg) || TagAll;
-            this.greedy = (!this.applyTags && this.greedy);
-            if (this.applyTags)
-            {
-                AddTag(Me);
-            }
-            else if (argument.Contains(removeTagsArg)) ManageTag(true, false); // New remove tags.
-
-            OneRunMainChecker();
-
-            TagAll = false;
-            this.applyTags = false;
-        }
-
-        void ManageTag(bool force = false, bool logthis = true)
-        {
-            tag = tagSurround[0] + myName + tagSurround[1];
-            bool cond1 = oldTag.Length > 0;
-            bool cond2 = !tag.Equals(oldTag) && Me.CustomName.Contains(oldTag);
-            bool cond3 = greedy && Me.CustomName.Contains(oldTag);
-
-            if (cond1 && (cond2 || cond3 || force))
-            {
-                if (logthis) log.AppendNR(" -Cleaning Tags To Prevent Future Errors, just in case\n");
-                else log.AppendNR(" -Removing Tags\n");
-                List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>();
-                GridTerminalSystem.GetBlocksOfType<IMyTerminalBlock>(blocks);
-                foreach (IMyTerminalBlock block in blocks) RemoveTag(block);
-            }
-            this.greedy = !HasTag(Me);
-            oldTag = tag;
-        }
-
-
-        bool HasTag(IMyTerminalBlock block)
-        {
-            return block.CustomName.Contains(tag);
-        }
-
-        void AddTag(IMyTerminalBlock block)
-        {
-            string name = block.CustomName;
-            if (!name.Contains(tag)) {
-                log.AppendNR("Adding tag:" + block.CustomName + "\n");
-                block.CustomName = tag + " " + name;
-            }
-        }
-
-        void RemoveTag(IMyTerminalBlock block)
-        {
-            string ocn = block.CustomName;
-            block.CustomName = tag == oldTag ? block.CustomName.Replace(tag, "").Trim() : block.CustomName.Replace(oldTag, "").Trim();
-            if (!ocn.Equals(block.CustomName) && !error) log.AppendNR($" > Removing Tag: {block.CustomName} \n");
-        }
-
-        void Init()
-        {
-            log.AppendLine("Init() Start");
-            Echo("Init() Start");
-            Config();
-            Echo("Config() End");
-            ManageTag();
-            Echo("ManageTag() End");
-            InitControllers();
-            Echo("InitControllers() End");
-
-            check = true;
-            if (mainController != null)
-            {
-                myshipmass = mainController.TheBlock.CalculateShipMass();
-                oldMass = myshipmass.BaseMass;
-            }
-            Echo("Checking Mass End");
-            OneRunMainChecker();
-            Echo("OneRunMainChecker() End");
-            log.AppendLine("Init " + (error ? "Failed" : "Completed Sucessfully"));
-        }
-
-        void InitControllers() //New GetControllers(), only for using in init() purpose 
-        {
-            bool greedy = this.greedy || this.applyTags;
-
-            List<IMyShipController> blocks = new List<IMyShipController>();
-            GridTerminalSystem.GetBlocksOfType<IMyShipController>(blocks);
-
-            List<ShipController> conts = new List<ShipController>();
-            foreach (IMyShipController imy in blocks)
-            {
-                controllerblocks.Add(imy);
-                conts.Add(new ShipController(imy, this));
-            }
-
-            controllers = conts;
-
-            StringBuilder reason = new StringBuilder();
-            foreach (ShipController s in controllers)
-            {
-                bool canAdd = true;
-                StringBuilder currreason = new StringBuilder(s.TheBlock.CustomName + "\n");
-                if (!s.TheBlock.CanControlShip)
-                {
-                    currreason.AppendLine("  CanControlShip not set\n");
-                    canAdd = false;
-                }
-                if (!s.TheBlock.ControlThrusters)
-                {
-                    currreason.AppendLine("  Can't ControlThrusters\n");
-                    canAdd = false;
-                }
-                /*if (s.theBlock.IsMainCockpit)
-				{ // I thiink this could make problems in the future
-					mainController = s;
-				}*/
-                if (!(greedy || HasTag(s.TheBlock)))
-                {
-                    currreason.AppendLine("  Doesn't match my tag\n");
-                    canAdd = false;
-                }
-
-                if (canAdd)
-                {
-                    AddSurfaceProvider(s.TheBlock);
-                    s.Dampener = s.TheBlock.DampenersOverride;
-                    controlledControllers.Add(s);
-                    ccontrollerblocks.Add(s.TheBlock);
-
-                    if (this.applyTags)
-                    {
-                        AddTag(s.TheBlock);
-                    }
-                }
-                else
-                {
-                    reason.Append(currreason);
-                }
-            }
-            if (blocks.Count == 0)
-            {
-                reason.AppendLine("No Controller Found.\nEither for missing tag, not working or removed.");
-            }
-
-            if (controlledControllers.Count == 0)
-            {
-                log.AppendNR("ERROR: no usable ship controller found. Reason: \n");
-                log.AppendNR(reason.ToString());
-                ManageTag(true);
-                error = true;
+                ClearControlledThrust();
+                ReleaseGyros();
                 return;
             }
 
-            else if (controlledControllers.Count > 0)
+            RestoreThrustersAfterPark();
+            RefreshAvailableControlledThrust();
+
+            Vector3D centerOfMass =
+                referenceController.CenterOfMass;
+
+            Vector3D request;
+
+            if (mode == OperatingMode.Slave)
             {
-                foreach (ShipController s in controlledControllers)
+                request =
+                    activeSlaveCommand
+                        .NormalizedForceDemand *
+                    availableControlledThrust;
+
+                // Player-controlled or foreign thrusters remain visible to
+                // the local solver, so a slave does not blindly duplicate
+                // force already being produced on its component.
+                request -= GetObservedForceWorld();
+            }
+            else
+            {
+                request = CalculateLocalForceRequest(
+                    timeStep);
+
+                if (availableControlledThrust >
+                    ForceEpsilon)
                 {
-                    if (s.TheBlock.IsUnderControl)
+                    normalizedMasterDemand =
+                        VectorMath.ClampMagnitude(
+                            request /
+                            availableControlledThrust,
+                            1.0);
+                }
+                else
+                {
+                    normalizedMasterDemand =
+                        Vector3D.Zero;
+                }
+            }
+
+            requestedForceWorld = request;
+
+            AllocateControlledThrust(
+                request,
+                centerOfMass);
+
+            bool levelWithGravity =
+                mode == OperatingMode.Slave
+                    ? activeSlaveCommand
+                        .LevelWithGravity
+                    : cruise &&
+                      settings
+                          .CruiseLevelsWithGravity;
+
+            ApplyGyroControl(
+                inducedTorqueWorld,
+                levelWithGravity);
+        }
+
+        void RefreshEffectiveCapacity()
+        {
+            for (int i = 0;
+                i < vectorThrusters.Count;
+                i++)
+            {
+                vectorThrusters[i]
+                    .RefreshPrimaryDirection();
+            }
+
+            RefreshAvailableControlledThrust();
+        }
+
+        void RefreshAvailableControlledThrust()
+        {
+            availableControlledThrust = 0;
+
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    controlledThrusters[i];
+
+                if (!thruster.IsUsable)
+                {
+                    continue;
+                }
+
+                availableControlledThrust +=
+                    thruster.MaximumEffectiveThrust;
+            }
+        }
+
+        // ===== Input and force calculation =====
+
+        Vector3D CalculateLocalForceRequest(
+            double timeStep)
+        {
+            MyShipMass shipMass =
+                referenceController
+                    .CalculateShipMass();
+
+            double physicalMass =
+                shipMass.PhysicalMass;
+
+            if (physicalMass <= ForceEpsilon)
+            {
+                return Vector3D.Zero;
+            }
+
+            MyShipVelocities velocities =
+                referenceController
+                    .GetShipVelocities();
+
+            Vector3D velocity =
+                velocities.LinearVelocity;
+
+            Vector3D gravity =
+                referenceController
+                    .GetNaturalGravity();
+
+            Vector3D movementInput =
+                Vector3D.TransformNormal(
+                    referenceController
+                        .MoveIndicator,
+                    referenceController
+                        .WorldMatrix);
+
+            bool hasMovementInput =
+                movementInput.LengthSquared() >
+                VectorEpsilon;
+
+            Vector3D movementDirection =
+                VectorMath.SafeNormalize(
+                    movementInput);
+
+            double maximumAcceleration =
+                availableControlledThrust /
+                physicalMass;
+
+            double gearFraction =
+                settings.GearFractions[
+                    MathHelper.Clamp(
+                        selectedGear,
+                        0,
+                        settings
+                            .GearFractions.Count - 1)];
+
+            Vector3D desiredAcceleration =
+                movementDirection *
+                maximumAcceleration *
+                gearFraction;
+
+            scriptDampeners =
+                referenceController
+                    .DampenersOverride;
+
+            if (scriptDampeners)
+            {
+                Vector3D velocityToDamp =
+                    velocity;
+
+                if (hasMovementInput)
+                {
+                    double desiredDirectionSpeed =
+                        Vector3D.Dot(
+                            velocity,
+                            movementDirection);
+
+                    if (desiredDirectionSpeed > 0)
                     {
-                        mainController = s;
+                        velocityToDamp -=
+                            movementDirection *
+                            desiredDirectionSpeed;
+                    }
+                }
+
+                if (cruise)
+                {
+                    Vector3D forward =
+                        referenceController
+                            .WorldMatrix.Forward;
+
+                    double forwardSpeed =
+                        Vector3D.Dot(
+                            velocityToDamp,
+                            forward);
+
+                    if (forwardSpeed > 0)
+                    {
+                        velocityToDamp -=
+                            forward *
+                            forwardSpeed;
+                    }
+                }
+
+                Vector3D dampingAcceleration =
+                    -velocityToDamp /
+                    Math.Max(
+                        timeStep,
+                        MinimumTimeStep);
+
+                dampingAcceleration =
+                    VectorMath.ClampMagnitude(
+                        dampingAcceleration,
+                        maximumAcceleration);
+
+                desiredAcceleration +=
+                    dampingAcceleration;
+            }
+
+            desiredAcceleration =
+                VectorMath.ClampMagnitude(
+                    desiredAcceleration,
+                    maximumAcceleration);
+
+            // F_thrust + m*g = m*a
+            // therefore F_thrust = m*(a - g).
+            Vector3D requiredAppliedForce =
+                physicalMass *
+                (desiredAcceleration - gravity);
+
+            return requiredAppliedForce -
+                   GetObservedForceWorld();
+        }
+
+        Vector3D GetObservedForceWorld()
+        {
+            Vector3D force = Vector3D.Zero;
+
+            for (int i = 0;
+                i <
+                    observedReadOnlyThrusters.Count;
+                i++)
+            {
+                force +=
+                    observedReadOnlyThrusters[i]
+                        .CurrentForceWorld;
+            }
+
+            return force;
+        }
+
+        // ===== Force allocation =====
+
+        void AllocateControlledThrust(
+            Vector3D request,
+            Vector3D centerOfMass)
+        {
+            residualForceWorld = request;
+            inducedTorqueWorld = Vector3D.Zero;
+
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
+            {
+                controlledThrusters[i]
+                    .ResetDemand();
+            }
+
+            aimedNacelles.Clear();
+
+            // Static sources are cheap and need no mechanical movement.
+            for (int i = 0;
+                i <
+                    fixedControlledThrusters.Count;
+                i++)
+            {
+                AllocateSingleThruster(
+                    fixedControlledThrusters[i],
+                    ref residualForceWorld,
+                    centerOfMass,
+                    ref inducedTorqueWorld);
+            }
+
+            // Non-primary nacelle thrusters remain useful at their current
+            // orientation but do not dictate joint aiming.
+            for (int i = 0;
+                i < vectorThrusters.Count;
+                i++)
+            {
+                vectorThrusters[i]
+                    .AllocateSecondary(
+                        ref residualForceWorld,
+                        centerOfMass,
+                        ref inducedTorqueWorld);
+            }
+
+            groupAllocationWork.Clear();
+
+            for (int i = 0;
+                i < vectorThrustGroups.Count;
+                i++)
+            {
+                groupAllocationWork.Add(
+                    vectorThrustGroups[i]);
+            }
+
+            while (groupAllocationWork.Count > 0 &&
+                   residualForceWorld
+                       .LengthSquared() >
+                   ForceEpsilon * ForceEpsilon)
+            {
+                int bestIndex = -1;
+                double bestScore = ForceEpsilon;
+
+                for (int i = 0;
+                    i <
+                        groupAllocationWork.Count;
+                    i++)
+                {
+                    double score =
+                        groupAllocationWork[i]
+                            .Score(
+                                residualForceWorld);
+
+                    if (score <= bestScore)
+                    {
+                        continue;
+                    }
+
+                    bestScore = score;
+                    bestIndex = i;
+                }
+
+                if (bestIndex < 0)
+                {
+                    break;
+                }
+
+                VectorThrustGroup group =
+                    groupAllocationWork[
+                        bestIndex];
+
+                groupAllocationWork.RemoveAt(
+                    bestIndex);
+
+                Vector3D reachableRequest =
+                    group.ReachableComponent(
+                        residualForceWorld);
+
+                if (reachableRequest
+                        .LengthSquared() <=
+                    VectorEpsilon)
+                {
+                    continue;
+                }
+
+                for (int i = 0;
+                    i < group.Nacelles.Count;
+                    i++)
+                {
+                    VectorThrust nacelle =
+                        group.Nacelles[i];
+
+                    nacelle.Aim(reachableRequest);
+                    aimedNacelles.Add(nacelle);
+                }
+
+                // Current alignment determines immediate contribution. Any
+                // deficit naturally remains in residualForceWorld and is
+                // offered to the next compatible group rather than receiving
+                // the VTOS' fixed 15% "gift".
+                for (int i = 0;
+                    i < group.Nacelles.Count;
+                    i++)
+                {
+                    group.Nacelles[i]
+                        .AllocatePrimary(
+                            ref residualForceWorld,
+                            centerOfMass,
+                            ref inducedTorqueWorld);
+                }
+            }
+
+            for (int i = 0;
+                i < vectorThrusters.Count;
+                i++)
+            {
+                VectorThrust nacelle =
+                    vectorThrusters[i];
+
+                if (!aimedNacelles.Contains(
+                        nacelle))
+                {
+                    nacelle.Aim(
+                        Vector3D.Zero);
+                }
+            }
+
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
+            {
+                controlledThrusters[i]
+                    .ApplyDemand();
+            }
+        }
+
+        void AllocateSingleThruster(
+            Thruster thruster,
+            ref Vector3D residual,
+            Vector3D centerOfMass,
+            ref Vector3D inducedTorque)
+        {
+            double contribution =
+                thruster.AddOptimalContribution(
+                    ref residual);
+
+            if (contribution <= ForceEpsilon)
+            {
+                return;
+            }
+
+            Vector3D force =
+                thruster.ForceDirectionWorld *
+                contribution;
+
+            Vector3D lever =
+                thruster.TheBlock.GetPosition() -
+                centerOfMass;
+
+            inducedTorque +=
+                Vector3D.Cross(lever, force);
+        }
+
+        // ===== Gyro control =====
+
+        void ApplyGyroControl(
+            Vector3D inducedTorque,
+            bool levelWithGravity)
+        {
+            if (controlledGyros.Count == 0 ||
+                referenceController == null)
+            {
+                return;
+            }
+
+            double totalGyroCapacity = 0;
+
+            for (int i = 0;
+                i < controlledGyros.Count;
+                i++)
+            {
+                totalGyroCapacity +=
+                    controlledGyros[i]
+                        .EffectiveCapacity;
+            }
+
+            if (totalGyroCapacity <=
+                VectorEpsilon)
+            {
+                ReleaseGyros();
+                return;
+            }
+
+            Vector3D angularCommand =
+                -inducedTorque /
+                totalGyroCapacity *
+                GyroCommandAtFullTorque;
+
+            if (levelWithGravity)
+            {
+                Vector3D gravity =
+                    referenceController
+                        .GetNaturalGravity();
+
+                if (gravity.LengthSquared() >
+                    VectorEpsilon)
+                {
+                    Vector3D desiredUp =
+                        -VectorMath.SafeNormalize(
+                            gravity);
+
+                    Vector3D currentUp =
+                        referenceController
+                            .WorldMatrix.Up;
+
+                    Vector3D levelingAxis =
+                        Vector3D.Cross(
+                            currentUp,
+                            desiredUp);
+
+                    double alignment =
+                        MathHelper.Clamp(
+                            Vector3D.Dot(
+                                currentUp,
+                                desiredUp),
+                            -1,
+                            1);
+
+                    double levelingAngle =
+                        Math.Atan2(
+                            levelingAxis.Length(),
+                            alignment);
+
+                    if (levelingAxis
+                            .LengthSquared() >
+                        VectorEpsilon)
+                    {
+                        levelingAxis =
+                            VectorMath.SafeNormalize(
+                                levelingAxis);
+
+                        angularCommand +=
+                            levelingAxis *
+                            levelingAngle *
+                            GyroLevelGain;
+                    }
+
+                    Vector3D angularVelocity =
+                        referenceController
+                            .GetShipVelocities()
+                            .AngularVelocity;
+
+                    // Reject yaw from angular damping so gravity leveling does
+                    // not choose or hold a heading.
+                    Vector3D rollPitchVelocity =
+                        VectorMath.Rejection(
+                            angularVelocity,
+                            desiredUp);
+
+                    angularCommand -=
+                        rollPitchVelocity *
+                        GyroAngularDampingGain;
+                }
+            }
+
+            if (angularCommand.LengthSquared() <=
+                GyroWriteDeadband *
+                GyroWriteDeadband)
+            {
+                ReleaseGyros();
+                return;
+            }
+
+            for (int i = 0;
+                i < controlledGyros.Count;
+                i++)
+            {
+                controlledGyros[i]
+                    .ApplyWorldCommand(
+                        angularCommand);
+            }
+        }
+
+        void ReleaseGyros()
+        {
+            for (int i = 0;
+                i < controlledGyros.Count;
+                i++)
+            {
+                controlledGyros[i]
+                    .ReleaseOverride();
+            }
+        }
+
+        // ===== Operating state =====
+
+        void SelectReferenceController()
+        {
+            IMyShipController selected = null;
+
+            for (int i = 0;
+                i < localControllers.Count;
+                i++)
+            {
+                IMyShipController controller =
+                    localControllers[i];
+
+                if (controller == null ||
+                    controller.Closed ||
+                    !controller.IsFunctional ||
+                    !controller.CanControlShip)
+                {
+                    continue;
+                }
+
+                if (controller.IsUnderControl)
+                {
+                    selected = controller;
+                    break;
+                }
+
+                if (selected == null ||
+                    controller.IsMainCockpit)
+                {
+                    selected = controller;
+                }
+            }
+
+            referenceController = selected;
+            controllerMissing =
+                referenceController == null;
+
+            potentialMaster =
+                settings.CanMaster &&
+                referenceController != null &&
+                referenceController.IsUnderControl;
+        }
+
+        void EvaluateOperatingMode()
+        {
+            SelectReferenceController();
+
+            if (mode == OperatingMode.Slave &&
+                !slaveHeartbeatFresh)
+            {
+                slaveFallbackPark =
+                    wasParkedBeforeSlaving;
+            }
+
+            OperatingMode requestedMode;
+
+            if (controllerMissing ||
+                Me.CubeGrid.IsStatic ||
+                manualParkRequested)
+            {
+                requestedMode =
+                    OperatingMode.Parked;
+            }
+            else if (settings.CanSlave &&
+                     slaveHeartbeatFresh &&
+                     !potentialMaster)
+            {
+                requestedMode =
+                    OperatingMode.Slave;
+            }
+            else if (automaticParkRequested ||
+                     slaveFallbackPark)
+            {
+                requestedMode =
+                    OperatingMode.Parked;
+            }
+            else if (potentialMaster)
+            {
+                requestedMode =
+                    OperatingMode.Master;
+            }
+            else
+            {
+                requestedMode =
+                    OperatingMode.Active;
+            }
+
+            if (requestedMode == mode)
+            {
+                return;
+            }
+
+            ChangeOperatingMode(requestedMode);
+        }
+
+        void ChangeOperatingMode(
+            OperatingMode newMode)
+        {
+            OperatingMode previousMode = mode;
+
+            if (previousMode ==
+                    OperatingMode.Parked &&
+                newMode !=
+                    OperatingMode.Parked)
+            {
+                ExitPark();
+            }
+
+            if (previousMode ==
+                    OperatingMode.Slave &&
+                newMode !=
+                    OperatingMode.Slave &&
+                !slaveHeartbeatFresh)
+            {
+                slaveFallbackPark =
+                    wasParkedBeforeSlaving;
+            }
+
+            mode = newMode;
+
+            if (newMode ==
+                OperatingMode.Slave)
+            {
+                wasParkedBeforeSlaving =
+                    previousMode ==
+                    OperatingMode.Parked;
+
+                slaveFallbackPark = false;
+            }
+
+            if (newMode ==
+                    OperatingMode.Parked &&
+                previousMode !=
+                    OperatingMode.Parked)
+            {
+                ClearMasterHeartbeat();
+                BeginPark();
+            }
+
+            forceStatusRefresh = true;
+        }
+
+        // ===== Parking =====
+
+        void UpdateAutomaticParkRequest()
+        {
+            if (settings.ParkOnlyByCommand)
+            {
+                automaticParkRequested = false;
+                return;
+            }
+
+            bool shouldPark = false;
+
+            for (int i = 0;
+                i < parkConnectors.Count;
+                i++)
+            {
+                if (ConnectorRequiresParking(
+                        parkConnectors[i]))
+                {
+                    shouldPark = true;
+                    break;
+                }
+            }
+
+            if (!shouldPark)
+            {
+                for (int i = 0;
+                    i < parkLandingGears.Count;
+                    i++)
+                {
+                    if (LandingGearRequiresParking(
+                            parkLandingGears[i]))
+                    {
+                        shouldPark = true;
                         break;
                     }
                 }
-                if (mainController == null)
-                {
-                    mainController = controlledControllers[0];
-                }
             }
-            return;
+
+            automaticParkRequested = shouldPark;
         }
 
-        // true: only main cockpit can be used even if there is no one in the main cockpit
-        // false: any cockpits can be used, but if there is someone in the main cockpit, it will only obey the main cockpit
-        // no main cockpit: any cockpits can be used
-        bool OnlyMain()
+        bool ConnectorRequiresParking(
+            ParkConnector parkConnector)
         {
-            return onlyMainCockpit && mainController != null && mainController.TheBlock.IsUnderControl;
-        }
+            IMyShipConnector connector =
+                parkConnector.Block;
 
-        bool VTThrHandler()
-        {
-            bool nograv = wgv == 0;
-            bool unparking = !parked && alreadyparked;
-            bool partiallyparked = parked && alreadyparked;
-            bool standby = (nograv || partiallyparked) && tgotTOV > TOVval && setTOV && !thrustOn && mvin == 0 && !dampchanged;
-
-            if (!thrustOn && totalVTThrprecision.Round(1) == 100 && tgotTOV <= TOVval) tgotTOV += Runtime.TimeSinceLastRun.TotalSeconds;
-            else if (thrustOn) tgotTOV = 0;
-
-            if (standby || parkedcompletely)
-            {
-                if (tracker.CanPrint) echosb.AppendLine("\nEverything stopped, performance mode.\n");
-                rotorsstopped = rotorsstopped || vtrotors.All(x => x.TargetVelocityRPM == 0) && vtthrusters.All(x => !x.Enabled && x.ThrustOverridePercentage == 0);
-
-                if (!rotorsstopped) ShutOffVTS();
-                return true;
-            }
-            else if ((rotorsstopped && setTOV) || unparking) // IT NEEDS TO BE UNPARKING INSTEAD OF TOTALLY UNPARKED
-            {
-                setTOV = rotorsstopped = false;
-
-                foreach (VectorThrust n in vectorthrusters)
-                    n.ActiveList(Override: true);
-            }
-            return rotorsstopped;
-        }
-        bool PerformanceHandler()
-        {
-            if (SkipFrames > 0 && tracker.CanPrint)
-            {
-                echosb.AppendLine($"--SkipFrame[{ SkipFrames}]--");
-                echosb.AppendLine($" >Skipped: {SkipFrame}");
-                echosb.AppendLine($" >Remaining: {SkipFrames - SkipFrame}");
-            }
-            if (!justCompiled && SkipFrames > 0 && SkipFrames > SkipFrame)
-            {
-                SkipFrame++;
-                return true;
-            }
-            else if (SkipFrames > 0 && SkipFrame >= SkipFrames) SkipFrame = 0;
-            return false;
-        }
-
-
-        bool ParkHandler()
-        {
-            parkavailable = !connectors.Empty() || !landinggears.Empty();
-            if (!parkavailable && !forceunpark) return false;
-
-            bool changedpark = false;
-            if (unparkedcompletely)
-            {
-                parkedwithcn = connectors.Any(x => x.Status == MyShipConnectorStatus.Connected);
-                parked = (landinggears.Any(x => x.IsLocked) || parkedwithcn) && (allowpark || (trulyparked && forceparkifstatic));
-            }
-            else
-            { //Modifying
-                bool newpark = (landinggears.Any(x => x.IsLocked) || connectors.Any(x => x.Status == MyShipConnectorStatus.Connected)) && (allowpark || (trulyparked && forceparkifstatic && sv == 0)) && !dampchanged;
-                changedpark = newpark != parked;
-                parked = newpark;
-            }
-            unparkedcompletely = !parked && !alreadyparked;
-            if (unparkedcompletely) return false;
-
-            bool setvector = parked && alreadyparked && setTOV;
-            bool gotvector = totalVTThrprecision.Round(1) == 100 && tgotTOV > TOVval;
-            parkedcompletely = setvector && gotvector;
-
-            bool pendingrotation = setvector && !gotvector;
-            bool parking = parked && !alreadyparked;
-            bool unparking = !parked && alreadyparked;
-
-            if (parking || (unparking && BlockManager.Doneloop) || changedpark)
-            {
-                ResetParkingSeq();
-            }
-            if (parkedcompletely || (unparking && !BlockManager.Doneloop))
-            {
-                BlockManager.Run();
-            }
-
-            if (unparkedcompletely) forceunpark = false;
-            return parkedcompletely;
-        }
-
-        bool AddSurfaceProvider(IMyTerminalBlock block)
-        {
-            if (!(block is IMyTextSurfaceProvider)) return false;
-            IMyTextSurfaceProvider provider = (IMyTextSurfaceProvider)block;
-            bool retval = true;
-            if (block.CustomData.Length == 0)
+            if (connector == null ||
+                connector.Closed ||
+                connector.Status !=
+                    MyShipConnectorStatus.Connected)
             {
                 return false;
             }
 
-            bool[] to_add = new bool[provider.SurfaceCount];
-            for (int i = 0; i < to_add.Length; i++)
+            IMyShipConnector other =
+                connector.OtherConnector;
+
+            if (other == null)
             {
-                to_add[i] = false;
-            }
-            int begin_search = 0;
-
-            while (begin_search >= 0)
-            {
-                string data = block.CustomData;
-                int start = data.IndexOf(textSurfaceKeyword, begin_search);
-
-                if (start < 0)
-                {
-                    retval = begin_search != 0;
-                    break;
-                }
-                int end = data.IndexOf("\n", start);
-                begin_search = end;
-
-                string display;
-                if (end < 0)
-                {
-                    display = data.Substring(start + textSurfaceKeyword.Length);
-                }
-                else
-                {
-                    display = data.Substring(start + textSurfaceKeyword.Length, end - (start + textSurfaceKeyword.Length));
-                }
-
-                int display_num;
-                if (Int32.TryParse(display, out display_num))
-                {
-                    if (display_num >= 0 && display_num < provider.SurfaceCount)
-                    {
-                        // it worked, add the surface
-                        to_add[display_num] = true;
-
-                    }
-                    else
-                    {
-                        // range check failed
-                        string err_str;
-                        if (end < 0)
-                        {
-                            err_str = data.Substring(start);
-                        }
-                        else
-                        {
-                            err_str = data.Substring(start, end - (start));
-                        }
-                        surfaceProviderErrorStr.Append($"\nDisplay number out of range: {display_num}\nshould be: 0 <= num < {provider.SurfaceCount}\non line: ({err_str})\nin block: {block.CustomName}\n");
-                    }
-
-                }
-                else
-                {
-                    //didn't parse
-                    string err_str;
-                    if (end < 0)
-                    {
-                        err_str = data.Substring(start);
-                    }
-                    else
-                    {
-                        err_str = data.Substring(start, end - (start));
-                    }
-                    surfaceProviderErrorStr.Append($"\nDisplay number invalid: {display}\non line: ({err_str})\nin block: {block.CustomName}\n");
-                }
+                return false;
             }
 
-            for (int i = 0; i < to_add.Length; i++)
-            {
-                if (to_add[i] && !this.surfaces./*Contains*/Any(x => x.surface.Equals(provider.GetSurface(i))))
-                {
-                    this.surfaces.Add(new Surface(provider.GetSurface(i), this));
-                }
-                else if (!to_add[i])
-                {
-                    
-                    List<Surface> tempsurf = surfaces.FindAll(x => x.surface.Equals(provider.GetSurface(i)));
-                    foreach (Surface s in tempsurf) {
-                        RemoveSurface(s);
-                    }
-                }
-            }
-            return retval;
-        }
-        bool RemoveSurfaceProvider(IMyTerminalBlock block)
-        {
-            if (!(block is IMyTextSurfaceProvider)) return false;
-            IMyTextSurfaceProvider provider = (IMyTextSurfaceProvider)block;
+            GridNode targetNode;
 
-            for (int i = 0; i < provider.SurfaceCount; i++)
+            if (!gridNodes.TryGetValue(
+                    other.CubeGrid.EntityId,
+                    out targetNode))
             {
-                if (surfaces./*Contains*/Any(x => x.surface.Equals(provider.GetSurface(i))))
-                {
-                    List<Surface> tempsurf = surfaces.FindAll(x => x.surface.Equals(provider.GetSurface(i)));
-                    foreach (Surface s in tempsurf)
-                    {
-                        RemoveSurface(s);
-                    }
-                }
+                return other.CubeGrid.IsStatic;
             }
+
+            GridComponent target =
+                targetNode.Component;
+
+            if (target == null)
+            {
+                return other.CubeGrid.IsStatic;
+            }
+
+            if (target.HasStaticGrid)
+            {
+                return true;
+            }
+
+            if (target.Controllers.Count == 0)
+            {
+                // Dynamic, controller-less attachment: likely cargo.
+                return false;
+            }
+
+            if (potentialMaster &&
+                target.HasSlaveCapableRedux)
+            {
+                // A piloted master remains active so the remote Redux instance
+                // can wake from park and become its slave.
+                return false;
+            }
+
             return true;
         }
 
-        void RemoveSurface(Surface surface)
+        bool LandingGearRequiresParking(
+            ParkLandingGear parkLandingGear)
         {
-            if (this.surfaces.Any(x => x.surface.Equals(surface)))
+            IMyLandingGear landingGear =
+                parkLandingGear.Block;
+
+            if (landingGear == null ||
+                landingGear.Closed ||
+                !landingGear.IsFunctional)
             {
-                //need to check this, because otherwise it will reset panels
-                //we aren't controlling
-                this.surfaces.Remove(surface);
-                surface.surface.ContentType = ContentType.NONE;
-                surface.surface.WriteText("", false);
+                return false;
+            }
+
+            // The programmable-block IMyLandingGear API does not expose the
+            // attached entity. Redux therefore cannot distinguish terrain, a
+            // controlled ship, and controller-less cargo. Parking on any eligible
+            // lock is the conservative behavior; [VT-ignore] excludes cargo gear.
+            return landingGear.IsLocked;
+        }
+
+        void BeginPark()
+        {
+            ClearControlledThrust();
+            ReleaseGyros();
+
+            Vector3D gravity =
+                referenceController != null
+                    ? referenceController
+                        .GetNaturalGravity()
+                    : Vector3D.Zero;
+
+            // IMyCubeGrid does not expose a local-grid physical COM to PB
+            // scripts. WorldAABB.Center is deliberately local to this grid and
+            // avoids contaminating a slave's park target with master mass.
+            Vector3D localRootCenter =
+                Me.CubeGrid.WorldAABB.Center;
+
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    controlledThrusters[i];
+
+                long entityId =
+                    thruster.EntityId;
+
+                if (!parkThrusterEnabledState
+                        .ContainsKey(entityId))
+                {
+                    parkThrusterEnabledState.Add(
+                        entityId,
+                        thruster.TheBlock.Enabled);
+                }
+
+                thruster.ClearOverride();
+                thruster.TheBlock.Enabled = false;
+            }
+
+            for (int i = 0;
+                i < controlledRotors.Count;
+                i++)
+            {
+                controlledRotors[i]
+                    .BeginPark(
+                        gravity,
+                        localRootCenter);
+            }
+
+            TriggerTimers(parkTimers);
+        }
+
+        void ExitPark()
+        {
+            RestoreThrustersAfterPark();
+
+            for (int i = 0;
+                i < controlledRotors.Count;
+                i++)
+            {
+                controlledRotors[i]
+                    .CancelPark();
+            }
+
+            TriggerTimers(unparkTimers);
+        }
+
+        void EnsureNewCacheIsParked()
+        {
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    controlledThrusters[i];
+
+                if (!parkThrusterEnabledState
+                        .ContainsKey(
+                            thruster.EntityId))
+                {
+                    parkThrusterEnabledState.Add(
+                        thruster.EntityId,
+                        thruster.TheBlock.Enabled);
+                }
+
+                thruster.ClearOverride();
+                thruster.TheBlock.Enabled = false;
+            }
+
+            ReleaseGyros();
+
+            // A refresh while already parked must not restart preferred-angle
+            // correction after an external force has moved a settled joint.
+            for (int i = 0;
+                i < controlledRotors.Count;
+                i++)
+            {
+                if (Math.Abs(
+                        controlledRotors[i]
+                            .TheBlock
+                            .TargetVelocityRad) >
+                    JointWriteDeadbandRad)
+                {
+                    controlledRotors[i]
+                        .TheBlock
+                        .TargetVelocityRad = 0;
+                }
             }
         }
 
-        void RemoveSurface(IMyTextPanel surface)
+        void UpdateParkedRotors()
         {
-            //TODO : OPTIMIZE THIS
-
-            if (this.surfaces.Any(x => x.surface.Equals(surface)))
+            for (int i = 0;
+                i < controlledRotors.Count;
+                i++)
             {
-                //need to check this, because otherwise it will reset panels
-                //we aren't controlling
-                List<Surface> tempsurf = surfaces.FindAll(x => x.surface.Equals(surface));
-                foreach (Surface s in tempsurf)
-                {
-                    RemoveSurface(s);
-                }
-                surface.ContentType = ContentType.NONE;
-                surface.WriteText("", false);
+                controlledRotors[i]
+                    .UpdatePark();
             }
         }
 
-        
-        Vector3D GetMovementInput(string arg, bool perf = false)
+        void ClearControlledThrust()
         {
-            Vector3D moveVec = Vector3D.Zero;
-
-            if (controlModule)
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
             {
-                if (justCompiled)
-                    try
-                    {
-                        CMinputs = Me.GetValue<Dictionary<string, object>>("ControlModule.Inputs");
+                controlledThrusters[i]
+                    .ClearOverride();
+            }
+        }
 
-                        Me.SetValue<string>("ControlModule.AddInput", dampenersButton); //Z
-                        Me.SetValue<string>("ControlModule.AddInput", cruiseButton); //R
-                        Me.SetValue<string>("ControlModule.AddInput", gearButton); //Shift
-                        Me.SetValue<string>("ControlModule.AddInput", allowparkButton); //X
-
-                        Me.SetValue<bool>("ControlModule.RunOnInput", true);
-                        Me.SetValue<int>("ControlModule.InputState", 1);
-                        Me.SetValue<float>("ControlModule.RepeatDelay", 0.016f);
-                    }
-                    catch
-                    {
-                        controlModule = false;
-                    }
-
-                if (CMinputs != null)
-                {
-                    // non-movement controls
-                    if (!dampenersIsPressed && CMinputs.ContainsKey(dampenersButton))
-                    {//inertia dampener key
-                        dampeners = !dampeners;//toggle
-                        dampenersIsPressed = true;
-                    }
-                    else if (dampenersIsPressed && !CMinputs.ContainsKey(dampenersButton))
-                    {
-                        dampenersIsPressed = false;
-                    }
-
-                    if (!cruiseIsPressed && CMinputs.ContainsKey(cruiseButton))
-                    {//cruise key
-                        cruise = !cruise;//toggle
-                        cruiseIsPressed = true;
-                    }
-                    else if (cruiseIsPressed && !CMinputs.ContainsKey(cruiseButton))
-                    {
-                        cruiseIsPressed = false;
-                    }
-
-                    if (!gearIsPressed && CMinputs.ContainsKey(gearButton))
-                    {//throttle up
-                        if (gear == Accelerations.Count - 1) gear = 0;
-                        else gear++;
-                        gearIsPressed = true;
-                    }
-                    else if (gearIsPressed && !CMinputs.ContainsKey(gearButton))
-                    { //increase target acceleration
-                        gearIsPressed = false;
-                    }
-
-                    if (!allowparkIsPressed && CMinputs.ContainsKey(allowparkButton))
-                    {//throttle down
-                        allowpark = !allowpark;
-                        allowparkIsPressed = true;
-                    }
-                    else if (allowparkIsPressed && !CMinputs.ContainsKey(allowparkButton))
-                    { //increase target acceleration
-                        allowparkIsPressed = false;
-                    }
-                }
+        void RestoreThrustersAfterPark()
+        {
+            if (parkThrusterEnabledState.Count == 0)
+            {
+                return;
             }
 
-            
-
-            if (arg.Length > 0)
+            for (int i = 0;
+                i < controlledThrusters.Count;
+                i++)
             {
-                if (arg.Contains(dampenersArg))
+                Thruster thruster =
+                    controlledThrusters[i];
+
+                bool wasEnabled;
+
+                if (!parkThrusterEnabledState
+                        .TryGetValue(
+                            thruster.EntityId,
+                            out wasEnabled))
                 {
-                    dampeners = !dampeners;
-                    changeDampeners = true;
+                    continue;
                 }
-                else if (arg.Contains(cruiseArg) && !parked)
+
+                thruster.TheBlock.Enabled =
+                    wasEnabled;
+            }
+
+            parkThrusterEnabledState.Clear();
+        }
+
+        void RestoreParkedThruster(
+            long entityId,
+            IMyThrust block)
+        {
+            bool wasEnabled;
+
+            if (!parkThrusterEnabledState
+                    .TryGetValue(
+                        entityId,
+                        out wasEnabled))
+            {
+                return;
+            }
+
+            if (block != null &&
+                !block.Closed)
+            {
+                block.Enabled = wasEnabled;
+            }
+
+            parkThrusterEnabledState.Remove(
+                entityId);
+        }
+
+        bool WasThrusterDisabledByPark(
+            long entityId)
+        {
+            return parkThrusterEnabledState
+                .ContainsKey(entityId);
+        }
+
+        void TriggerTimers(
+            List<IMyTimerBlock> timers)
+        {
+            for (int i = 0;
+                i < timers.Count;
+                i++)
+            {
+                IMyTimerBlock timer =
+                    timers[i];
+
+                if (timer == null ||
+                    timer.Closed ||
+                    !timer.IsFunctional)
+                {
+                    continue;
+                }
+
+                timer.Trigger();
+            }
+        }
+
+        // ===== Commands =====
+
+        void HandleArgument(string argument)
+        {
+            if (string.IsNullOrWhiteSpace(argument))
+            {
+                return;
+            }
+
+            string[] commands =
+                argument.ToLowerInvariant()
+                    .Split(
+                        new[] { ';', '\n', '\r' },
+                        StringSplitOptions
+                            .RemoveEmptyEntries);
+
+            for (int i = 0;
+                i < commands.Length;
+                i++)
+            {
+                string command =
+                    commands[i].Trim();
+
+                if (command == "park")
+                {
+                    manualParkRequested =
+                        !manualParkRequested;
+
+                    slaveFallbackPark = false;
+                }
+                else if (command == "park on")
+                {
+                    manualParkRequested = true;
+                    slaveFallbackPark = false;
+                }
+                else if (command == "park off" ||
+                         command == "unpark")
+                {
+                    manualParkRequested = false;
+                    slaveFallbackPark = false;
+                }
+                else if (command == "cruise")
                 {
                     cruise = !cruise;
-                    cruisebyarg = cruise;
                 }
-                else if (arg.Contains(gearArg))
+                else if (command == "cruise on")
                 {
-                    if (gear == Accelerations.Count - 1) gear = 0;
-                    else gear++;
+                    cruise = true;
                 }
-                else if (arg.Contains("park"))
+                else if (command == "cruise off")
                 {
-                    allowpark = !allowpark;
-                    forceunpark = true;
+                    cruise = false;
+                }
+                else if (command == "dampeners")
+                {
+                    scriptDampeners =
+                        !scriptDampeners;
+
+                    if (referenceController != null)
+                    {
+                        referenceController
+                            .DampenersOverride =
+                            scriptDampeners;
+                    }
+                }
+                else if (command == "gear")
+                {
+                    selectedGear++;
+
+                    if (selectedGear >=
+                        settings
+                            .GearFractions.Count)
+                    {
+                        selectedGear = 0;
+                    }
+                }
+                else if (command == "rescan")
+                {
+                    RequestRescan();
                 }
             }
 
-
-            // dampeners (if there are any normal thrusters, the dampeners control works)
-            if (normalThrusters.Count != 0)
-            {
-                if (OnlyMain())
-                {
-
-                    if (changeDampeners)
-                    {
-                        mainController.TheBlock.DampenersOverride = dampeners;
-                    }
-                    else
-                    {
-                        dampeners = mainController.TheBlock.DampenersOverride;
-                    }
-                }
-                else
-                {
-
-                    if (changeDampeners)
-                    {
-                        // make all conform
-                        foreach (ShipController cont in controlledControllers)
-                        {
-                            cont.SetDampener(dampeners);
-                        }
-                    }
-                    else
-                    {
-                        // check if any are different to us
-
-                        dampeners = FilterThis(mainController.TheBlock) ? mainController.TheBlock.DampenersOverride : dampeners;
-
-                        foreach (ShipController cont in controlledControllers)
-                        {
-                            cont.TheBlock.DampenersOverride = dampeners;
-                            cont.SetDampener(dampeners);
-                        }
-                    }
-                }
-            }
-
-
-            // movement controls
-            if (perf) return moveVec; //Vector3D.Zero
-
-            if (OnlyMain())
-            {
-                moveVec = mainController.TheBlock.GetWorldMoveIndicator();
-            }
-            else
-            {
-                foreach (ShipController cont in controlledControllers)
-                {
-                    if (cont.TheBlock.IsUnderControl)
-                    {
-                        moveVec += cont.TheBlock.GetWorldMoveIndicator();
-                    }
-                }
-            }
-
-            return moveVec;
+            Save();
         }
 
-        void CheckWeight()
+        // ===== Topology change detection =====
+
+        void DetectTopologyChanges()
         {
-            if (justCompiled) return;
+            HashSet<long> seenConnectors =
+                new HashSet<long>();
 
-            ShipController cont = FindACockpit();
-
-            if (cont == null)
+            for (int i = 0;
+                i < topologyConnectors.Count;
+                i++)
             {
-                log.AppendNR("  -No cockpit registered, checking mainController\n");
-                if (!GridTerminalSystem.CanAccess(mainController.TheBlock))
+                IMyShipConnector connector =
+                    topologyConnectors[i];
+
+                if (connector == null ||
+                    connector.Closed)
                 {
-                    mainController = null;
-                    foreach (ShipController c in controlledControllers)
-                    {
-                        if (GridTerminalSystem.CanAccess(c.TheBlock))
-                        {
-                            mainController = c;
-                            break;
-                        }
-                    }
+                    continue;
                 }
-                if (mainController == null)
+
+                long targetId =
+                    connector.OtherConnector != null
+                        ? connector
+                            .OtherConnector
+                            .EntityId
+                        : 0;
+
+                long previousTarget;
+
+                if (!observedConnectorTargets
+                        .TryGetValue(
+                            connector.EntityId,
+                            out previousTarget) ||
+                    previousTarget != targetId)
                 {
-                    error = true;
-                    log.AppendNR("ERROR, ANY CONTROLLERS FOUND - SHUTTING DOWN");
-                    ManageTag(true);
-                    return;
+                    observedConnectorTargets[
+                        connector.EntityId] =
+                        targetId;
+
+                    RequestRescan();
+                }
+
+                seenConnectors.Add(
+                    connector.EntityId);
+            }
+
+            for (int i = 0;
+                i < parkLandingGears.Count;
+                i++)
+            {
+                IMyLandingGear gear =
+                    parkLandingGears[i].Block;
+
+                if (gear == null ||
+                    gear.Closed)
+                {
+                    continue;
+                }
+
+                bool previous;
+
+                if (!observedLandingGearLocks
+                        .TryGetValue(
+                            gear.EntityId,
+                            out previous) ||
+                    previous != gear.IsLocked)
+                {
+                    observedLandingGearLocks[
+                        gear.EntityId] =
+                        gear.IsLocked;
+
+                    RequestRescan();
                 }
             }
-            else if (!applyTags)
-            {
-                myshipmass = cont.TheBlock.CalculateShipMass();
-                float bm = myshipmass.BaseMass;
-
-                if (bm < 0.001f)
-                {
-                    log.AppendNR("  -Can't fly a Station\n");
-                    isstation = true;
-                    ChangeRuntime(2);
-                    return;
-                }
-                else if (isstation)
-                {
-                    isstation = rotorsstopped = false;
-
-                    foreach (VectorThrust n in vectorthrusters)
-                        n.ActiveList(Override: true);
-
-                    ChangeRuntime(0);
-                }
-
-                if (this.oldMass == bm) return; //modifying variables here may cause to the handler to restart every single time
-
-                this.oldMass = bm; //else:
-            }
-            OneRunMainChecker(false);
         }
 
-        bool EndBM(bool scanned, bool changedruntime)
+        // ===== Master/slave heartbeat =====
+
+        void PublishOrClearMasterHeartbeat()
         {
-            if (scanned && parked && !BlockManager.Doneloop)
+            if (mode != OperatingMode.Master ||
+                referenceController == null)
             {
-                BlockManager.Doneloop = true;
-                ChangeRuntime(PerformanceWhilePark && wgv == 0 && !changedruntime ? 2 : 1);
-            }
-            else if (!parked)
-            {
-                parkedwithcn = alreadyparked = false;
+                ClearMasterHeartbeat();
+                return;
             }
 
-            if (check && !this.changedruntime && parkedcompletely)
+            if (heartbeatController != null &&
+                heartbeatController.EntityId !=
+                    referenceController.EntityId)
             {
-                ChangeRuntime();
-                this.changedruntime = true;
+                RemoveOwnedHeartbeat(
+                    heartbeatController);
             }
-            else if (this.changedruntime && !check && parkedcompletely)
+
+            heartbeatController =
+                referenceController;
+
+            StringBuilder section =
+                new StringBuilder();
+
+            section.Append('[')
+                .Append(HeartbeatSection)
+                .AppendLine("]");
+
+            section.Append("Version=")
+                .AppendLine(ScriptVersion);
+
+            section.Append("MasterProgrammableBlockId=")
+                .AppendLine(Me.EntityId.ToString());
+
+            section.Append("ControllerId=")
+                .AppendLine(
+                    referenceController.EntityId
+                        .ToString());
+
+            section.Append("Sequence=")
+                .AppendLine(
+                    heartbeatSequence.ToString());
+
+            section.Append("Demand=")
+                .AppendLine(
+                    SerializeVector(
+                        normalizedMasterDemand));
+
+            section.Append("Cruise=")
+                .AppendLine(
+                    cruise.ToString());
+
+            section.Append("LevelWithGravity=")
+                .AppendLine(
+                    (cruise &&
+                    settings
+                        .CruiseLevelsWithGravity)
+                    .ToString());
+
+            referenceController.CustomData =
+                ReplaceSection(
+                    referenceController.CustomData,
+                    HeartbeatSection,
+                    section.ToString());
+        }
+
+        void ClearMasterHeartbeat()
+        {
+            if (heartbeatController == null)
             {
-                ChangeRuntime(PerformanceWhilePark && wgv == 0 ? 2 : 1);
-                this.changedruntime = false;
+                return;
             }
+
+            RemoveOwnedHeartbeat(
+                heartbeatController);
+
+            heartbeatController = null;
+        }
+
+        void RemoveOwnedHeartbeat(
+            IMyShipController controller)
+        {
+            if (controller == null ||
+                controller.Closed)
+            {
+                return;
+            }
+
+            string masterId;
+
+            if (!TryReadSectionValue(
+                    controller.CustomData,
+                    HeartbeatSection,
+                    "MasterProgrammableBlockId",
+                    out masterId))
+            {
+                return;
+            }
+
+            long parsedId;
+
+            if (!long.TryParse(
+                    masterId,
+                    out parsedId) ||
+                parsedId != Me.EntityId)
+            {
+                return;
+            }
+
+            controller.CustomData =
+                RemoveSection(
+                    controller.CustomData,
+                    HeartbeatSection);
+        }
+
+        void TryReadAnySlaveHeartbeat()
+        {
+            for (int i = 0;
+                i <
+                    remotelyReachableControllers.Count;
+                i++)
+            {
+                MasterCommand command;
+
+                if (!TryReadMasterCommand(
+                        remotelyReachableControllers[i],
+                        out command))
+                {
+                    continue;
+                }
+
+                AcceptSlaveCommand(command);
+                return;
+            }
+        }
+
+        void ReadActiveSlaveHeartbeat()
+        {
+            for (int i = 0;
+                i <
+                    remotelyReachableControllers.Count;
+                i++)
+            {
+                IMyShipController controller =
+                    remotelyReachableControllers[i];
+
+                if (activeSlaveCommand
+                        .ControllerId != 0 &&
+                    controller.EntityId !=
+                        activeSlaveCommand
+                            .ControllerId)
+                {
+                    continue;
+                }
+
+                MasterCommand command;
+
+                if (!TryReadMasterCommand(
+                        controller,
+                        out command))
+                {
+                    continue;
+                }
+
+                if (activeSlaveCommand
+                        .MasterProgrammableBlockId != 0 &&
+                    command
+                        .MasterProgrammableBlockId !=
+                    activeSlaveCommand
+                        .MasterProgrammableBlockId)
+                {
+                    continue;
+                }
+
+                AcceptSlaveCommand(command);
+                return;
+            }
+        }
+
+        void AcceptSlaveCommand(
+            MasterCommand command)
+        {
+            if (command.Sequence !=
+                    lastSlaveHeartbeatSequence ||
+                command
+                    .MasterProgrammableBlockId !=
+                slaveMasterProgrammableBlockId)
+            {
+                lastSlaveHeartbeatSequence =
+                    command.Sequence;
+
+                slaveMasterProgrammableBlockId =
+                    command
+                        .MasterProgrammableBlockId;
+
+                slaveHeartbeatAgeUpdate10 = 0;
+                slaveHeartbeatChangedThisWindow =
+                    true;
+                slaveHeartbeatFresh = true;
+            }
+
+            activeSlaveCommand.CopyFrom(
+                command);
+        }
+
+        bool TryReadMasterCommand(
+            IMyShipController controller,
+            out MasterCommand command)
+        {
+            command = null;
+
+            if (controller == null ||
+                controller.Closed)
+            {
+                return false;
+            }
+
+            string masterIdText;
+            string controllerIdText;
+            string sequenceText;
+            string demandText;
+            string cruiseText;
+            string levelText;
+
+            if (!TryReadSectionValue(
+                    controller.CustomData,
+                    HeartbeatSection,
+                    "MasterProgrammableBlockId",
+                    out masterIdText) ||
+                !TryReadSectionValue(
+                    controller.CustomData,
+                    HeartbeatSection,
+                    "ControllerId",
+                    out controllerIdText) ||
+                !TryReadSectionValue(
+                    controller.CustomData,
+                    HeartbeatSection,
+                    "Sequence",
+                    out sequenceText) ||
+                !TryReadSectionValue(
+                    controller.CustomData,
+                    HeartbeatSection,
+                    "Demand",
+                    out demandText))
+            {
+                return false;
+            }
+
+            long masterId;
+            long controllerId;
+            long sequence;
+            Vector3D demand;
+
+            if (!long.TryParse(
+                    masterIdText,
+                    out masterId) ||
+                !long.TryParse(
+                    controllerIdText,
+                    out controllerId) ||
+                !long.TryParse(
+                    sequenceText,
+                    out sequence) ||
+                !TryParseVector(
+                    demandText,
+                    out demand))
+            {
+                return false;
+            }
+
+            TryReadSectionValue(
+                controller.CustomData,
+                HeartbeatSection,
+                "Cruise",
+                out cruiseText);
+
+            TryReadSectionValue(
+                controller.CustomData,
+                HeartbeatSection,
+                "LevelWithGravity",
+                out levelText);
+
+            bool commandCruise;
+            bool commandLevel;
+
+            bool.TryParse(
+                cruiseText,
+                out commandCruise);
+
+            bool.TryParse(
+                levelText,
+                out commandLevel);
+
+            command = new MasterCommand
+            {
+                MasterProgrammableBlockId =
+                    masterId,
+                ControllerId = controllerId,
+                Sequence = sequence,
+                NormalizedForceDemand =
+                    VectorMath.ClampMagnitude(
+                        demand,
+                        1),
+                Cruise = commandCruise,
+                LevelWithGravity =
+                    commandLevel
+            };
 
             return true;
         }
 
-        void ChangeRuntime(int n = 0)
+        // ===== Custom Data section handling =====
+
+        static int FindSectionStart(
+            string customData,
+            string sectionName)
         {
-            switch (n)
+            if (string.IsNullOrEmpty(customData))
             {
-                case 0: Runtime.UpdateFrequency = UpdateFrequency.Update1; break;
-                case 1: Runtime.UpdateFrequency = UpdateFrequency.Update10; break;
-                case 2: Runtime.UpdateFrequency = UpdateFrequency.Update100; break;
-                case 3: Runtime.UpdateFrequency = UpdateFrequency.Once; break;
-                case 4: Runtime.UpdateFrequency = UpdateFrequency.None; break;
-            };
+                return -1;
+            }
+
+            string header =
+                "[" + sectionName + "]";
+
+            int searchIndex = 0;
+
+            while (searchIndex <
+                   customData.Length)
+            {
+                int index = customData.IndexOf(
+                    header,
+                    searchIndex,
+                    StringComparison.OrdinalIgnoreCase);
+
+                if (index < 0)
+                {
+                    return -1;
+                }
+
+                bool startsLine =
+                    index == 0 ||
+                    customData[index - 1] == '\n';
+
+                int after = index + header.Length;
+
+                bool endsLine =
+                    after >= customData.Length ||
+                    customData[after] == '\r' ||
+                    customData[after] == '\n';
+
+                if (startsLine && endsLine)
+                {
+                    return index;
+                }
+
+                searchIndex = index + 1;
+            }
+
+            return -1;
+        }
+
+        static int FindNextSectionStart(
+            string customData,
+            int searchIndex)
+        {
+            while (searchIndex <
+                   customData.Length)
+            {
+                int lineStart =
+                    customData.IndexOf(
+                        '\n',
+                        searchIndex);
+
+                if (lineStart < 0 ||
+                    lineStart + 1 >=
+                        customData.Length)
+                {
+                    return customData.Length;
+                }
+
+                lineStart++;
+
+                int cursor = lineStart;
+
+                while (cursor <
+                           customData.Length &&
+                       (customData[cursor] == ' ' ||
+                        customData[cursor] == '\t' ||
+                        customData[cursor] == '\r'))
+                {
+                    cursor++;
+                }
+
+                if (cursor <
+                        customData.Length &&
+                    customData[cursor] == '[')
+                {
+                    int closing =
+                        customData.IndexOf(
+                            ']',
+                            cursor + 1);
+
+                    if (closing >= 0)
+                    {
+                        return lineStart;
+                    }
+                }
+
+                searchIndex = lineStart;
+            }
+
+            return customData.Length;
+        }
+
+        static bool TryReadSectionValue(
+            string customData,
+            string sectionName,
+            string key,
+            out string value)
+        {
+            value = null;
+
+            int start =
+                FindSectionStart(
+                    customData,
+                    sectionName);
+
+            if (start < 0)
+            {
+                return false;
+            }
+
+            int end =
+                FindNextSectionStart(
+                    customData,
+                    start +
+                    sectionName.Length + 2);
+
+            int headerEnd =
+                customData.IndexOf(
+                    '\n',
+                    start);
+
+            if (headerEnd < 0 ||
+                headerEnd >= end)
+            {
+                return false;
+            }
+
+            string section =
+                customData.Substring(
+                    headerEnd + 1,
+                    end - headerEnd - 1);
+
+            string[] lines =
+                section.Replace(
+                        "\r",
+                        string.Empty)
+                    .Split('\n');
+
+            for (int i = 0;
+                i < lines.Length;
+                i++)
+            {
+                string line = lines[i];
+
+                int separator =
+                    line.IndexOf('=');
+
+                if (separator <= 0)
+                {
+                    continue;
+                }
+
+                string candidateKey =
+                    line.Substring(
+                            0,
+                            separator)
+                        .Trim();
+
+                if (!candidateKey.Equals(
+                        key,
+                        StringComparison
+                            .OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                value =
+                    line.Substring(
+                            separator + 1)
+                        .Trim();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        static string ReplaceSection(
+            string customData,
+            string sectionName,
+            string replacement)
+        {
+            customData =
+                customData ?? string.Empty;
+
+            replacement =
+                replacement.TrimEnd(
+                    '\r',
+                    '\n') +
+                "\n";
+
+            int start =
+                FindSectionStart(
+                    customData,
+                    sectionName);
+
+            if (start < 0)
+            {
+                if (customData.Length == 0)
+                {
+                    return replacement;
+                }
+
+                string separator =
+                    customData.EndsWith("\n")
+                        ? string.Empty
+                        : "\n";
+
+                return customData +
+                       separator +
+                       replacement;
+            }
+
+            int end =
+                FindNextSectionStart(
+                    customData,
+                    start +
+                    sectionName.Length + 2);
+
+            return customData.Substring(0, start) +
+                   replacement +
+                   customData.Substring(end);
+        }
+
+        static string RemoveSection(
+            string customData,
+            string sectionName)
+        {
+            if (string.IsNullOrEmpty(customData))
+            {
+                return customData;
+            }
+
+            int start =
+                FindSectionStart(
+                    customData,
+                    sectionName);
+
+            if (start < 0)
+            {
+                return customData;
+            }
+
+            int end =
+                FindNextSectionStart(
+                    customData,
+                    start +
+                    sectionName.Length + 2);
+
+            string before =
+                customData.Substring(0, start);
+
+            string after =
+                customData.Substring(end);
+
+            if (before.EndsWith("\n") &&
+                after.StartsWith("\n"))
+            {
+                after = after.Substring(1);
+            }
+
+            return before + after;
+        }
+
+        static string SerializeVector(
+            Vector3D vector)
+        {
+            return vector.X.ToString("R") +
+                ";" +
+                vector.Y.ToString("R") +
+                ";" +
+                vector.Z.ToString("R");
+        }
+
+        static bool TryParseVector(
+            string serialized,
+            out Vector3D vector)
+        {
+            vector = Vector3D.Zero;
+
+            if (string.IsNullOrWhiteSpace(
+                    serialized))
+            {
+                return false;
+            }
+
+            string[] components =
+                serialized.Split(';');
+
+            if (components.Length != 3)
+            {
+                return false;
+            }
+
+            double x;
+            double y;
+            double z;
+
+            if (!double.TryParse(
+                    components[0],
+                    out x) ||
+                !double.TryParse(
+                    components[1],
+                    out y) ||
+                !double.TryParse(
+                    components[2],
+                    out z))
+            {
+                return false;
+            }
+
+            vector = new Vector3D(x, y, z);
+            return true;
+        }
+
+        // ===== Status =====
+
+        void WriteStatus(bool force)
+        {
+            echoBuilder.Clear();
+
+            echoBuilder
+                .AppendLine(ScriptName)
+                .Append("v")
+                .AppendLine(ScriptVersion)
+                .AppendLine();
+
+            echoBuilder
+                .Append("Mode: ")
+                .AppendLine(mode.ToString());
+
+            echoBuilder
+                .Append("Controller: ")
+                .AppendLine(
+                    referenceController != null
+                        ? referenceController
+                            .CustomName
+                        : "NONE");
+
+            echoBuilder
+                .Append("Dampeners: ")
+                .AppendLine(
+                    scriptDampeners
+                        ? "ON"
+                        : "OFF");
+
+            echoBuilder
+                .Append("Cruise: ")
+                .AppendLine(
+                    cruise
+                        ? "ON"
+                        : "OFF");
+
+            echoBuilder
+                .Append("Gear: ")
+                .Append(selectedGear + 1)
+                .Append("/")
+                .Append(settings
+                    .GearFractions.Count)
+                .Append(" (")
+                .Append(
+                    (settings
+                        .GearFractions[
+                            MathHelper.Clamp(
+                                selectedGear,
+                                0,
+                                settings
+                                    .GearFractions
+                                    .Count - 1)] *
+                     100)
+                    .ToString("0.##"))
+                .AppendLine("%)");
+
+            echoBuilder
+                .Append("Nacelles: ")
+                .AppendLine(
+                    vectorThrusters.Count
+                        .ToString());
+
+            echoBuilder
+                .Append("Controlled thrust: ")
+                .Append(
+                    (availableControlledThrust /
+                     1000.0)
+                    .ToString("0.##"))
+                .AppendLine(" kN");
+
+            echoBuilder
+                .Append("Residual: ")
+                .Append(
+                    (residualForceWorld.Length() /
+                     1000.0)
+                    .ToString("0.##"))
+                .AppendLine(" kN");
+
+            echoBuilder
+                .Append("Gyros: ")
+                .AppendLine(
+                    controlledGyros.Count
+                        .ToString());
+
+            if (mode == OperatingMode.Slave)
+            {
+                echoBuilder
+                    .Append("Heartbeat age: ")
+                    .Append(
+                        slaveHeartbeatAgeUpdate10)
+                    .AppendLine("/2");
+            }
+
+            echoBuilder
+                .Append("Runtime: ")
+                .Append(
+                    Runtime.LastRunTimeMs
+                        .ToString("0.###"))
+                .Append(" ms | avg ")
+                .Append(
+                    runtimeTracker
+                        .AverageRuntime
+                        .ToString("0.###"))
+                .Append(" | max ")
+                .AppendLine(
+                    runtimeTracker
+                        .MaximumRuntime
+                        .ToString("0.###"));
+
+            echoBuilder
+                .Append("Instructions: ")
+                .Append(Runtime
+                    .CurrentInstructionCount)
+                .Append("/")
+                .AppendLine(Runtime
+                    .MaxInstructionCount
+                    .ToString());
+
+            Echo(echoBuilder.ToString());
+
+            if (!force &&
+                statusSurfaces.Count == 0)
+            {
+                return;
+            }
+
+            statusBuilder.Clear();
+
+            statusBuilder
+                .AppendLine("VECTOR THRUST REDUX")
+                .Append("MODE  ")
+                .AppendLine(
+                    mode.ToString()
+                        .ToUpperInvariant())
+                .Append("DAMP  ")
+                .AppendLine(
+                    scriptDampeners
+                        ? "ON"
+                        : "OFF")
+                .Append("CRUISE ")
+                .AppendLine(
+                    cruise
+                        ? "ON"
+                        : "OFF")
+                .Append("GEAR  ")
+                .Append(selectedGear + 1)
+                .Append("/")
+                .AppendLine(
+                    settings
+                        .GearFractions.Count
+                        .ToString())
+                .Append("VECTORS ")
+                .AppendLine(
+                    vectorThrusters.Count
+                        .ToString())
+                .Append("THRUST ")
+                .Append(
+                    (availableControlledThrust /
+                     1000.0)
+                    .ToString("0.0"))
+                .AppendLine(" kN")
+                .Append("ERROR ")
+                .Append(
+                    (residualForceWorld.Length() /
+                     1000.0)
+                    .ToString("0.0"))
+                .AppendLine(" kN");
+
+            for (int i = 0;
+                i < statusSurfaces.Count;
+                i++)
+            {
+                statusSurfaces[i]
+                    .Write(
+                        statusBuilder.ToString());
+            }
         }
     }
 }

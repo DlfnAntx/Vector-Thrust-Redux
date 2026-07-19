@@ -1,433 +1,379 @@
-﻿using Sandbox.ModAPI.Ingame;
+// <mdk sortorder="20" />   // Classes.cs
+using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.Game.ModAPI.Ingame;
 using VRageMath;
+
 
 namespace IngameScript
 {
     partial class Program
     {
-        public static class VectorMath // By Whiplash
+        enum OperatingMode
         {
-            /// <summary>
-            ///  Normalizes a vector only if it is non-zero and non-unit
-            /// </summary>
-            public static Vector3D SafeNormalize(Vector3D a)
+            Initializing,
+            Active,
+            Master,
+            Slave,
+            Parked
+        }
+
+        [Flags]
+        enum BlockTags
+        {
+            None = 0,
+            Use = 1,
+            Ignore = 2,
+            Status = 4,
+            ParkTimer = 8,
+            UnparkTimer = 16
+        }
+
+        sealed class MasterCommand
+        {
+            public long MasterProgrammableBlockId;
+            public long ControllerId;
+            public long Sequence;
+
+            // Dimensionless demand. A magnitude of one asks a participant to
+            // use its currently effective controlled capacity in this direction.
+            public Vector3D NormalizedForceDemand;
+
+            public bool Cruise;
+            public bool LevelWithGravity;
+
+            public void CopyFrom(MasterCommand other)
             {
-                if (Vector3D.IsZero(a))
+                MasterProgrammableBlockId = other.MasterProgrammableBlockId;
+                ControllerId = other.ControllerId;
+                Sequence = other.Sequence;
+                NormalizedForceDemand = other.NormalizedForceDemand;
+                Cruise = other.Cruise;
+                LevelWithGravity = other.LevelWithGravity;
+            }
+        }
+
+        sealed class RuntimeTracker
+        {
+            readonly Program program;
+
+            double averageRuntime;
+            double maximumRuntime;
+            double previousRuntime;
+            int samples;
+
+            public double AverageRuntime
+            {
+                get { return averageRuntime; }
+            }
+
+            public double MaximumRuntime
+            {
+                get { return maximumRuntime; }
+            }
+
+            public double PreviousRuntime
+            {
+                get { return previousRuntime; }
+            }
+
+            public RuntimeTracker(Program program)
+            {
+                this.program = program;
+            }
+
+            public void BeginRun()
+            {
+                previousRuntime = program.Runtime.LastRunTimeMs;
+            }
+
+            public void EndRun()
+            {
+                double runtime = program.Runtime.LastRunTimeMs;
+
+                samples++;
+
+                if (samples == 1)
+                {
+                    averageRuntime = runtime;
+                    maximumRuntime = runtime;
+                    return;
+                }
+
+                // A small EMA is enough for status without keeping a bloody
+                // queue of samples around forever.
+                averageRuntime += (runtime - averageRuntime) * 0.05;
+
+                if (runtime > maximumRuntime)
+                {
+                    maximumRuntime = runtime;
+                }
+                else if (samples % 600 == 0)
+                {
+                    maximumRuntime = averageRuntime;
+                }
+            }
+        }
+
+        public static class VectorMath
+        {
+            // Vector helpers retained from Whiplash141's math utilities used
+            // by VTOS where Redux follows the same method.
+
+            /// <summary>
+            /// Normalizes a vector only if it is non-zero and non-unit.
+            /// </summary>
+            public static Vector3D SafeNormalize(Vector3D vector)
+            {
+                if (Vector3D.IsZero(vector))
+                {
                     return Vector3D.Zero;
+                }
 
-                if (Vector3D.IsUnit(ref a))
-                    return a;
+                if (Vector3D.IsUnit(ref vector))
+                {
+                    return vector;
+                }
 
-                return Vector3D.Normalize(a);
+                return Vector3D.Normalize(vector);
             }
 
             /// <summary>
-            /// Reflects vector a over vector b with an optional rejection factor
+            /// Rejects vector a from vector b.
             /// </summary>
-            public static Vector3D Reflection(Vector3D a, Vector3D b, double rejectionFactor = 1) //reflect a over b
+            public static Vector3D Rejection(Vector3D a, Vector3D b)
             {
-                Vector3D project_a = Projection(a, b);
-                Vector3D reject_a = a - project_a;
-                return project_a - reject_a * rejectionFactor;
-            }
+                double denominator = b.LengthSquared();
 
-            /// <summary>
-            /// Rejects vector a on vector b
-            /// </summary>
-            public static Vector3D Rejection(Vector3D a, Vector3D b) //reject a on b
-            {
-                if (Vector3D.IsZero(a) || Vector3D.IsZero(b))
+                if (a.LengthSquared() <= VectorEpsilon ||
+                    denominator <= VectorEpsilon)
+                {
                     return Vector3D.Zero;
+                }
 
-                return a - a.Dot(b) / b.LengthSquared() * b;
+                return a - Vector3D.Dot(a, b) / denominator * b;
             }
 
             /// <summary>
-            /// Projects vector a onto vector b
+            /// Projects vector a onto vector b.
             /// </summary>
             public static Vector3D Projection(Vector3D a, Vector3D b)
             {
-                if (Vector3D.IsZero(a) || Vector3D.IsZero(b))
+                double denominator = b.LengthSquared();
+
+                if (a.LengthSquared() <= VectorEpsilon ||
+                    denominator <= VectorEpsilon)
+                {
                     return Vector3D.Zero;
+                }
 
-                if (Vector3D.IsUnit(ref b))
-                    return a.Dot(b) * b;
-
-                return a.Dot(b) / b.LengthSquared() * b;
+                return Vector3D.Dot(a, b) / denominator * b;
             }
 
-            /// <summary>
-            /// Scalar projection of a onto b
-            /// </summary>
-            public static double ScalarProjection(Vector3D a, Vector3D b)
-            {
-                if (Vector3D.IsZero(a) || Vector3D.IsZero(b))
-                    return 0;
-
-                if (Vector3D.IsUnit(ref b))
-                    return a.Dot(b);
-
-                return a.Dot(b) / b.Length();
-            }
-
-            /// <summary>
-            /// Computes angle between 2 vectors in radians.
-            /// </summary>
-            public static double AngleBetween(Vector3D a, Vector3D b)
-            {
-                if (Vector3D.IsZero(a) || Vector3D.IsZero(b))
-                    return 0;
-                else
-                    return Math.Acos(MathHelper.Clamp(a.Dot(b) / Math.Sqrt(a.LengthSquared() * b.LengthSquared()), -1, 1));
-            }
-
-            /// <summary>
-            /// Computes cosine of the angle between 2 vectors.
-            /// </summary>
             public static double CosBetween(Vector3D a, Vector3D b)
             {
-                if (Vector3D.IsZero(a) || Vector3D.IsZero(b))
+                double denominator = Math.Sqrt(
+                    a.LengthSquared() * b.LengthSquared());
+
+                if (denominator <= VectorEpsilon)
+                {
                     return 0;
-                else
-                    return MathHelper.Clamp(a.Dot(b) / Math.Sqrt(a.LengthSquared() * b.LengthSquared()), -1, 1);
+                }
+
+                return MathHelper.Clamp(
+                    Vector3D.Dot(a, b) / denominator,
+                    -1,
+                    1);
+            }
+
+            public static Vector3D ClampMagnitude(
+                Vector3D vector,
+                double maximumLength)
+            {
+                double lengthSquared = vector.LengthSquared();
+                double maximumSquared = maximumLength * maximumLength;
+
+                if (lengthSquared <= maximumSquared)
+                {
+                    return vector;
+                }
+
+                if (lengthSquared <= VectorEpsilon)
+                {
+                    return Vector3D.Zero;
+                }
+
+                return vector * (maximumLength / Math.Sqrt(lengthSquared));
+            }
+
+            public static double NormalizeAngle(double angle)
+            {
+                while (angle > Math.PI)
+                {
+                    angle -= MathHelper.TwoPi;
+                }
+
+                while (angle < -Math.PI)
+                {
+                    angle += MathHelper.TwoPi;
+                }
+
+                return angle;
+            }
+
+            public static Vector3D RotateAroundAxis(
+                Vector3D vector,
+                Vector3D axis,
+                double angle)
+            {
+                axis = SafeNormalize(axis);
+
+                if (axis.LengthSquared() <= VectorEpsilon)
+                {
+                    return vector;
+                }
+
+                double cosine = Math.Cos(angle);
+                double sine = Math.Sin(angle);
+
+                return vector * cosine +
+                       Vector3D.Cross(axis, vector) * sine +
+                       axis * Vector3D.Dot(axis, vector) * (1.0 - cosine);
             }
 
             /// <summary>
-            /// Returns if the normalized dot product between two vectors is greater than the tolerance.
-            /// This is helpful for determining if two vectors are "more parallel" than the tolerance.
+            /// Returns the signed command-space angle used by an SE rotor.
             /// </summary>
-            /// <param name="a">First vector</param>
-            /// <param name="b">Second vector</param>
-            /// <param name="tolerance">Cosine of maximum angle</param>
-            /// <returns></returns>
-            public static bool IsDotProductWithinTolerance(Vector3D a, Vector3D b, double tolerance)
+            public static double RotorCommandAngle(
+                Vector3D targetDirection,
+                Vector3D currentDirection,
+                Vector3D rotorAxis)
             {
-                double dot = Vector3D.Dot(a, b);
-                double num = a.LengthSquared() * b.LengthSquared() * tolerance * Math.Abs(tolerance);
-                return Math.Abs(dot) * dot > num;
+                Vector3D targetPlanar = Rejection(
+                    targetDirection,
+                    rotorAxis);
+
+                Vector3D currentPlanar = Rejection(
+                    currentDirection,
+                    rotorAxis);
+
+                if (targetPlanar.LengthSquared() <= VectorEpsilon ||
+                    currentPlanar.LengthSquared() <= VectorEpsilon)
+                {
+                    return 0;
+                }
+
+                targetPlanar = SafeNormalize(targetPlanar);
+                currentPlanar = SafeNormalize(currentPlanar);
+                rotorAxis = SafeNormalize(rotorAxis);
+
+                // This follows the signed vector-pointing method attributed to
+                // Whiplash141 in VTOS. Cross(target, current) matches SE rotor
+                // TargetVelocityRad's observed sign convention.
+                return Math.Atan2(
+                    Vector3D.Dot(
+                        rotorAxis,
+                        Vector3D.Cross(targetPlanar, currentPlanar)),
+                    Vector3D.Dot(targetPlanar, currentPlanar));
+            }
+
+            public static Vector3D WorldToLocalDirection(
+                Vector3D worldDirection,
+                MatrixD worldMatrix)
+            {
+                return Vector3D.TransformNormal(
+                    worldDirection,
+                    MatrixD.Transpose(worldMatrix));
+            }
+
+            public static Vector3D LocalToWorldDirection(
+                Vector3D localDirection,
+                MatrixD worldMatrix)
+            {
+                return Vector3D.TransformNormal(
+                    localDirection,
+                    worldMatrix);
             }
         }
-        public class EMA
+
+        sealed class GridNode
         {
-            private bool _isInitialized;
-            private readonly double _weightingMultiplier;
-            private double _previousAverage;
+            public readonly IMyCubeGrid Grid;
+            public readonly List<GridEdge> MechanicalEdges =
+                new List<GridEdge>();
 
-            public double Average { get; private set; }
-            public double Slope { get; private set; }
+            public GridComponent Component;
+            public GridNode Parent;
+            public GridEdge ParentEdge;
 
-            public EMA(int lookback)
+            public int Depth = int.MaxValue;
+            public bool IncludedForControl;
+
+            public GridNode(IMyCubeGrid grid)
             {
-                _weightingMultiplier = 2.0 / (lookback + 1);
-            }
-
-            public void AddDataPoint(double dataPoint)
-            {
-                if (!_isInitialized)
-                {
-                    Average = dataPoint;
-                    Slope = 0;
-                    _previousAverage = Average;
-                    _isInitialized = true;
-                    return;
-                }
-
-                Average = ((dataPoint - _previousAverage) * _weightingMultiplier) + _previousAverage;
-                Slope = Average - _previousAverage;
-
-                //update previous average
-                _previousAverage = Average;
+                Grid = grid;
             }
         }
 
-        class Tracker
+        sealed class GridEdge
         {
+            public readonly GridNode A;
+            public readonly GridNode B;
+            public readonly IMyTerminalBlock Mechanism;
 
-            public double MaxRuntime { get; private set; }
-            public double AverageRuntime { get; private set; }
-            public double LastRuntime { get; private set; }
-            public bool CanPrint { get; private set; }
-            public bool JustPrinted { get; private set; }
-
-            public EMA ema;
-
-            public int FrameCount = 0;
-            int FramePrintCount = 0;
-            public readonly int MaxCapacity;
-
-            readonly Program p;
-
-            public Tracker(Program p, int avgcap, int maxcap)
+            public GridEdge(
+                GridNode a,
+                GridNode b,
+                IMyTerminalBlock mechanism)
             {
-                this.p = p;
-
-                MaxCapacity = maxcap;
-                ema = new EMA(avgcap);
+                A = a;
+                B = b;
+                Mechanism = mechanism;
             }
 
-            public void ChangeAvgCapacity(int i)
+            public GridNode Other(GridNode node)
             {
-                ema = new EMA(i);
-            }
-
-            public void Process()
-            {
-                LastRuntime = p.Runtime.LastRunTimeMs;
-
-                ema.AddDataPoint(LastRuntime);
-                AverageRuntime = ema.Average;
-
-                if (FrameCount % MaxCapacity == 0) MaxRuntime = AverageRuntime;
-                else if (p.Runtime.LastRunTimeMs > MaxRuntime) MaxRuntime = LastRuntime;
-
-                if (FrameCount >= MaxCapacity)
-                {
-                    FrameCount = 0;
-                    p.log.Clear();
-                }
-                if (p.Runtime.UpdateFrequency == UpdateFrequency.Update1)
-                {
-                    FrameCount++;
-                    FramePrintCount++;
-                }
-                else if (p.Runtime.UpdateFrequency == UpdateFrequency.Update10)
-                {
-                    FrameCount += 10;
-                    FramePrintCount += 10;
-                }
-                else
-                {
-                    FrameCount += 100;
-                    FramePrintCount += 100;
-                }
-
-                if (CanPrint) JustPrinted = true;
-                else if (JustPrinted) JustPrinted = false;
-
-                CanPrint = FramePrintCount >= p.framesperprint;
-                if (CanPrint) FramePrintCount = 0;
-                
+                return node == A ? B : A;
             }
         }
 
-        class SequenceAssigner //Modified SimpleTimerSM by Digi
+        sealed class GridComponent
         {
-            public readonly Program Program;
-            public bool AutoStart { get; set; }
-            public bool Running { get; private set; }
-            public IEnumerable<int> Sequence;
-            private IEnumerator<int> sequenceSM;
+            public readonly List<GridNode> Nodes =
+                new List<GridNode>();
 
-            public int SequenceCount { get; private set; }
-            public bool Doneloop { get; set; }
+            public readonly List<IMyShipController> Controllers =
+                new List<IMyShipController>();
 
-            public SequenceAssigner(Program program, IEnumerable<int> sequence = null, bool autoStart = false)
-            {
-                Program = program;
-                Sequence = sequence;
-                AutoStart = autoStart;
+            public readonly List<IMyProgrammableBlock> ReduxProgrammableBlocks =
+                new List<IMyProgrammableBlock>();
 
-                if (AutoStart)
-                {
-                    Start();
-                }
-            }
-            public void Start()
-            {
-                Doneloop = false;
-                SetSequenceSM(Sequence);
-            }
-            public void Run()
-            {
-                if (sequenceSM == null)
-                    return;
-
-                if (SequenceCount > 0) {
-                    SequenceCount--;
-                    return;
-                }
-
-                bool hasValue = sequenceSM.MoveNext();
-
-                if (hasValue)
-                {
-                    SequenceCount = sequenceSM.Current;
-
-                    if (SequenceCount <= -1)
-                        hasValue = false;
-                }
-
-                if (!hasValue)
-                {
-                    if (AutoStart)
-                        SetSequenceSM(Sequence);
-                    else
-                        SetSequenceSM(null);
-                }
-            }
-
-            private void SetSequenceSM(IEnumerable<int> seq)
-            {
-                Running = false;
-                SequenceCount = 0;
-
-                sequenceSM?.Dispose();
-                sequenceSM = null;
-
-                if (seq != null)
-                {
-                    Running = true;
-                    sequenceSM = seq.GetEnumerator();
-                }
-            }
-
-            public bool Loop(bool cond)
-            {
-                while (!Doneloop)
-                {
-                    Run();
-                    if (cond) return cond;
-                }
-                Doneloop = false;
-                return Doneloop;
-            }
+            public bool IncludedForControl;
+            public bool ReachableThroughConnection;
+            public bool HasStaticGrid;
+            public bool HasSlaveCapableRedux;
         }
 
-        #region PID Class
-
-        /// <summary>
-        /// Discrete time PID controller class.
-        /// Last edited: 2022/08/11 - Whiplash141
-        /// </summary>
-        public class PID
+        sealed class ConnectorEdge
         {
-            public double Kp { get; set; } = 0;
-            public double Ki { get; set; } = 0;
-            public double Kd { get; set; } = 0;
-            public double Value { get; private set; }
+            public IMyShipConnector A;
+            public IMyShipConnector B;
 
-            double _timeStep = 0;
-            double _inverseTimeStep = 0;
-            double _errorSum = 0;
-            double _lastError = 0;
-            bool _firstRun = true;
-
-            public PID(double kp, double ki, double kd, double timeStep)
-            {
-                Kp = kp;
-                Ki = ki;
-                Kd = kd;
-                _timeStep = timeStep;
-                _inverseTimeStep = 1 / _timeStep;
-            }
-
-            protected virtual double GetIntegral(double currentError, double errorSum, double timeStep)
-            {
-                return errorSum + currentError * timeStep;
-            }
-
-            public double Control(double error)
-            {
-                //Compute derivative term
-                double errorDerivative = (error - _lastError) * _inverseTimeStep;
-
-                if (_firstRun)
-                {
-                    errorDerivative = 0;
-                    _firstRun = false;
-                }
-
-                //Get error sum
-                _errorSum = GetIntegral(error, _errorSum, _timeStep);
-
-                //Store this error as last error
-                _lastError = error;
-
-                //Construct output
-                Value = Kp * error + Ki * _errorSum + Kd * errorDerivative;
-                return Value;
-            }
-
-            public double Control(double error, double timeStep)
-            {
-                if (timeStep != _timeStep)
-                {
-                    _timeStep = timeStep;
-                    _inverseTimeStep = 1 / _timeStep;
-                }
-                return Control(error);
-            }
-
-            public virtual void Reset()
-            {
-                _errorSum = 0;
-                _lastError = 0;
-                _firstRun = true;
-            }
+            public GridNode NodeA;
+            public GridNode NodeB;
         }
 
-        public class DecayingIntegralPID : PID
+        sealed class ParkConnector
         {
-            public double IntegralDecayRatio { get; set; }
-
-            public DecayingIntegralPID(double kp, double ki, double kd, double timeStep, double decayRatio) : base(kp, ki, kd, timeStep)
-            {
-                IntegralDecayRatio = decayRatio;
-            }
-
-            protected override double GetIntegral(double currentError, double errorSum, double timeStep)
-            {
-                return errorSum * (1.0 - IntegralDecayRatio) + currentError * timeStep;
-            }
+            public IMyShipConnector Block;
+            public ConnectorEdge Edge;
         }
 
-        public class ClampedIntegralPID : PID
+        sealed class ParkLandingGear
         {
-            public double IntegralUpperBound { get; set; }
-            public double IntegralLowerBound { get; set; }
-
-            public ClampedIntegralPID(double kp, double ki, double kd, double timeStep, double lowerBound, double upperBound) : base(kp, ki, kd, timeStep)
-            {
-                IntegralUpperBound = upperBound;
-                IntegralLowerBound = lowerBound;
-            }
-
-            protected override double GetIntegral(double currentError, double errorSum, double timeStep)
-            {
-                errorSum += currentError * timeStep;
-                return Math.Min(IntegralUpperBound, Math.Max(errorSum, IntegralLowerBound));
-            }
+            public IMyLandingGear Block;
         }
-
-        public class BufferedIntegralPID : PID
-        {
-            readonly Queue<double> _integralBuffer = new Queue<double>();
-            public int IntegralBufferSize { get; set; } = 0;
-
-            public BufferedIntegralPID(double kp, double ki, double kd, double timeStep, int bufferSize) : base(kp, ki, kd, timeStep)
-            {
-                IntegralBufferSize = bufferSize;
-            }
-
-            protected override double GetIntegral(double currentError, double errorSum, double timeStep)
-            {
-                if (_integralBuffer.Count == IntegralBufferSize)
-                    _integralBuffer.Dequeue();
-                _integralBuffer.Enqueue(currentError * timeStep);
-                return _integralBuffer.Sum();
-            }
-
-            public override void Reset()
-            {
-                base.Reset();
-                _integralBuffer.Clear();
-            }
-        }
-        #endregion
-
     }
 }
