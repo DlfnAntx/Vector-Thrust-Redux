@@ -2,9 +2,9 @@
 ### Fork from Vector Thrust OS (which itself is a fork of VectorThrust2)
 ### Self rotating thrusters, baby!
 
-Workshop link: 
+Workshop link: TBA
 
-Mod.io link: 
+Mod.io link: TBA
 
 ## What's new:
 - WIP
@@ -25,11 +25,11 @@ Mod.io link:
 
 ## SCRIPT IS HEAVY FOR YOUR SERVER?
 
-Don't worry! There's an option for that desired low end gameplay: VTOS introduced "Skipframes=", where each frame is processed & N frames are skipped, improving performance but making the script less precise the higher the value. VTOS recommends putting it no more than 4 in space and 2 in planets. I have expanded this option to include skipping for groups of tasks, demarked `Update1`, `update10`, & `Update100`. You can be more aggressive with skipping on less frequent tasks (e.g. `Update100`), though VTOS' recommendations apply to tasks sccheduled for `Update1`.
+Don't worry! There's an option for that desired low end gameplay: VTOS introduced "Skipframes=", where each frame is processed & N frames are skipped, improving performance but making the script less precise the higher the value. VTOS recommends putting it no more than 4 in space and 2 in planets. I have expanded this option to include skipping for groups of tasks, demarked `Update1`, `update10`, & `Update100`. You can be more aggressive with skipping on less frequent tasks (e.g. `Update100`), though VTOS' recommendations apply to tasks scheduled for `Update1`.
 
 ## INFO PANEL SETUP
 #### While this is Optional, it can be helpful for debugging ship design.
 1. Place a text panel or screen-containing controller (e.g. cockpit)
 2. ...
 
-## Known bugs, and workarounds.
+## Known bugs, and workarounds:
