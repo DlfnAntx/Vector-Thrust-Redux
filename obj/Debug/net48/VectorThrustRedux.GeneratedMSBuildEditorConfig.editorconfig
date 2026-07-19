@@ -1,6 +1,6 @@
 is_global = true
-build_property.ProjectDir = C:\Users\User\Documents\scripts\Space Engineers\VectorThrustRedux\
-build_property.ProjectDir = C:\Users\User\Documents\scripts\Space Engineers\VectorThrustRedux\
+build_property.ProjectDir = C:\Users\User\Documents\scripts\Space Engineers\Vector-Thrust-Redux\
+build_property.ProjectDir = C:\Users\User\Documents\scripts\Space Engineers\Vector-Thrust-Redux\
 build_property.Mdk-IgnorePaths = obj\**\*;MDK\**\*;**\*.debug.cs
 build_property.RootNamespace = IngameScript
 build_property.EnableComHosting = 

@@ -22,7 +22,8 @@ class Program : MyGridProgram
 
         public VectorThrust Nacelle;
 
-        public bool Controlled,IsPrimaryNacelleThruster;
+        public bool Controlled;
+        public bool IsPrimaryNacelleThruster;
 
         public double DesiredEffectiveThrust;
 
@@ -213,8 +214,11 @@ class Program : MyGridProgram
     {
         readonly Program program;
 
-        double lastWrittenTargetVelocity = double.NaN,parkTargetAngle;
-        bool parkTargetInitialized,parkSettled;
+        double lastWrittenTargetVelocity = double.NaN;
+
+        double parkTargetAngle;
+        bool parkTargetInitialized;
+        bool parkSettled;
 
         public readonly IMyMotorStator TheBlock;
         public readonly BlockTags Tags;
@@ -663,10 +667,12 @@ class Program : MyGridProgram
             new List<IMyCubeGrid>();
 
         public Vector3D PrimaryExhaustDirectionLocal =
-            Vector3D.Zero,RequiredForceWorld =
             Vector3D.Zero;
 
         public double PrimaryEffectiveThrust;
+
+        public Vector3D RequiredForceWorld =
+            Vector3D.Zero;
 
         public VectorThrust(
             Rotor rotor,
@@ -1037,7 +1043,9 @@ class Program : MyGridProgram
         readonly Program program;
 
         bool lastOverride;
-        float lastPitch = float.NaN,lastYaw = float.NaN,lastRoll = float.NaN;
+        float lastPitch = float.NaN;
+        float lastYaw = float.NaN;
+        float lastRoll = float.NaN;
 
         public readonly IMyGyro TheBlock;
         public readonly BlockTags Tags;
@@ -1297,13 +1305,16 @@ class Program : MyGridProgram
 
     sealed class MasterCommand
     {
-        public long MasterProgrammableBlockId,ControllerId,Sequence;
+        public long MasterProgrammableBlockId;
+        public long ControllerId;
+        public long Sequence;
 
         // Dimensionless demand. A magnitude of one asks a participant to
         // use its currently effective controlled capacity in this direction.
         public Vector3D NormalizedForceDemand;
 
-        public bool Cruise,LevelWithGravity;
+        public bool Cruise;
+        public bool LevelWithGravity;
 
         public void CopyFrom(MasterCommand other)
         {
@@ -1321,7 +1332,8 @@ class Program : MyGridProgram
         readonly Program program;
 
         double averageRuntime;
-        double maximumRuntime,previousRuntime;
+        double maximumRuntime;
+        double previousRuntime;
         int samples;
 
         public double AverageRuntime
@@ -1579,7 +1591,8 @@ class Program : MyGridProgram
 
     sealed class GridEdge
     {
-        public readonly GridNode A,B;
+        public readonly GridNode A;
+        public readonly GridNode B;
         public readonly IMyTerminalBlock Mechanism;
 
         public GridEdge(
@@ -1609,14 +1622,19 @@ class Program : MyGridProgram
         public readonly List<IMyProgrammableBlock> ReduxProgrammableBlocks =
             new List<IMyProgrammableBlock>();
 
-        public bool IncludedForControl,ReachableThroughConnection,HasStaticGrid,HasSlaveCapableRedux;
+        public bool IncludedForControl;
+        public bool ReachableThroughConnection;
+        public bool HasStaticGrid;
+        public bool HasSlaveCapableRedux;
     }
 
     sealed class ConnectorEdge
     {
-        public IMyShipConnector A,B;
+        public IMyShipConnector A;
+        public IMyShipConnector B;
 
-        public GridNode NodeA,NodeB;
+        public GridNode NodeA;
+        public GridNode NodeB;
     }
 
     sealed class ParkConnector
@@ -1632,7 +1650,15 @@ class Program : MyGridProgram
     sealed class Settings
     {
         // Ownership
-        public bool Greedy = true,CanMaster = true,CanSlave = true,ParkOnlyByCommand,CruiseLevelsWithGravity = true;
+        public bool Greedy = true;
+        public bool CanMaster = true;
+        public bool CanSlave = true;
+
+        // Parking
+        public bool ParkOnlyByCommand;
+
+        // Flight
+        public bool CruiseLevelsWithGravity = true;
         public readonly List<double> GearFractions = new List<double>
         {
             0.15,
@@ -1641,10 +1667,16 @@ class Program : MyGridProgram
         };
 
         // Tags
-        public string UseTag = "[VT-use]",IgnoreTag = "[VT-ignore]",StatusTag = "[VT-status]",ParkTimerTag = "[VT-park]",UnparkTimerTag = "[VT-unpark]";
+        public string UseTag = "[VT-use]";
+        public string IgnoreTag = "[VT-ignore]";
+        public string StatusTag = "[VT-status]";
+        public string ParkTimerTag = "[VT-park]";
+        public string UnparkTimerTag = "[VT-unpark]";
 
         // Performance
-        public int Update1Skip,Update10Skip,Update100Skip;
+        public int Update1Skip;
+        public int Update10Skip;
+        public int Update100Skip;
     }
 
     readonly MyIni configurationIni = new MyIni();
@@ -2362,7 +2394,7 @@ class Program : MyGridProgram
             // Current alignment determines immediate contribution. Any
             // deficit naturally remains in residualForceWorld and is
             // offered to the next compatible group rather than receiving
-            // the old fixed 15% "gift".
+            // the VTOS' fixed 15% "gift".
             for (int i = 0;
                 i < group.Nacelles.Count;
                 i++)
@@ -4014,11 +4046,42 @@ class Program : MyGridProgram
     }
     // ===== Script identity =====
 
-    const string ScriptName = "Vector Thrust Redux",ScriptVersion = "0.1.0",ConfigSection = "Vector Thrust Redux",HeartbeatSection = "Vector Thrust Redux Heartbeat",SurfaceSelector = "VT-Redux:";
+    const string ScriptName = "Vector Thrust Redux";
+    const string ScriptVersion = "0.1.0";
+    const string ConfigSection = "Vector Thrust Redux";
+    const string HeartbeatSection = "Vector Thrust Redux Heartbeat";
+    const string SurfaceSelector = "VT-Redux:";
 
     // ===== Numerical tolerances =====
 
-    const double VectorEpsilon = 1e-8,ForceEpsilon = 1e-3,AngleEpsilon = 1e-4,EqualLimitEpsilon = 1e-4,DirectionBucketCosine = 1.0 - 1e-6,ParallelAxisCosine = 1.0 - 1e-4,DirectParkAlignmentCosine = 1.0 - 1e-4,JointResponseGain = 4.0,MaximumJointVelocityRad = Math.PI,JointWriteDeadbandRad = 1e-3,GyroLevelGain = 4.0,GyroAngularDampingGain = 1.5,GyroCommandAtFullTorque = 30.0,GyroWriteDeadband = 1e-3,SmallGridGyroCapacity = 448000.0,LargeGridGyroCapacity = 33600000.0,SmallGridPrototechGyroCapacity = 4480000.0,LargeGridPrototechGyroCapacity = 201600000.0,MinimumTimeStep = 1.0 / 120.0,MaximumTimeStep = 0.25;
+    const double VectorEpsilon = 1e-8;
+    const double ForceEpsilon = 1e-3;
+    const double AngleEpsilon = 1e-4;
+    const double EqualLimitEpsilon = 1e-4;
+    const double DirectionBucketCosine = 1.0 - 1e-6;
+    const double ParallelAxisCosine = 1.0 - 1e-4;
+    const double DirectParkAlignmentCosine = 1.0 - 1e-4;
+
+    // A proportional joint response is retained instead of pretending
+    // that TargetVelocityRad is a position command.
+    const double JointResponseGain = 4.0;
+    const double MaximumJointVelocityRad = Math.PI;
+    const double JointWriteDeadbandRad = 1e-3;
+
+    const double GyroLevelGain = 4.0;
+    const double GyroAngularDampingGain = 1.5;
+    const double GyroCommandAtFullTorque = 30.0;
+    const double GyroWriteDeadband = 1e-3;
+
+    // Wiki gyro-force values. The PB API accepts angular commands rather
+    // than a direct torque request, so these serve as capacity weights.
+    const double SmallGridGyroCapacity = 448000.0;
+    const double LargeGridGyroCapacity = 33600000.0;
+    const double SmallGridPrototechGyroCapacity = 4480000.0;
+    const double LargeGridPrototechGyroCapacity = 201600000.0;
+
+    const double MinimumTimeStep = 1.0 / 120.0;
+    const double MaximumTimeStep = 0.25;
 
     // ===== Configuration and persisted state =====
 
@@ -4027,9 +4090,10 @@ class Program : MyGridProgram
 
     string knownProgrammableBlockCustomData = string.Empty;
 
-    bool cruise,automaticParkRequested,forceStatusRefresh;
-    bool scriptDampeners = true,manualParkRequested,controllerMissing = true,potentialMaster,slaveHeartbeatFresh,slaveFallbackPark,wasParkedBeforeSlaving,slaveHeartbeatChangedThisWindow,rescanRequested = true;
-    int selectedGear,slaveHeartbeatAgeUpdate10,update10SkipCounter,update100SkipCounter;
+    bool cruise;
+    bool scriptDampeners = true;
+    bool manualParkRequested;
+    int selectedGear;
 
     // ===== Runtime state =====
 
@@ -4037,24 +4101,45 @@ class Program : MyGridProgram
 
     IMyShipController referenceController;
 
+    bool automaticParkRequested;
+    bool controllerMissing = true;
+    bool potentialMaster;
+    bool slaveHeartbeatFresh;
+    bool slaveFallbackPark;
+    bool wasParkedBeforeSlaving;
+
     long heartbeatSequence;
-    long lastSlaveHeartbeatSequence = long.MinValue,slaveMasterProgrammableBlockId;
+    long lastSlaveHeartbeatSequence = long.MinValue;
+    long slaveMasterProgrammableBlockId;
+    int slaveHeartbeatAgeUpdate10;
+    bool slaveHeartbeatChangedThisWindow;
 
     MasterCommand activeSlaveCommand = new MasterCommand();
 
     Vector3D requestedForceWorld;
-    Vector3D residualForceWorld,normalizedMasterDemand,inducedTorqueWorld;
+    Vector3D residualForceWorld;
+    Vector3D normalizedMasterDemand;
+    Vector3D inducedTorqueWorld;
 
     double availableControlledThrust;
-    double lastControlTimeStep,accumulatedControlTime;
+    double lastControlTimeStep;
+    double accumulatedControlTime;
 
     int update1SkipCounter;
+    int update10SkipCounter;
+    int update100SkipCounter;
+
+    bool forceStatusRefresh;
 
     // ===== Cached construct model =====
 
-    readonly List<IMyShipController> localControllers = new List<IMyShipController>(),remotelyReachableControllers = new List<IMyShipController>();
+    readonly List<IMyShipController> localControllers = new List<IMyShipController>();
+    readonly List<IMyShipController> remotelyReachableControllers = new List<IMyShipController>();
 
-    readonly List<Thruster> thrusters = new List<Thruster>(),controlledThrusters = new List<Thruster>(),fixedControlledThrusters = new List<Thruster>(),observedReadOnlyThrusters = new List<Thruster>();
+    readonly List<Thruster> thrusters = new List<Thruster>();
+    readonly List<Thruster> controlledThrusters = new List<Thruster>();
+    readonly List<Thruster> fixedControlledThrusters = new List<Thruster>();
+    readonly List<Thruster> observedReadOnlyThrusters = new List<Thruster>();
 
     readonly List<Rotor> controlledRotors = new List<Rotor>();
     readonly List<VectorThrust> vectorThrusters = new List<VectorThrust>();
@@ -4065,16 +4150,19 @@ class Program : MyGridProgram
     readonly List<ParkConnector> parkConnectors = new List<ParkConnector>();
     readonly List<ParkLandingGear> parkLandingGears = new List<ParkLandingGear>();
 
-    readonly List<IMyTimerBlock> parkTimers = new List<IMyTimerBlock>(),unparkTimers = new List<IMyTimerBlock>();
+    readonly List<IMyTimerBlock> parkTimers = new List<IMyTimerBlock>();
+    readonly List<IMyTimerBlock> unparkTimers = new List<IMyTimerBlock>();
 
     readonly List<StatusSurface> statusSurfaces = new List<StatusSurface>();
 
     readonly Dictionary<long, bool> parkThrusterEnabledState = new Dictionary<long, bool>();
     readonly Dictionary<long, GridNode> gridNodes = new Dictionary<long, GridNode>();
 
-    readonly StringBuilder echoBuilder = new StringBuilder(),statusBuilder = new StringBuilder();
+    readonly StringBuilder echoBuilder = new StringBuilder();
+    readonly StringBuilder statusBuilder = new StringBuilder();
 
     IEnumerator<int> scanStateMachine;
+    bool rescanRequested = true;
 
     RuntimeTracker runtimeTracker;
 
@@ -4227,8 +4315,6 @@ class Program : MyGridProgram
             new List<IMyTerminalBlock>();
 
         public readonly List<IMyShipController> Controllers =
-            new List<IMyShipController>(),LocalControllers =
-            new List<IMyShipController>(),RemoteControllers =
             new List<IMyShipController>();
 
         public readonly List<IMyThrust> RawThrusters =
@@ -4244,15 +4330,12 @@ class Program : MyGridProgram
             new List<IMyGyro>();
 
         public readonly List<IMyShipConnector> RawConnectors =
-            new List<IMyShipConnector>(),TopologyConnectors =
             new List<IMyShipConnector>();
 
         public readonly List<IMyLandingGear> RawLandingGears =
             new List<IMyLandingGear>();
 
         public readonly List<IMyTimerBlock> RawTimers =
-            new List<IMyTimerBlock>(),ParkTimers =
-            new List<IMyTimerBlock>(),UnparkTimers =
             new List<IMyTimerBlock>();
 
         public readonly List<IMyProgrammableBlock> RawProgrammableBlocks =
@@ -4270,10 +4353,22 @@ class Program : MyGridProgram
         public readonly List<ConnectorEdge> ConnectorEdges =
             new List<ConnectorEdge>();
 
+        public readonly List<IMyShipController> LocalControllers =
+            new List<IMyShipController>();
+
+        public readonly List<IMyShipController> RemoteControllers =
+            new List<IMyShipController>();
+
         public readonly List<Thruster> Thrusters =
-            new List<Thruster>(),ControlledThrusters =
-            new List<Thruster>(),FixedControlledThrusters =
-            new List<Thruster>(),ObservedReadOnlyThrusters =
+            new List<Thruster>();
+
+        public readonly List<Thruster> ControlledThrusters =
+            new List<Thruster>();
+
+        public readonly List<Thruster> FixedControlledThrusters =
+            new List<Thruster>();
+
+        public readonly List<Thruster> ObservedReadOnlyThrusters =
             new List<Thruster>();
 
         public readonly List<Rotor> ControlledRotors =
@@ -4293,6 +4388,15 @@ class Program : MyGridProgram
 
         public readonly List<ParkLandingGear> ParkLandingGears =
             new List<ParkLandingGear>();
+
+        public readonly List<IMyShipConnector> TopologyConnectors =
+            new List<IMyShipConnector>();
+
+        public readonly List<IMyTimerBlock> ParkTimers =
+            new List<IMyTimerBlock>();
+
+        public readonly List<IMyTimerBlock> UnparkTimers =
+            new List<IMyTimerBlock>();
 
         public readonly List<StatusSurface> StatusSurfaces =
             new List<StatusSurface>();
@@ -5886,8 +5990,7 @@ class Program : MyGridProgram
         }
 
         // Keen has used both Gyro and Gyroscope suffixes in definition
-        // naming across content branches. These are explicit vanilla
-        // aliases, not a generic mod fallback.
+        // naming across content branches. Why, just why?
         return subtype.Equals(
 "SmallPrototechGyro",
                    StringComparison.OrdinalIgnoreCase) ||

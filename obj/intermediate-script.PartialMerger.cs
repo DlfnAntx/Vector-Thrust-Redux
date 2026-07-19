@@ -7,7 +7,7 @@ using VRageMath;
 using SpaceEngineers.Game.ModAPI.Ingame;
 using System.Text;
 using VRage.Game.ModAPI.Ingame.Utilities;
-partial class Program
+class Program : MyGridProgram
 {
     // ===== Thrusters =====
 
@@ -238,7 +238,7 @@ partial class Program
             {
                 return TheBlock.BlockDefinition.SubtypeId
                     .IndexOf(
-                        "Hinge",
+"Hinge",
                         StringComparison.OrdinalIgnoreCase) >= 0;
             }
         }
@@ -1093,7 +1093,7 @@ partial class Program
             bool prototech =
                 block.BlockDefinition.SubtypeId
                     .IndexOf(
-                        "Prototech",
+"Prototech",
                         StringComparison.OrdinalIgnoreCase) >= 0;
 
             if (prototech)
@@ -1241,7 +1241,7 @@ partial class Program
             get
             {
                 return Owner.EntityId +
-                       ":" +
+":"+
                        SurfaceIndex;
             }
         }
@@ -1283,9 +1283,6 @@ partial class Program
             Surface.WriteText(text, false);
         }
     }
-}
-partial class Program
-{
     enum OperatingMode
     {
         Initializing,
@@ -1650,9 +1647,6 @@ partial class Program
     {
         public IMyLandingGear Block;
     }
-}
-partial class Program
-{
     sealed class Settings
     {
         // Ownership
@@ -1704,7 +1698,7 @@ partial class Program
         {
             Echo(
                 ScriptName +
-                "\n\nCustom Data could not be parsed as INI:\n" +
+"\n\nCustom Data could not be parsed as INI:\n"+
                 parseResult);
 
             knownProgrammableBlockCustomData = customData;
@@ -1759,28 +1753,28 @@ partial class Program
         // ===== Tags =====
 
         settings.UseTag = ReadNonEmptyString(
-            "Tags",
-            "Use",
+"Tags",
+"Use",
             settings.UseTag);
 
         settings.IgnoreTag = ReadNonEmptyString(
-            "Tags",
-            "Ignore",
+"Tags",
+"Ignore",
             settings.IgnoreTag);
 
         settings.StatusTag = ReadNonEmptyString(
-            "Tags",
-            "Status",
+"Tags",
+"Status",
             settings.StatusTag);
 
         settings.ParkTimerTag = ReadNonEmptyString(
-            "Tags",
-            "ParkTimer",
+"Tags",
+"ParkTimer",
             settings.ParkTimerTag);
 
         settings.UnparkTimerTag = ReadNonEmptyString(
-            "Tags",
-            "UnparkTimer",
+"Tags",
+"UnparkTimer",
             settings.UnparkTimerTag);
 
         // ===== Performance =====
@@ -1887,23 +1881,23 @@ partial class Program
 
         configurationIni.SetSectionComment(
             ConfigSection,
-            " Vector Thrust Redux ownership and coordination.\n" +
-            " Greedy controls eligible mechanical-subgrid blocks unless ignored.\n" +
-            " Main-grid player thrusters and gyros remain read-only unless explicitly tagged.");
+" Vector Thrust Redux ownership and coordination.\n"+
+" Greedy controls eligible mechanical-subgrid blocks unless ignored.\n"+
+" Main-grid player thrusters and gyros remain read-only unless explicitly tagged.");
 
         configurationIni.Set(
-            "Parking",
-            "ParkOnlyByCommand",
+"Parking",
+"ParkOnlyByCommand",
             settings.ParkOnlyByCommand);
 
         configurationIni.Set(
-            "Flight",
-            "CruiseLevelsWithGravity",
+"Flight",
+"CruiseLevelsWithGravity",
             settings.CruiseLevelsWithGravity);
 
         configurationIni.Set(
-            "Flight",
-            "GearPercentages",
+"Flight",
+"GearPercentages",
             SerializeGearPercentages());
 
         configurationIni.Set("Tags", "Use", settings.UseTag);
@@ -1913,34 +1907,34 @@ partial class Program
         configurationIni.Set("Tags", "UnparkTimer", settings.UnparkTimerTag);
 
         configurationIni.SetComment(
-            "Tags",
-            "Use",
-            " Tag may appear in a block name, group name, or block Custom Data.");
+"Tags",
+"Use",
+" Tag may appear in a block name, group name, or block Custom Data.");
 
         configurationIni.SetComment(
-            "Tags",
-            "Ignore",
-            " Ignore always prevents Redux from modifying the block.");
+"Tags",
+"Ignore",
+" Ignore always prevents Redux from modifying the block.");
 
         configurationIni.Set(
-            "Performance",
-            "Update1Skip",
+"Performance",
+"Update1Skip",
             settings.Update1Skip);
 
         configurationIni.Set(
-            "Performance",
-            "Update10Skip",
+"Performance",
+"Update10Skip",
             settings.Update10Skip);
 
         configurationIni.Set(
-            "Performance",
-            "Update100Skip",
+"Performance",
+"Update100Skip",
             settings.Update100Skip);
 
         configurationIni.SetSectionComment(
-            "Performance",
-            " Number of matching update intervals skipped between executions.\n" +
-            " Heartbeat publication is never skipped.");
+"Performance",
+" Number of matching update intervals skipped between executions.\n"+
+" Heartbeat publication is never skipped.");
     }
 
     string SerializeGearPercentages()
@@ -1961,9 +1955,6 @@ partial class Program
 
         return builder.ToString();
     }
-}
-partial class Program
-{
     readonly List<VectorThrustGroup> groupAllocationWork =
         new List<VectorThrustGroup>();
 
@@ -2403,7 +2394,7 @@ partial class Program
             // Current alignment determines immediate contribution. Any
             // deficit naturally remains in residualForceWorld and is
             // offered to the next compatible group rather than receiving
-            // the old fixed 15% "gift".
+            // the VTOS' fixed 15% "gift".
             for (int i = 0;
                 i < group.Nacelles.Count;
                 i++)
@@ -3114,7 +3105,7 @@ partial class Program
                 manualParkRequested = true;
                 slaveFallbackPark = false;
             }
-            else if (command == "park off" ||
+            else if (command == "park off"||
                      command == "unpark")
             {
                 manualParkRequested = false;
@@ -3334,7 +3325,7 @@ partial class Program
         if (!TryReadSectionValue(
                 controller.CustomData,
                 HeartbeatSection,
-                "MasterProgrammableBlockId",
+"MasterProgrammableBlockId",
                 out masterId))
         {
             return;
@@ -3468,22 +3459,22 @@ partial class Program
         if (!TryReadSectionValue(
                 controller.CustomData,
                 HeartbeatSection,
-                "MasterProgrammableBlockId",
+"MasterProgrammableBlockId",
                 out masterIdText) ||
             !TryReadSectionValue(
                 controller.CustomData,
                 HeartbeatSection,
-                "ControllerId",
+"ControllerId",
                 out controllerIdText) ||
             !TryReadSectionValue(
                 controller.CustomData,
                 HeartbeatSection,
-                "Sequence",
+"Sequence",
                 out sequenceText) ||
             !TryReadSectionValue(
                 controller.CustomData,
                 HeartbeatSection,
-                "Demand",
+"Demand",
                 out demandText))
         {
             return false;
@@ -3513,13 +3504,13 @@ partial class Program
         TryReadSectionValue(
             controller.CustomData,
             HeartbeatSection,
-            "Cruise",
+"Cruise",
             out cruiseText);
 
         TryReadSectionValue(
             controller.CustomData,
             HeartbeatSection,
-            "LevelWithGravity",
+"LevelWithGravity",
             out levelText);
 
         bool commandCruise;
@@ -3563,7 +3554,7 @@ partial class Program
         }
 
         string header =
-            "[" + sectionName + "]";
+"["+ sectionName + "]";
 
         int searchIndex = 0;
 
@@ -3697,7 +3688,7 @@ partial class Program
 
         string[] lines =
             section.Replace(
-                    "\r",
+"\r",
                     string.Empty)
                 .Split('\n');
 
@@ -3752,7 +3743,7 @@ partial class Program
             replacement.TrimEnd(
                 '\r',
                 '\n') +
-            "\n";
+"\n";
 
         int start =
             FindSectionStart(
@@ -3831,9 +3822,9 @@ partial class Program
         Vector3D vector)
     {
         return vector.X.ToString("R") +
-            ";" +
+";"+
             vector.Y.ToString("R") +
-            ";" +
+";"+
             vector.Z.ToString("R");
     }
 
@@ -3906,15 +3897,13 @@ partial class Program
             .Append("Dampeners: ")
             .AppendLine(
                 scriptDampeners
-                    ? "ON"
-                    : "OFF");
+                    ? "ON"                    : "OFF");
 
         echoBuilder
             .Append("Cruise: ")
             .AppendLine(
                 cruise
-                    ? "ON"
-                    : "OFF");
+                    ? "ON"                    : "OFF");
 
         echoBuilder
             .Append("Gear: ")
@@ -4017,13 +4006,11 @@ partial class Program
             .Append("DAMP  ")
             .AppendLine(
                 scriptDampeners
-                    ? "ON"
-                    : "OFF")
+                    ? "ON"                    : "OFF")
             .Append("CRUISE ")
             .AppendLine(
                 cruise
-                    ? "ON"
-                    : "OFF")
+                    ? "ON"                    : "OFF")
             .Append("GEAR  ")
             .Append(selectedGear + 1)
             .Append("/")
@@ -4057,9 +4044,6 @@ partial class Program
                     statusBuilder.ToString());
         }
     }
-}
-partial class Program : MyGridProgram
-{
     // ===== Script identity =====
 
     const string ScriptName = "Vector Thrust Redux";
@@ -4325,9 +4309,6 @@ partial class Program : MyGridProgram
         manualParkRequested = storageIni.Get("State", "ManualPark").ToBoolean(false);
         selectedGear = Math.Max(0, storageIni.Get("State", "Gear").ToInt32(0));
     }
-}
-partial class Program
-{
     sealed class ScanSnapshot
     {
         public readonly List<IMyTerminalBlock> Blocks =
@@ -5999,29 +5980,28 @@ partial class Program
             gyro.BlockDefinition.SubtypeId;
 
         if (subtype.Equals(
-                "SmallBlockGyro",
+"SmallBlockGyro",
                 StringComparison.OrdinalIgnoreCase) ||
             subtype.Equals(
-                "LargeBlockGyro",
+"LargeBlockGyro",
                 StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
         // Keen has used both Gyro and Gyroscope suffixes in definition
-        // naming across content branches. These are explicit vanilla
-        // aliases, not a generic mod fallback.
+        // naming across content branches. Why, just why?
         return subtype.Equals(
-                   "SmallPrototechGyro",
+"SmallPrototechGyro",
                    StringComparison.OrdinalIgnoreCase) ||
                subtype.Equals(
-                   "LargePrototechGyro",
+"LargePrototechGyro",
                    StringComparison.OrdinalIgnoreCase) ||
                subtype.Equals(
-                   "SmallPrototechGyroscope",
+"SmallPrototechGyroscope",
                    StringComparison.OrdinalIgnoreCase) ||
                subtype.Equals(
-                   "LargePrototechGyroscope",
+"LargePrototechGyroscope",
                    StringComparison.OrdinalIgnoreCase);
     }
 
@@ -6046,7 +6026,7 @@ partial class Program
         if (!TryReadSectionValue(
                 programmableBlock.CustomData,
                 ConfigSection,
-                "CanSlave",
+"CanSlave",
                 out serialized))
         {
             return true;
@@ -6072,7 +6052,7 @@ partial class Program
         }
 
         string[] lines = customData.Replace(
-                "\r",
+"\r",
                 string.Empty)
             .Split('\n');
 
@@ -6119,7 +6099,7 @@ partial class Program
     {
         string key =
             owner.EntityId +
-            ":" +
+":"+
             surfaceIndex;
 
         if (!added.Add(key))

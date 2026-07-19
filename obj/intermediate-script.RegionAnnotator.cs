@@ -7,7 +7,7 @@ using VRageMath;
 using SpaceEngineers.Game.ModAPI.Ingame;
 using System.Text;
 using VRage.Game.ModAPI.Ingame.Utilities;
-class Program : MyGridProgram
+partial class Program
 {
     // ===== Thrusters =====
 
@@ -1283,6 +1283,9 @@ class Program : MyGridProgram
             Surface.WriteText(text, false);
         }
     }
+}
+partial class Program
+{
     enum OperatingMode
     {
         Initializing,
@@ -1647,6 +1650,9 @@ class Program : MyGridProgram
     {
         public IMyLandingGear Block;
     }
+}
+partial class Program
+{
     sealed class Settings
     {
         // Ownership
@@ -1955,6 +1961,9 @@ class Program : MyGridProgram
 
         return builder.ToString();
     }
+}
+partial class Program
+{
     readonly List<VectorThrustGroup> groupAllocationWork =
         new List<VectorThrustGroup>();
 
@@ -2394,7 +2403,7 @@ class Program : MyGridProgram
             // Current alignment determines immediate contribution. Any
             // deficit naturally remains in residualForceWorld and is
             // offered to the next compatible group rather than receiving
-            // the old fixed 15% "gift".
+            // the VTOS' fixed 15% "gift".
             for (int i = 0;
                 i < group.Nacelles.Count;
                 i++)
@@ -4044,6 +4053,9 @@ class Program : MyGridProgram
                     statusBuilder.ToString());
         }
     }
+}
+partial class Program : MyGridProgram
+{
     // ===== Script identity =====
 
     const string ScriptName = "Vector Thrust Redux";
@@ -4309,6 +4321,9 @@ class Program : MyGridProgram
         manualParkRequested = storageIni.Get("State", "ManualPark").ToBoolean(false);
         selectedGear = Math.Max(0, storageIni.Get("State", "Gear").ToInt32(0));
     }
+}
+partial class Program
+{
     sealed class ScanSnapshot
     {
         public readonly List<IMyTerminalBlock> Blocks =
@@ -5990,8 +6005,7 @@ class Program : MyGridProgram
         }
 
         // Keen has used both Gyro and Gyroscope suffixes in definition
-        // naming across content branches. These are explicit vanilla
-        // aliases, not a generic mod fallback.
+        // naming across content branches. Why, just why?
         return subtype.Equals(
 "SmallPrototechGyro",
                    StringComparison.OrdinalIgnoreCase) ||
