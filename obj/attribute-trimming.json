@@ -5,7 +5,19 @@
     {
       "Symbol": "System.FlagsAttribute",
       "File": "C:\\Users\\User\\Documents\\scripts\\Space Engineers\\Vector-Thrust-Redux\\Vector Thrust Redux\\Classes.cs",
-      "Line": 23,
+      "Line": 22,
+      "Reason": "External"
+    },
+    {
+      "Symbol": "System.FlagsAttribute",
+      "File": "C:\\Users\\User\\Documents\\scripts\\Space Engineers\\Vector-Thrust-Redux\\Vector Thrust Redux\\Classes.cs",
+      "Line": 33,
+      "Reason": "External"
+    },
+    {
+      "Symbol": "System.FlagsAttribute",
+      "File": "C:\\Users\\User\\Documents\\scripts\\Space Engineers\\Vector-Thrust-Redux\\Vector Thrust Redux\\Classes.cs",
+      "Line": 42,
       "Reason": "External"
     }
   ]

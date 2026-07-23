@@ -15,30 +15,70 @@ class Program : MyGridProgram
     {
         readonly Program program;
 
-        float lastOverridePercentage = float.NaN;
+        float lastOverridePercentage =
+            float.NaN;
+
+        ControlRole controlRoles;
 
         public readonly IMyThrust TheBlock;
         public readonly BlockTags Tags;
 
         public VectorThrust Nacelle;
 
-        public bool Controlled,IsPrimaryNacelleThruster;
+        public bool IsPrimaryNacelleThruster;
 
         public double DesiredEffectiveThrust;
 
+        public ControlRole ControlRoles
+        {
+            get
+            {
+                return controlRoles;
+            }
+        }
+
+        public bool Controlled
+        {
+            get
+            {
+                return controlRoles !=
+                       ControlRole.None;
+            }
+
+            set
+            {
+                SetControlRole(
+                    ControlRole.Normal,
+                    value);
+            }
+        }
+
         public long EntityId
         {
-            get { return TheBlock.EntityId; }
+            get
+            {
+                return TheBlock.EntityId;
+            }
         }
 
         public Vector3D ForceDirectionWorld
         {
-            get { return TheBlock.WorldMatrix.Backward; }
+            get
+            {
+                return TheBlock
+                    .WorldMatrix
+                    .Backward;
+            }
         }
 
         public Vector3D ExhaustDirectionWorld
         {
-            get { return TheBlock.WorldMatrix.Forward; }
+            get
+            {
+                return TheBlock
+                    .WorldMatrix
+                    .Forward;
+            }
         }
 
         public double MaximumEffectiveThrust
@@ -52,9 +92,14 @@ class Program : MyGridProgram
                     return 0;
                 }
 
-                double thrust = TheBlock.MaxEffectiveThrust;
+                double thrust =
+                    TheBlock
+                        .MaxEffectiveThrust;
 
-                return thrust > ForceEpsilon ? thrust : 0;
+                return thrust >
+                       ForceEpsilon
+                    ? thrust
+                    : 0;
             }
         }
 
@@ -69,13 +114,27 @@ class Program : MyGridProgram
                     return Vector3D.Zero;
                 }
 
-                return ForceDirectionWorld * TheBlock.CurrentThrust;
+                return ForceDirectionWorld *
+                       TheBlock.CurrentThrust;
             }
         }
 
         public bool IsIgnored
         {
-            get { return (Tags & BlockTags.Ignore) != 0; }
+            get
+            {
+                return (Tags &
+                        BlockTags.Ignore) != 0;
+            }
+        }
+
+        public bool IsExplicitlyUsed
+        {
+            get
+            {
+                return (Tags &
+                        BlockTags.Use) != 0;
+            }
         }
 
         public bool IsUsable
@@ -85,16 +144,19 @@ class Program : MyGridProgram
                 if (TheBlock == null ||
                     TheBlock.Closed ||
                     !TheBlock.IsFunctional ||
-                    MaximumEffectiveThrust <= ForceEpsilon)
+                    IsIgnored ||
+                    MaximumEffectiveThrust <=
+                        ForceEpsilon)
                 {
                     return false;
                 }
 
-                // A thruster disabled by Redux while parked remains a valid
-                // source after unpark. A player-disabled active thruster is
-                // respected and remains unavailable.
+                // A block disabled by Redux remains capacity Redux can
+                // restore. A player-disabled block remains unavailable.
                 return TheBlock.Enabled ||
-                       program.WasThrusterDisabledByPark(EntityId);
+                       program
+                           .WasThrusterDisabledByRedux(
+                               EntityId);
             }
         }
 
@@ -107,7 +169,47 @@ class Program : MyGridProgram
             TheBlock = block;
             this.program = program;
             Tags = tags;
-            Controlled = controlled;
+
+            if (controlled &&
+                !IsIgnored)
+            {
+                controlRoles =
+                    ControlRole.Normal;
+            }
+        }
+
+        public void SetControlRole(
+            ControlRole role,
+            bool enabled)
+        {
+            if (IsIgnored)
+            {
+                controlRoles =
+                    ControlRole.None;
+
+                return;
+            }
+
+            if (enabled)
+            {
+                controlRoles |= role;
+                return;
+            }
+
+            controlRoles &= ~role;
+
+            if (controlRoles ==
+                ControlRole.None)
+            {
+                ClearOverride();
+            }
+        }
+
+        public bool HasControlRole(
+            ControlRole role)
+        {
+            return (controlRoles &
+                    role) != 0;
         }
 
         public void ResetDemand()
@@ -115,35 +217,80 @@ class Program : MyGridProgram
             DesiredEffectiveThrust = 0;
         }
 
-        public double AddOptimalContribution(ref Vector3D residual)
+        public double GetCurrentProjectedCapacity(
+            Vector3D targetDirection)
         {
-            if (!Controlled || !IsUsable)
+            if (!IsUsable)
             {
                 return 0;
             }
 
-            Vector3D direction = VectorMath.SafeNormalize(
-                ForceDirectionWorld);
+            targetDirection =
+                VectorMath.SafeNormalize(
+                    targetDirection);
 
-            double projection = Vector3D.Dot(residual, direction);
+            if (targetDirection
+                    .LengthSquared() <=
+                VectorEpsilon)
+            {
+                return 0;
+            }
 
-            if (projection <= ForceEpsilon)
+            double alignment =
+                Vector3D.Dot(
+                    ForceDirectionWorld,
+                    targetDirection);
+
+            return alignment > 0
+                ? alignment *
+                  MaximumEffectiveThrust
+                : 0;
+        }
+
+        public double AddOptimalContribution(
+            ref Vector3D residual)
+        {
+            if (!Controlled ||
+                !IsUsable)
+            {
+                return 0;
+            }
+
+            Vector3D direction =
+                VectorMath.SafeNormalize(
+                    ForceDirectionWorld);
+
+            double projection =
+                Vector3D.Dot(
+                    residual,
+                    direction);
+
+            if (projection <=
+                ForceEpsilon)
             {
                 return 0;
             }
 
             double available =
-                MaximumEffectiveThrust - DesiredEffectiveThrust;
+                MaximumEffectiveThrust -
+                DesiredEffectiveThrust;
 
-            if (available <= ForceEpsilon)
+            if (available <=
+                ForceEpsilon)
             {
                 return 0;
             }
 
-            double added = Math.Min(projection, available);
+            double added =
+                Math.Min(
+                    projection,
+                    available);
 
-            DesiredEffectiveThrust += added;
-            residual -= direction * added;
+            DesiredEffectiveThrust +=
+                added;
+
+            residual -=
+                direction * added;
 
             return added;
         }
@@ -157,44 +304,68 @@ class Program : MyGridProgram
                 return;
             }
 
-            double maximumEffective = MaximumEffectiveThrust;
+            if (DesiredEffectiveThrust >
+                ForceEpsilon)
+            {
+                program
+                    .PrepareThrusterForControl(
+                        this);
+            }
+
+            double maximumEffective =
+                MaximumEffectiveThrust;
 
             float requestedPercentage =
-                maximumEffective > ForceEpsilon
-                    ? (float)MathHelper.Clamp(
-                        DesiredEffectiveThrust / maximumEffective,
-                        0,
-                        1)
+                maximumEffective >
+                        ForceEpsilon
+                    ? (float)
+                        MathHelper.Clamp(
+                            DesiredEffectiveThrust /
+                            maximumEffective,
+                            0,
+                            1)
                     : 0;
 
-            if (!float.IsNaN(lastOverridePercentage) &&
+            if (!float.IsNaN(
+                    lastOverridePercentage) &&
                 Math.Abs(
                     requestedPercentage -
-                    lastOverridePercentage) < 1e-4f &&
+                    lastOverridePercentage) <
+                        ThrustWriteDeadbandFraction &&
                 Math.Abs(
-                    TheBlock.ThrustOverridePercentage -
-                    requestedPercentage) < 1e-4f)
+                    TheBlock
+                        .ThrustOverridePercentage -
+                    requestedPercentage) <
+                        ThrustWriteDeadbandFraction)
             {
                 return;
             }
 
-            TheBlock.ThrustOverridePercentage =
-                lastOverridePercentage =
-                    requestedPercentage;
+            TheBlock
+                .ThrustOverridePercentage =
+                requestedPercentage;
+
+            lastOverridePercentage =
+                requestedPercentage;
         }
 
         public void ClearOverride()
         {
             DesiredEffectiveThrust = 0;
 
-            if (TheBlock == null || TheBlock.Closed)
+            if (TheBlock == null ||
+                TheBlock.Closed)
             {
                 return;
             }
 
-            if (Math.Abs(TheBlock.ThrustOverridePercentage) > 1e-5f)
+            if (Math.Abs(
+                    TheBlock
+                        .ThrustOverridePercentage) >
+                ForceEpsilon)
             {
-                TheBlock.ThrustOverridePercentage = 0;
+                TheBlock
+                    .ThrustOverridePercentage = 0;
             }
 
             lastOverridePercentage = 0;
@@ -203,7 +374,9 @@ class Program : MyGridProgram
         public void Release()
         {
             ClearOverride();
-            Controlled = false;
+
+            controlRoles =
+                ControlRole.None;
         }
     }
 
@@ -213,35 +386,107 @@ class Program : MyGridProgram
     {
         readonly Program program;
 
-        double lastWrittenTargetVelocity = double.NaN,parkTargetAngle;
+        double lastWrittenTargetVelocity =
+            double.NaN,lastObservedAngle =
+            double.NaN,measuredAngularVelocity,parkTargetAngle;
+        double lastNonzeroCommandSign;
         bool parkTargetInitialized,parkSettled;
+
+        ControlRole controlRoles;
 
         public readonly IMyMotorStator TheBlock;
         public readonly BlockTags Tags;
 
         public VectorThrust Nacelle;
 
-        public bool Controlled;
+        public ControlRole ControlRoles
+        {
+            get
+            {
+                return controlRoles;
+            }
+        }
+
+        public bool Controlled
+        {
+            get
+            {
+                return controlRoles !=
+                       ControlRole.None;
+            }
+
+            set
+            {
+                SetControlRole(
+                    ControlRole.Normal,
+                    value);
+            }
+        }
 
         public long EntityId
         {
-            get { return TheBlock.EntityId; }
+            get
+            {
+                return TheBlock.EntityId;
+            }
+        }
+
+        public bool IsIgnored
+        {
+            get
+            {
+                return (Tags &
+                        BlockTags.Ignore) != 0;
+            }
+        }
+
+        public bool IsExplicitlyUsed
+        {
+            get
+            {
+                return (Tags &
+                        BlockTags.Use) != 0;
+            }
         }
 
         public bool IsHinge
         {
             get
             {
-                return TheBlock.BlockDefinition.SubtypeId
+                return TheBlock
+                    .BlockDefinition
+                    .SubtypeId
                     .IndexOf(
 "Hinge",
-                        StringComparison.OrdinalIgnoreCase) >= 0;
+                        StringComparison
+                            .OrdinalIgnoreCase) >= 0;
             }
         }
 
         public Vector3D AxisWorld
         {
-            get { return TheBlock.WorldMatrix.Up; }
+            get
+            {
+                return TheBlock
+                    .WorldMatrix
+                    .Up;
+            }
+        }
+
+        public double MeasuredAngularVelocity
+        {
+            get
+            {
+                return measuredAngularVelocity;
+            }
+        }
+
+        public double PreferredCommandSign
+        {
+            get
+            {
+                return lastNonzeroCommandSign;
+            }
         }
 
         public bool IsPhysicallyMovable
@@ -258,13 +503,20 @@ class Program : MyGridProgram
                     return false;
                 }
 
-                double lower = TheBlock.LowerLimitRad;
-                double upper = TheBlock.UpperLimitRad;
+                double lower =
+                    TheBlock.LowerLimitRad;
 
-                return !HasFiniteLowerLimit(lower) ||
-                       !HasFiniteUpperLimit(upper) ||
-                       Math.Abs(upper - lower) >
-                           EqualLimitEpsilon;
+                double upper =
+                    TheBlock.UpperLimitRad;
+
+                return !HasFiniteLowerLimit(
+                           lower) ||
+                       !HasFiniteUpperLimit(
+                           upper) ||
+                       Math.Abs(
+                           upper -
+                           lower) >
+                       EqualLimitEpsilon;
             }
         }
 
@@ -277,35 +529,166 @@ class Program : MyGridProgram
             TheBlock = block;
             this.program = program;
             Tags = tags;
-            Controlled = controlled;
+
+            if (controlled &&
+                !IsIgnored)
+            {
+                controlRoles =
+                    ControlRole.Normal;
+            }
         }
 
-        public double Point(Vector3D desiredForceWorld)
+        public void SetControlRole(
+            ControlRole role,
+            bool enabled)
+        {
+            if (IsIgnored)
+            {
+                controlRoles =
+                    ControlRole.None;
+
+                Stop();
+                return;
+            }
+
+            if (enabled)
+            {
+                controlRoles |= role;
+                return;
+            }
+
+            controlRoles &= ~role;
+
+            if (controlRoles ==
+                ControlRole.None)
+            {
+                Stop();
+            }
+        }
+
+        public bool HasControlRole(
+            ControlRole role)
+        {
+            return (controlRoles &
+                    role) != 0;
+        }
+
+        public void ObserveMotion(
+            double timeStep)
+        {
+            if (TheBlock == null ||
+                TheBlock.Closed)
+            {
+                measuredAngularVelocity = 0;
+                lastObservedAngle =
+                    double.NaN;
+
+                return;
+            }
+
+            double currentAngle =
+                TheBlock.Angle;
+
+            if (double.IsNaN(
+                    lastObservedAngle) ||
+                timeStep <=
+                    VectorEpsilon)
+            {
+                measuredAngularVelocity = 0;
+            }
+            else
+            {
+                double delta =
+                    currentAngle -
+                    lastObservedAngle;
+
+                // Angle wraps on unlimited rotors. Hinges and ordinary
+                // limited rotors cannot legitimately move a full turn
+                // between observations, so normalization remains safe.
+                delta =
+                    VectorMath.NormalizeAngle(
+                        delta);
+
+                measuredAngularVelocity =
+                    delta / timeStep;
+            }
+
+            lastObservedAngle =
+                currentAngle;
+        }
+
+        public double Point(
+            Vector3D desiredForceWorld)
+        {
+            return Point(
+                desiredForceWorld,
+                1,
+                program.lastControlTimeStep);
+        }
+
+        public double Point(
+            Vector3D desiredForceWorld,
+            double demandFraction,
+            double timeStep)
         {
             if (!Controlled ||
                 !IsPhysicallyMovable ||
-                Nacelle == null)
+                Nacelle == null ||
+                desiredForceWorld
+                    .LengthSquared() <=
+                VectorEpsilon)
             {
-                SetTargetVelocity(0);
+                Stop();
                 return 0;
             }
 
             CancelPark();
+            ObserveMotion(timeStep);
 
             Vector3D currentForce =
-                Nacelle.PrimaryForceDirectionWorld;
+                Nacelle
+                    .PrimaryForceDirectionWorld;
 
             double rawCommandAngle =
-                VectorMath.RotorCommandAngle(
+                GetStableCommandAngle(
                     desiredForceWorld,
-                    currentForce,
-                    AxisWorld);
+                    currentForce);
 
             double reachableCommandAngle =
-                ClampCommandDeltaToLimits(rawCommandAngle);
+                ClampCommandDeltaToLimits(
+                    rawCommandAngle);
+
+            demandFraction =
+                MathHelper.Clamp(
+                    demandFraction,
+                    0,
+                    1);
+
+            double responseGain =
+                MinimumJointResponseGain +
+                (MaximumJointResponseGain -
+                 MinimumJointResponseGain) *
+                demandFraction;
+
+            double predictedError =
+                reachableCommandAngle -
+                measuredAngularVelocity *
+                Math.Max(
+                    timeStep,
+                    MinimumTimeStep);
+
+            // If current motion is already expected to cross the target
+            // by the next observation, coast instead of immediately
+            // commanding a full reversal.
+            if (reachableCommandAngle *
+                predictedError <= 0)
+            {
+                predictedError = 0;
+            }
 
             SetTargetVelocity(
-                reachableCommandAngle * JointResponseGain);
+                predictedError *
+                responseGain);
 
             Vector3D predictedForce =
                 VectorMath.RotateAroundAxis(
@@ -318,6 +701,57 @@ class Program : MyGridProgram
                 desiredForceWorld);
         }
 
+        public void PointToSolution(
+            NacelleAimSolution solution,
+            double demandFraction,
+            double timeStep)
+        {
+            if (solution == null ||
+                solution.Nacelle !=
+                    Nacelle ||
+                !Controlled ||
+                !IsPhysicallyMovable)
+            {
+                Stop();
+                return;
+            }
+
+            CancelPark();
+            ObserveMotion(timeStep);
+
+            double commandAngle =
+                solution.CommandAngle;
+
+            demandFraction =
+                MathHelper.Clamp(
+                    demandFraction,
+                    0,
+                    1);
+
+            double responseGain =
+                MinimumJointResponseGain +
+                (MaximumJointResponseGain -
+                 MinimumJointResponseGain) *
+                demandFraction;
+
+            double predictedError =
+                commandAngle -
+                measuredAngularVelocity *
+                Math.Max(
+                    timeStep,
+                    MinimumTimeStep);
+
+            if (commandAngle *
+                predictedError <= 0)
+            {
+                predictedError = 0;
+            }
+
+            SetTargetVelocity(
+                predictedError *
+                responseGain);
+        }
+
         public bool TryGetReachableCommandAngle(
             Vector3D desiredForceWorld,
             out double commandAngle,
@@ -326,30 +760,34 @@ class Program : MyGridProgram
             commandAngle = 0;
             predictedAlignment = 0;
 
-            if (!Controlled ||
-                !IsPhysicallyMovable ||
+            if (!IsPhysicallyMovable ||
                 Nacelle == null)
             {
                 return false;
             }
 
             Vector3D currentForce =
-                Nacelle.PrimaryForceDirectionWorld;
+                Nacelle
+                    .PrimaryForceDirectionWorld;
 
-            if (currentForce.LengthSquared() <= VectorEpsilon ||
-                desiredForceWorld.LengthSquared() <= VectorEpsilon)
+            if (currentForce
+                    .LengthSquared() <=
+                    VectorEpsilon ||
+                desiredForceWorld
+                    .LengthSquared() <=
+                    VectorEpsilon)
             {
                 return false;
             }
 
             double rawCommandAngle =
-                VectorMath.RotorCommandAngle(
+                GetStableCommandAngle(
                     desiredForceWorld,
-                    currentForce,
-                    AxisWorld);
+                    currentForce);
 
             commandAngle =
-                ClampCommandDeltaToLimits(rawCommandAngle);
+                ClampCommandDeltaToLimits(
+                    rawCommandAngle);
 
             Vector3D predictedForce =
                 VectorMath.RotateAroundAxis(
@@ -357,11 +795,29 @@ class Program : MyGridProgram
                     AxisWorld,
                     -commandAngle);
 
-            predictedAlignment = VectorMath.CosBetween(
-                predictedForce,
-                desiredForceWorld);
+            predictedAlignment =
+                VectorMath.CosBetween(
+                    predictedForce,
+                    desiredForceWorld);
 
             return true;
+        }
+
+        public double GetReachableCommandAngle(
+            Vector3D desiredForceWorld,
+            Vector3D currentForceWorld)
+        {
+            return ClampCommandDeltaToLimits(
+                GetStableCommandAngle(
+                    desiredForceWorld,
+                    currentForceWorld));
+        }
+
+        public double ClampCommandDelta(
+            double rawCommandDelta)
+        {
+            return ClampCommandDeltaToLimits(
+                rawCommandDelta);
         }
 
         public void BeginPark(
@@ -375,18 +831,26 @@ class Program : MyGridProgram
                 !IsPhysicallyMovable ||
                 Nacelle == null)
             {
-                SetTargetVelocity(0);
+                Stop();
                 parkSettled = true;
+
+                program
+                    .parkRotorTargetAngles
+                    .Remove(EntityId);
+
                 return;
             }
 
             double commandAngle;
             double predictedAlignment;
 
-            if (naturalGravity.LengthSquared() > VectorEpsilon)
+            if (naturalGravity
+                    .LengthSquared() >
+                VectorEpsilon)
             {
                 Vector3D gravityOpposingForce =
-                    -VectorMath.SafeNormalize(naturalGravity);
+                    -VectorMath.SafeNormalize(
+                        naturalGravity);
 
                 if (TryGetReachableCommandAngle(
                         gravityOpposingForce,
@@ -395,73 +859,129 @@ class Program : MyGridProgram
                     predictedAlignment >=
                         DirectParkAlignmentCosine)
                 {
-                    SetParkTargetFromCommandDelta(commandAngle);
+                    SetParkTargetFromCommandDelta(
+                        commandAngle);
+
                     return;
                 }
             }
 
             Vector3D branchCenter =
-                Nacelle.GetBranchCenterWorld();
+                Nacelle
+                    .GetBranchCenterWorld();
 
-            Vector3D pivot = TheBlock.GetPosition();
-            Vector3D branchOffset = branchCenter - pivot;
-            Vector3D rootOffset = localRootCenter - pivot;
+            Vector3D pivot =
+                TheBlock.GetPosition();
+
+            Vector3D branchOffset =
+                branchCenter -
+                pivot;
+
+            Vector3D rootOffset =
+                localRootCenter -
+                pivot;
 
             Vector3D branchPlanar =
-                VectorMath.Rejection(branchOffset, AxisWorld);
+                VectorMath.Rejection(
+                    branchOffset,
+                    AxisWorld);
 
             Vector3D rootPlanar =
-                VectorMath.Rejection(rootOffset, AxisWorld);
+                VectorMath.Rejection(
+                    rootOffset,
+                    AxisWorld);
 
-            if (branchPlanar.LengthSquared() <= VectorEpsilon ||
-                rootPlanar.LengthSquared() <= VectorEpsilon)
+            if (branchPlanar
+                    .LengthSquared() <=
+                    VectorEpsilon ||
+                rootPlanar
+                    .LengthSquared() <=
+                    VectorEpsilon)
             {
-                SetParkTargetFromCommandDelta(0);
+                SetParkTargetFromCommandDelta(
+                    0);
+
                 return;
             }
 
-            commandAngle = VectorMath.RotorCommandAngle(
-                rootPlanar,
-                branchPlanar,
-                AxisWorld);
+            commandAngle =
+                GetStableCommandAngle(
+                    rootPlanar,
+                    branchPlanar);
 
             commandAngle =
-                ClampCommandDeltaToLimits(commandAngle);
+                ClampCommandDeltaToLimits(
+                    commandAngle);
 
-            SetParkTargetFromCommandDelta(commandAngle);
+            SetParkTargetFromCommandDelta(
+                commandAngle);
+        }
+
+        public void RestoreParkTarget(
+            double targetAngle)
+        {
+            parkTargetAngle =
+                targetAngle;
+
+            if (HasFiniteLowerLimit(
+                    TheBlock.LowerLimitRad))
+            {
+                parkTargetAngle =
+                    Math.Max(
+                        parkTargetAngle,
+                        TheBlock
+                            .LowerLimitRad);
+            }
+
+            if (HasFiniteUpperLimit(
+                    TheBlock.UpperLimitRad))
+            {
+                parkTargetAngle =
+                    Math.Min(
+                        parkTargetAngle,
+                        TheBlock
+                            .UpperLimitRad);
+            }
+
+            parkTargetInitialized = true;
+            parkSettled = false;
         }
 
         public void UpdatePark()
         {
-            if (parkSettled)
-            {
-                return;
-            }
-
             if (!parkTargetInitialized ||
                 !Controlled ||
                 !IsPhysicallyMovable)
             {
-                SetTargetVelocity(0);
+                Stop();
                 parkSettled = true;
                 return;
             }
 
-            double error = parkTargetAngle - TheBlock.Angle;
+            double error =
+                parkTargetAngle -
+                TheBlock.Angle;
 
             if (!HasAnyFiniteLimit())
             {
-                error = VectorMath.NormalizeAngle(error);
+                error =
+                    VectorMath.NormalizeAngle(
+                        error);
             }
 
-            if (Math.Abs(error) <= AngleEpsilon)
-            {
-                SetTargetVelocity(0);
-                parkSettled = true;
-                return;
-            }
+            double requestedVelocity =
+                error *
+                ParkingJointResponseGain;
 
-            SetTargetVelocity(error * JointResponseGain);
+            parkSettled =
+                Math.Abs(
+                    requestedVelocity) <=
+                JointWriteDeadbandRad;
+
+            SetTargetVelocity(
+                parkSettled
+                    ? 0
+                    : requestedVelocity);
         }
 
         public void CancelPark()
@@ -470,141 +990,238 @@ class Program : MyGridProgram
             parkSettled = false;
         }
 
-        public void Release()
+        public void Stop()
         {
             SetTargetVelocity(0);
-            Controlled = false;
+        }
+
+        public void Release()
+        {
+            Stop();
+
+            controlRoles =
+                ControlRole.None;
+        }
+
+        double GetStableCommandAngle(
+            Vector3D targetDirection,
+            Vector3D currentDirection)
+        {
+            double commandAngle =
+                VectorMath.RotorCommandAngle(
+                    targetDirection,
+                    currentDirection,
+                    AxisWorld);
+
+            // At exactly opposite directions atan2 may choose either half
+            // turn from microscopic cross-product noise. Retain the last
+            // deliberate turn direction rather than twitching each tick.
+            if (Math.Abs(
+                    Math.Abs(
+                        commandAngle) -
+                    Math.PI) <=
+                AngleEpsilon)
+            {
+                if (lastNonzeroCommandSign != 0)
+                {
+                    commandAngle =
+                        Math.Abs(
+                            commandAngle) *
+                        lastNonzeroCommandSign;
+                }
+                else
+                {
+                    commandAngle =
+                        Math.Abs(
+                            commandAngle);
+                }
+            }
+
+            return commandAngle;
         }
 
         void SetParkTargetFromCommandDelta(
             double commandAngle)
         {
             parkTargetAngle =
-                TheBlock.Angle + commandAngle;
+                TheBlock.Angle +
+                commandAngle;
 
-            if (HasFiniteLowerLimit(TheBlock.LowerLimitRad))
+            if (HasFiniteLowerLimit(
+                    TheBlock.LowerLimitRad))
             {
-                parkTargetAngle = Math.Max(
-                    parkTargetAngle,
-                    TheBlock.LowerLimitRad);
+                parkTargetAngle =
+                    Math.Max(
+                        parkTargetAngle,
+                        TheBlock
+                            .LowerLimitRad);
             }
 
-            if (HasFiniteUpperLimit(TheBlock.UpperLimitRad))
+            if (HasFiniteUpperLimit(
+                    TheBlock.UpperLimitRad))
             {
-                parkTargetAngle = Math.Min(
-                    parkTargetAngle,
-                    TheBlock.UpperLimitRad);
+                parkTargetAngle =
+                    Math.Min(
+                        parkTargetAngle,
+                        TheBlock
+                            .UpperLimitRad);
             }
 
             parkTargetInitialized = true;
+            parkSettled = false;
+
+            program
+                .parkRotorTargetAngles[
+                    EntityId] =
+                parkTargetAngle;
         }
 
         double ClampCommandDeltaToLimits(
             double rawCommandDelta)
         {
             rawCommandDelta =
-                VectorMath.NormalizeAngle(rawCommandDelta);
+                VectorMath.NormalizeAngle(
+                    rawCommandDelta);
 
             bool finiteLower =
-                HasFiniteLowerLimit(TheBlock.LowerLimitRad);
+                HasFiniteLowerLimit(
+                    TheBlock.LowerLimitRad);
 
             bool finiteUpper =
-                HasFiniteUpperLimit(TheBlock.UpperLimitRad);
+                HasFiniteUpperLimit(
+                    TheBlock.UpperLimitRad);
 
-            if (!finiteLower && !finiteUpper)
+            if (!finiteLower &&
+                !finiteUpper)
             {
                 return rawCommandDelta;
             }
 
-            double currentAngle = TheBlock.Angle;
-            double bestDelta = double.NaN;
-            double bestMagnitude = double.MaxValue;
+            double currentAngle =
+                TheBlock.Angle;
 
-            // Equivalent rotations can land inside a multi-turn rotor's
-            // user-defined range. Trying nearby turns is cheaper and safer
-            // than assuming Angle and the limits use the same wrapping.
-            for (int turn = -2; turn <= 2; turn++)
+            double bestDelta =
+                double.NaN;
+
+            double bestMagnitude =
+                double.MaxValue;
+
+            for (int turn = -2;
+                turn <= 2;
+                turn++)
             {
                 double candidateDelta =
                     rawCommandDelta +
-                    turn * MathHelper.TwoPi;
+                    turn *
+                    MathHelper.TwoPi;
 
                 double candidateAngle =
-                    currentAngle + candidateDelta;
+                    currentAngle +
+                    candidateDelta;
 
                 if (finiteLower &&
                     candidateAngle <
-                        TheBlock.LowerLimitRad - AngleEpsilon)
+                        TheBlock
+                            .LowerLimitRad -
+                        AngleEpsilon)
                 {
                     continue;
                 }
 
                 if (finiteUpper &&
                     candidateAngle >
-                        TheBlock.UpperLimitRad + AngleEpsilon)
+                        TheBlock
+                            .UpperLimitRad +
+                        AngleEpsilon)
                 {
                     continue;
                 }
 
-                double magnitude = Math.Abs(candidateDelta);
+                double magnitude =
+                    Math.Abs(
+                        candidateDelta);
 
-                if (magnitude < bestMagnitude)
+                if (magnitude <
+                    bestMagnitude)
                 {
-                    bestMagnitude = magnitude;
-                    bestDelta = candidateDelta;
+                    bestMagnitude =
+                        magnitude;
+
+                    bestDelta =
+                        candidateDelta;
                 }
             }
 
-            if (!double.IsNaN(bestDelta))
+            if (!double.IsNaN(
+                    bestDelta))
             {
                 return bestDelta;
             }
 
             double requestedAngle =
-                currentAngle + rawCommandDelta;
+                currentAngle +
+                rawCommandDelta;
 
             if (finiteLower)
             {
-                requestedAngle = Math.Max(
-                    requestedAngle,
-                    TheBlock.LowerLimitRad);
+                requestedAngle =
+                    Math.Max(
+                        requestedAngle,
+                        TheBlock
+                            .LowerLimitRad);
             }
 
             if (finiteUpper)
             {
-                requestedAngle = Math.Min(
-                    requestedAngle,
-                    TheBlock.UpperLimitRad);
+                requestedAngle =
+                    Math.Min(
+                        requestedAngle,
+                        TheBlock
+                            .UpperLimitRad);
             }
 
-            return requestedAngle - currentAngle;
+            return requestedAngle -
+                   currentAngle;
         }
 
-        void SetTargetVelocity(double velocityRad)
+        void SetTargetVelocity(
+            double velocityRad)
         {
-            if (TheBlock == null || TheBlock.Closed)
+            if (TheBlock == null ||
+                TheBlock.Closed)
             {
                 return;
             }
 
-            velocityRad = MathHelper.Clamp(
-                velocityRad,
-                -MaximumJointVelocityRad,
-                MaximumJointVelocityRad);
+            velocityRad =
+                MathHelper.Clamp(
+                    velocityRad,
+                    -MaximumJointVelocityRad,
+                    MaximumJointVelocityRad);
 
-            if (Math.Abs(velocityRad) <=
+            if (Math.Abs(
+                    velocityRad) <=
                 JointWriteDeadbandRad)
             {
                 velocityRad = 0;
             }
 
-            if (!double.IsNaN(lastWrittenTargetVelocity) &&
+            if (velocityRad != 0)
+            {
+                lastNonzeroCommandSign =
+                    Math.Sign(
+                        velocityRad);
+            }
+
+            if (!double.IsNaN(
+                    lastWrittenTargetVelocity) &&
                 Math.Abs(
                     lastWrittenTargetVelocity -
                     velocityRad) <
                         JointWriteDeadbandRad &&
                 Math.Abs(
-                    TheBlock.TargetVelocityRad -
+                    TheBlock
+                        .TargetVelocityRad -
                     velocityRad) <
                         JointWriteDeadbandRad)
             {
@@ -614,28 +1231,37 @@ class Program : MyGridProgram
             TheBlock.TargetVelocityRad =
                 (float)velocityRad;
 
-            lastWrittenTargetVelocity = velocityRad;
+            lastWrittenTargetVelocity =
+                velocityRad;
         }
 
         bool HasAnyFiniteLimit()
         {
             return HasFiniteLowerLimit(
-                       TheBlock.LowerLimitRad) ||
+                       TheBlock
+                           .LowerLimitRad) ||
                    HasFiniteUpperLimit(
-                       TheBlock.UpperLimitRad);
+                       TheBlock
+                           .UpperLimitRad);
         }
 
-        static bool HasFiniteLowerLimit(double value)
+        static bool HasFiniteLowerLimit(
+            double value)
         {
-            return !double.IsNaN(value) &&
-                   !double.IsInfinity(value) &&
+            return !double.IsNaN(
+                       value) &&
+                   !double.IsInfinity(
+                       value) &&
                    value > -1e20;
         }
 
-        static bool HasFiniteUpperLimit(double value)
+        static bool HasFiniteUpperLimit(
+            double value)
         {
-            return !double.IsNaN(value) &&
-                   !double.IsInfinity(value) &&
+            return !double.IsNaN(
+                       value) &&
+                   !double.IsInfinity(
+                       value) &&
                    value < 1e20;
         }
     }
@@ -646,13 +1272,22 @@ class Program : MyGridProgram
     {
         sealed class DirectionBucket
         {
-            public Vector3D LocalExhaustDirection;
-            public double EffectiveThrust;
+            public Vector3D
+                LocalExhaustDirection;
+
+            public double
+                EffectiveThrust;
         }
 
         readonly Program program;
-        readonly List<DirectionBucket> directionBuckets =
-            new List<DirectionBucket>();
+
+        readonly List<DirectionBucket>
+            directionBuckets =
+                new List<DirectionBucket>();
+
+        readonly List<double>
+            candidateCommandAngles =
+                new List<double>();
 
         public readonly Rotor Rotor;
 
@@ -680,7 +1315,10 @@ class Program : MyGridProgram
 
         public Vector3D AxisWorld
         {
-            get { return Rotor.AxisWorld; }
+            get
+            {
+                return Rotor.AxisWorld;
+            }
         }
 
         public Vector3D PrimaryForceDirectionWorld
@@ -692,17 +1330,20 @@ class Program : MyGridProgram
 
                 if (topGrid == null ||
                     PrimaryExhaustDirectionLocal
-                        .LengthSquared() <= VectorEpsilon)
+                        .LengthSquared() <=
+                    VectorEpsilon)
                 {
                     return Vector3D.Zero;
                 }
 
                 Vector3D exhaust =
-                    VectorMath.LocalToWorldDirection(
-                        PrimaryExhaustDirectionLocal,
-                        topGrid.WorldMatrix);
+                    VectorMath
+                        .LocalToWorldDirection(
+                            PrimaryExhaustDirectionLocal,
+                            topGrid.WorldMatrix);
 
-                return -VectorMath.SafeNormalize(exhaust);
+                return -VectorMath.SafeNormalize(
+                    exhaust);
             }
         }
 
@@ -710,9 +1351,12 @@ class Program : MyGridProgram
         {
             directionBuckets.Clear();
 
-            for (int i = 0; i < Thrusters.Count; i++)
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
             {
-                Thrusters[i].IsPrimaryNacelleThruster =
+                Thrusters[i]
+                    .IsPrimaryNacelleThruster =
                     false;
             }
 
@@ -731,33 +1375,43 @@ class Program : MyGridProgram
             MatrixD topWorldMatrix =
                 topGrid.WorldMatrix;
 
-            for (int i = 0; i < Thrusters.Count; i++)
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
             {
-                Thruster thruster = Thrusters[i];
+                Thruster thruster =
+                    Thrusters[i];
 
-                if (!thruster.Controlled)
+                if (!thruster.Controlled ||
+                    !thruster.IsUsable)
                 {
                     continue;
                 }
 
                 double effective =
-                    thruster.MaximumEffectiveThrust;
+                    thruster
+                        .MaximumEffectiveThrust;
 
-                if (effective <= ForceEpsilon)
+                if (effective <=
+                    ForceEpsilon)
                 {
                     continue;
                 }
 
                 Vector3D localExhaust =
                     VectorMath.SafeNormalize(
-                        VectorMath.WorldToLocalDirection(
-                            thruster.ExhaustDirectionWorld,
-                            topWorldMatrix));
+                        VectorMath
+                            .WorldToLocalDirection(
+                                thruster
+                                    .ExhaustDirectionWorld,
+                                topWorldMatrix));
 
-                DirectionBucket bucket = null;
+                DirectionBucket bucket =
+                    null;
 
                 for (int j = 0;
-                    j < directionBuckets.Count;
+                    j <
+                        directionBuckets.Count;
                     j++)
                 {
                     if (Vector3D.Dot(
@@ -766,37 +1420,46 @@ class Program : MyGridProgram
                             localExhaust) >=
                         DirectionBucketCosine)
                     {
-                        bucket = directionBuckets[j];
+                        bucket =
+                            directionBuckets[j];
+
                         break;
                     }
                 }
 
                 if (bucket == null)
                 {
-                    bucket = new DirectionBucket
-                    {
-                        LocalExhaustDirection =
-                            localExhaust
-                    };
+                    bucket =
+                        new DirectionBucket
+                        {
+                            LocalExhaustDirection =
+                                localExhaust
+                        };
 
-                    directionBuckets.Add(bucket);
+                    directionBuckets.Add(
+                        bucket);
                 }
 
-                bucket.EffectiveThrust += effective;
+                bucket.EffectiveThrust +=
+                    effective;
             }
 
-            DirectionBucket strongest = null;
+            DirectionBucket strongest =
+                null;
 
             for (int i = 0;
-                i < directionBuckets.Count;
+                i <
+                    directionBuckets.Count;
                 i++)
             {
                 if (strongest == null ||
                     directionBuckets[i]
                         .EffectiveThrust >
-                    strongest.EffectiveThrust)
+                    strongest
+                        .EffectiveThrust)
                 {
-                    strongest = directionBuckets[i];
+                    strongest =
+                        directionBuckets[i];
                 }
             }
 
@@ -810,22 +1473,35 @@ class Program : MyGridProgram
             }
 
             PrimaryExhaustDirectionLocal =
-                strongest.LocalExhaustDirection;
+                strongest
+                    .LocalExhaustDirection;
 
             PrimaryEffectiveThrust =
-                strongest.EffectiveThrust;
+                strongest
+                    .EffectiveThrust;
 
-            for (int i = 0; i < Thrusters.Count; i++)
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
             {
-                Thruster thruster = Thrusters[i];
+                Thruster thruster =
+                    Thrusters[i];
+
+                if (!thruster.IsUsable)
+                {
+                    continue;
+                }
 
                 Vector3D localExhaust =
                     VectorMath.SafeNormalize(
-                        VectorMath.WorldToLocalDirection(
-                            thruster.ExhaustDirectionWorld,
-                            topWorldMatrix));
+                        VectorMath
+                            .WorldToLocalDirection(
+                                thruster
+                                    .ExhaustDirectionWorld,
+                                topWorldMatrix));
 
-                thruster.IsPrimaryNacelleThruster =
+                thruster
+                    .IsPrimaryNacelleThruster =
                     Vector3D.Dot(
                         localExhaust,
                         PrimaryExhaustDirectionLocal) >=
@@ -833,18 +1509,296 @@ class Program : MyGridProgram
             }
         }
 
-        public double Aim(Vector3D desiredForceWorld)
+        public bool TrySolveAim(
+            Vector3D targetDirection,
+            NacelleAimSolution output)
         {
-            RequiredForceWorld = desiredForceWorld;
+            if (output == null)
+            {
+                return false;
+            }
 
-            if (desiredForceWorld.LengthSquared() <=
+            output.Clear();
+            output.Nacelle = this;
+
+            targetDirection =
+                VectorMath.SafeNormalize(
+                    targetDirection);
+
+            if (!Rotor.Controlled ||
+                !Rotor.IsPhysicallyMovable ||
+                targetDirection
+                    .LengthSquared() <=
                 VectorEpsilon)
             {
-                Rotor.Point(Vector3D.Zero);
+                return false;
+            }
+
+            candidateCommandAngles.Clear();
+
+            AddCandidateCommandAngle(0);
+
+            Vector3D primaryDirection =
+                PrimaryForceDirectionWorld;
+
+            if (primaryDirection
+                    .LengthSquared() >
+                VectorEpsilon)
+            {
+                AddCandidateCommandAngle(
+                    Rotor
+                        .GetReachableCommandAngle(
+                            targetDirection,
+                            primaryDirection));
+            }
+
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    Thrusters[i];
+
+                if (!thruster.Controlled ||
+                    !thruster.IsUsable)
+                {
+                    continue;
+                }
+
+                AddCandidateCommandAngle(
+                    Rotor
+                        .GetReachableCommandAngle(
+                            targetDirection,
+                            thruster
+                                .ForceDirectionWorld));
+            }
+
+            double currentAngle =
+                Rotor.TheBlock.Angle;
+
+            double lower =
+                Rotor.TheBlock
+                    .LowerLimitRad;
+
+            double upper =
+                Rotor.TheBlock
+                    .UpperLimitRad;
+
+            if (!double.IsNaN(lower) &&
+                !double.IsInfinity(lower) &&
+                lower > -1e20)
+            {
+                AddCandidateCommandAngle(
+                    lower -
+                    currentAngle);
+            }
+
+            if (!double.IsNaN(upper) &&
+                !double.IsInfinity(upper) &&
+                upper < 1e20)
+            {
+                AddCandidateCommandAngle(
+                    upper -
+                    currentAngle);
+            }
+
+            double currentCapacity =
+                EvaluateProjectedCapacity(
+                    targetDirection,
+                    0);
+
+            double bestCapacity =
+                -1;
+
+            double bestAngle = 0;
+
+            for (int i = 0;
+                i <
+                    candidateCommandAngles.Count;
+                i++)
+            {
+                double candidate =
+                    Rotor.ClampCommandDelta(
+                        candidateCommandAngles[i]);
+
+                double capacity =
+                    EvaluateProjectedCapacity(
+                        targetDirection,
+                        candidate);
+
+                if (capacity >
+                    bestCapacity +
+                    ForceEpsilon)
+                {
+                    bestCapacity =
+                        capacity;
+
+                    bestAngle =
+                        candidate;
+
+                    continue;
+                }
+
+                if (Math.Abs(
+                        capacity -
+                        bestCapacity) >
+                    ForceEpsilon)
+                {
+                    continue;
+                }
+
+                double candidateMagnitude =
+                    Math.Abs(candidate);
+
+                double bestMagnitude =
+                    Math.Abs(bestAngle);
+
+                if (candidateMagnitude <
+                    bestMagnitude -
+                    AngleEpsilon)
+                {
+                    bestAngle =
+                        candidate;
+
+                    continue;
+                }
+
+                if (Math.Abs(
+                        candidateMagnitude -
+                        bestMagnitude) <=
+                        AngleEpsilon &&
+                    Rotor
+                        .PreferredCommandSign != 0 &&
+                    Math.Sign(candidate) ==
+                        Rotor
+                            .PreferredCommandSign)
+                {
+                    bestAngle =
+                        candidate;
+                }
+            }
+
+            if (bestCapacity <=
+                ForceEpsilon)
+            {
+                return false;
+            }
+
+            output.CommandAngle =
+                bestAngle;
+
+            output
+                .ReachableProjectedCapacity =
+                bestCapacity;
+
+            output
+                .CurrentProjectedCapacity =
+                currentCapacity;
+
+            Vector3D predictedPrimary =
+                VectorMath.RotateAroundAxis(
+                    primaryDirection,
+                    AxisWorld,
+                    -bestAngle);
+
+            output.Alignment =
+                VectorMath.CosBetween(
+                    predictedPrimary,
+                    targetDirection);
+
+            return true;
+        }
+
+        public double GetMaximumProjectedCapacity(
+            Vector3D targetDirection)
+        {
+            NacelleAimSolution solution =
+                new NacelleAimSolution();
+
+            return TrySolveAim(
+                       targetDirection,
+                       solution)
+                ? solution
+                    .ReachableProjectedCapacity
+                : 0;
+        }
+
+        public double Aim(
+            Vector3D desiredForceWorld)
+        {
+            RequiredForceWorld =
+                desiredForceWorld;
+
+            if (desiredForceWorld
+                    .LengthSquared() <=
+                VectorEpsilon)
+            {
+                Rotor.Stop();
                 return 0;
             }
 
-            return Rotor.Point(desiredForceWorld);
+            NacelleAimSolution solution =
+                new NacelleAimSolution();
+
+            if (!TrySolveAim(
+                    desiredForceWorld,
+                    solution))
+            {
+                Rotor.Stop();
+                return 0;
+            }
+
+            double demandFraction =
+                solution
+                        .ReachableProjectedCapacity >
+                    ForceEpsilon
+                    ? MathHelper.Clamp(
+                        desiredForceWorld
+                            .Length() /
+                        solution
+                            .ReachableProjectedCapacity,
+                        0,
+                        1)
+                    : 0;
+
+            Rotor.PointToSolution(
+                solution,
+                demandFraction,
+                program.lastControlTimeStep);
+
+            return solution.Alignment;
+        }
+
+        public void Aim(
+            NacelleAimSolution solution,
+            double requestedProjectedThrust,
+            double timeStep)
+        {
+            if (solution == null ||
+                solution.Nacelle != this ||
+                solution
+                        .ReachableProjectedCapacity <=
+                    ForceEpsilon)
+            {
+                RequiredForceWorld =
+                    Vector3D.Zero;
+
+                Rotor.Stop();
+                return;
+            }
+
+            double demandFraction =
+                MathHelper.Clamp(
+                    requestedProjectedThrust /
+                    solution
+                        .ReachableProjectedCapacity,
+                    0,
+                    1);
+
+            Rotor.PointToSolution(
+                solution,
+                demandFraction,
+                timeStep);
         }
 
         public double AllocatePrimary(
@@ -854,9 +1808,12 @@ class Program : MyGridProgram
         {
             double allocated = 0;
 
-            for (int i = 0; i < Thrusters.Count; i++)
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
             {
-                Thruster thruster = Thrusters[i];
+                Thruster thruster =
+                    Thrusters[i];
 
                 if (!thruster
                         .IsPrimaryNacelleThruster)
@@ -865,26 +1822,34 @@ class Program : MyGridProgram
                 }
 
                 double contribution =
-                    thruster.AddOptimalContribution(
-                        ref residual);
+                    thruster
+                        .AddOptimalContribution(
+                            ref residual);
 
-                if (contribution <= ForceEpsilon)
+                if (contribution <=
+                    ForceEpsilon)
                 {
                     continue;
                 }
 
                 Vector3D force =
-                    thruster.ForceDirectionWorld *
+                    thruster
+                        .ForceDirectionWorld *
                     contribution;
 
                 Vector3D lever =
-                    thruster.TheBlock.GetPosition() -
+                    thruster
+                        .TheBlock
+                        .GetPosition() -
                     centerOfMassWorld;
 
                 inducedTorque +=
-                    Vector3D.Cross(lever, force);
+                    Vector3D.Cross(
+                        lever,
+                        force);
 
-                allocated += contribution;
+                allocated +=
+                    contribution;
             }
 
             return allocated;
@@ -897,40 +1862,48 @@ class Program : MyGridProgram
         {
             double allocated = 0;
 
-            for (int i = 0; i < Thrusters.Count; i++)
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
             {
-                Thruster thruster = Thrusters[i];
+                Thruster thruster =
+                    Thrusters[i];
 
                 if (thruster
-                    .IsPrimaryNacelleThruster)
+                        .IsPrimaryNacelleThruster)
                 {
                     continue;
                 }
 
-                // These thrusters move with the nacelle but do not choose
-                // its angle. At the current angle they are ordinary static
-                // thrust sources and are solved by scalar projection.
                 double contribution =
-                    thruster.AddOptimalContribution(
-                        ref residual);
+                    thruster
+                        .AddOptimalContribution(
+                            ref residual);
 
-                if (contribution <= ForceEpsilon)
+                if (contribution <=
+                    ForceEpsilon)
                 {
                     continue;
                 }
 
                 Vector3D force =
-                    thruster.ForceDirectionWorld *
+                    thruster
+                        .ForceDirectionWorld *
                     contribution;
 
                 Vector3D lever =
-                    thruster.TheBlock.GetPosition() -
+                    thruster
+                        .TheBlock
+                        .GetPosition() -
                     centerOfMassWorld;
 
                 inducedTorque +=
-                    Vector3D.Cross(lever, force);
+                    Vector3D.Cross(
+                        lever,
+                        force);
 
-                allocated += contribution;
+                allocated +=
+                    contribution;
             }
 
             return allocated;
@@ -940,36 +1913,124 @@ class Program : MyGridProgram
         {
             if (BranchGrids.Count == 0)
             {
-                return Rotor.TheBlock.TopGrid != null
-                    ? Rotor.TheBlock.TopGrid
-                        .WorldAABB.Center
-                    : Rotor.TheBlock.GetPosition();
+                return Rotor
+                           .TheBlock
+                           .TopGrid != null
+                    ? Rotor
+                        .TheBlock
+                        .TopGrid
+                        .WorldAABB
+                        .Center
+                    : Rotor
+                        .TheBlock
+                        .GetPosition();
             }
 
-            Vector3D center = Vector3D.Zero;
+            Vector3D center =
+                Vector3D.Zero;
+
             int validGrids = 0;
 
             for (int i = 0;
                 i < BranchGrids.Count;
                 i++)
             {
-                IMyCubeGrid grid = BranchGrids[i];
+                IMyCubeGrid grid =
+                    BranchGrids[i];
 
-                if (grid == null || grid.Closed)
+                if (grid == null ||
+                    grid.Closed)
                 {
                     continue;
                 }
 
-                center += grid.WorldAABB.Center;
+                center +=
+                    grid.WorldAABB.Center;
+
                 validGrids++;
             }
 
             return validGrids > 0
-                ? center / validGrids
-                : Rotor.TheBlock.GetPosition();
+                ? center /
+                  validGrids
+                : Rotor
+                    .TheBlock
+                    .GetPosition();
+        }
+
+        void AddCandidateCommandAngle(
+            double commandAngle)
+        {
+            commandAngle =
+                Rotor.ClampCommandDelta(
+                    commandAngle);
+
+            for (int i = 0;
+                i <
+                    candidateCommandAngles.Count;
+                i++)
+            {
+                if (Math.Abs(
+                        candidateCommandAngles[i] -
+                        commandAngle) <=
+                    AngleEpsilon)
+                {
+                    return;
+                }
+            }
+
+            candidateCommandAngles.Add(
+                commandAngle);
+        }
+
+        double EvaluateProjectedCapacity(
+            Vector3D targetDirection,
+            double commandAngle)
+        {
+            double capacity = 0;
+
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    Thrusters[i];
+
+                if (!thruster.Controlled ||
+                    !thruster.IsUsable)
+                {
+                    continue;
+                }
+
+                Vector3D predictedDirection =
+                    VectorMath.RotateAroundAxis(
+                        thruster
+                            .ForceDirectionWorld,
+                        AxisWorld,
+                        -commandAngle);
+
+                double alignment =
+                    Vector3D.Dot(
+                        predictedDirection,
+                        targetDirection);
+
+                if (alignment <= 0)
+                {
+                    continue;
+                }
+
+                capacity +=
+                    alignment *
+                    thruster
+                        .MaximumEffectiveThrust;
+            }
+
+            return capacity;
         }
     }
 
+    // Retained for source compatibility until Functions.cs and
+    // Sequences.cs switch entirely to per-nacelle allocation.
     sealed class VectorThrustGroup
     {
         public readonly List<VectorThrust> Nacelles =
@@ -981,7 +2042,8 @@ class Program : MyGridProgram
             {
                 return Nacelles.Count > 0
                     ? VectorMath.SafeNormalize(
-                        Nacelles[0].AxisWorld)
+                        Nacelles[0]
+                            .AxisWorld)
                     : Vector3D.Zero;
             }
         }
@@ -1013,12 +2075,15 @@ class Program : MyGridProgram
                 AxisWorld);
         }
 
-        public double Score(Vector3D residual)
+        public double Score(
+            Vector3D residual)
         {
             Vector3D reachable =
-                ReachableComponent(residual);
+                ReachableComponent(
+                    residual);
 
-            if (reachable.LengthSquared() <=
+            if (reachable
+                    .LengthSquared() <=
                 VectorEpsilon)
             {
                 return 0;
@@ -1037,14 +2102,60 @@ class Program : MyGridProgram
         readonly Program program;
 
         bool lastOverride;
-        float lastPitch = float.NaN,lastYaw = float.NaN,lastRoll = float.NaN;
+
+        float lastPitch =
+            float.NaN,lastYaw =
+            float.NaN,lastRoll =
+            float.NaN;
+
+        ControlRole controlRoles;
 
         public readonly IMyGyro TheBlock;
         public readonly BlockTags Tags;
 
         public readonly double NominalCapacity;
 
-        public bool Controlled;
+        public ControlRole ControlRoles
+        {
+            get
+            {
+                return controlRoles;
+            }
+        }
+
+        public bool Controlled
+        {
+            get
+            {
+                return controlRoles !=
+                       ControlRole.None;
+            }
+
+            set
+            {
+                SetControlRole(
+                    ControlRole.Normal,
+                    value);
+            }
+        }
+
+        public bool IsIgnored
+        {
+            get
+            {
+                return (Tags &
+                        BlockTags.Ignore) != 0;
+            }
+        }
+
+        public bool IsExplicitlyUsed
+        {
+            get
+            {
+                return (Tags &
+                        BlockTags.Use) != 0;
+            }
+        }
 
         public double EffectiveCapacity
         {
@@ -1076,30 +2187,79 @@ class Program : MyGridProgram
             TheBlock = block;
             this.program = program;
             Tags = tags;
-            Controlled = controlled;
+
+            if (controlled &&
+                !IsIgnored)
+            {
+                controlRoles =
+                    ControlRole.Normal;
+            }
 
             bool smallGrid =
-                block.CubeGrid.GridSizeEnum ==
-                VRage.Game.MyCubeSize.Small;
+                block
+                    .CubeGrid
+                    .GridSizeEnum ==
+                VRage.Game
+                    .MyCubeSize.Small;
 
             bool prototech =
-                block.BlockDefinition.SubtypeId
+                block
+                    .BlockDefinition
+                    .SubtypeId
                     .IndexOf(
 "Prototech",
-                        StringComparison.OrdinalIgnoreCase) >= 0;
+                        StringComparison
+                            .OrdinalIgnoreCase) >= 0;
 
             if (prototech)
             {
-                NominalCapacity = smallGrid
-                    ? SmallGridPrototechGyroCapacity
-                    : LargeGridPrototechGyroCapacity;
+                NominalCapacity =
+                    smallGrid
+                        ? SmallGridPrototechGyroCapacity
+                        : LargeGridPrototechGyroCapacity;
             }
             else
             {
-                NominalCapacity = smallGrid
-                    ? SmallGridGyroCapacity
-                    : LargeGridGyroCapacity;
+                NominalCapacity =
+                    smallGrid
+                        ? SmallGridGyroCapacity
+                        : LargeGridGyroCapacity;
             }
+        }
+
+        public void SetControlRole(
+            ControlRole role,
+            bool enabled)
+        {
+            if (IsIgnored)
+            {
+                controlRoles =
+                    ControlRole.None;
+
+                ReleaseOverride();
+                return;
+            }
+
+            if (enabled)
+            {
+                controlRoles |= role;
+                return;
+            }
+
+            controlRoles &= ~role;
+
+            if (controlRoles ==
+                ControlRole.None)
+            {
+                ReleaseOverride();
+            }
+        }
+
+        public bool HasControlRole(
+            ControlRole role)
+        {
+            return (controlRoles &
+                    role) != 0;
         }
 
         public void ApplyWorldCommand(
@@ -1108,7 +2268,8 @@ class Program : MyGridProgram
             if (!Controlled ||
                 TheBlock == null ||
                 TheBlock.Closed ||
-                EffectiveCapacity <= VectorEpsilon)
+                EffectiveCapacity <=
+                    VectorEpsilon)
             {
                 ReleaseOverride();
                 return;
@@ -1120,19 +2281,23 @@ class Program : MyGridProgram
                     GyroCommandAtFullTorque);
 
             Vector3D localCommand =
-                VectorMath.WorldToLocalDirection(
-                    worldAngularCommand,
-                    TheBlock.WorldMatrix);
+                VectorMath
+                    .WorldToLocalDirection(
+                        worldAngularCommand,
+                        TheBlock.WorldMatrix);
 
-            // World-to-local gyro transformation follows the standard
-            // Whiplash141 subgrid gyro-control method used throughout the
-            // Space Engineers scripting community.
-            float pitch = (float)localCommand.X;
-            float yaw = (float)localCommand.Y;
-            float roll = (float)localCommand.Z;
+            float pitch =
+                (float)localCommand.X;
+
+            float yaw =
+                (float)localCommand.Y;
+
+            float roll =
+                (float)localCommand.Z;
 
             bool shouldOverride =
-                localCommand.LengthSquared() >
+                localCommand
+                    .LengthSquared() >
                 GyroWriteDeadband *
                 GyroWriteDeadband;
 
@@ -1143,33 +2308,49 @@ class Program : MyGridProgram
             }
 
             if (!lastOverride ||
-                Math.Abs(pitch - lastPitch) >
-                    GyroWriteDeadband)
+                Math.Abs(
+                    pitch -
+                    lastPitch) >
+                GyroWriteDeadband)
             {
-                TheBlock.Pitch = pitch;
-                lastPitch = pitch;
+                TheBlock.Pitch =
+                    pitch;
+
+                lastPitch =
+                    pitch;
             }
 
             if (!lastOverride ||
-                Math.Abs(yaw - lastYaw) >
-                    GyroWriteDeadband)
+                Math.Abs(
+                    yaw -
+                    lastYaw) >
+                GyroWriteDeadband)
             {
-                TheBlock.Yaw = yaw;
-                lastYaw = yaw;
+                TheBlock.Yaw =
+                    yaw;
+
+                lastYaw =
+                    yaw;
             }
 
             if (!lastOverride ||
-                Math.Abs(roll - lastRoll) >
-                    GyroWriteDeadband)
+                Math.Abs(
+                    roll -
+                    lastRoll) >
+                GyroWriteDeadband)
             {
-                TheBlock.Roll = roll;
-                lastRoll = roll;
+                TheBlock.Roll =
+                    roll;
+
+                lastRoll =
+                    roll;
             }
 
             if (!lastOverride ||
                 !TheBlock.GyroOverride)
             {
-                TheBlock.GyroOverride = true;
+                TheBlock.GyroOverride =
+                    true;
             }
 
             lastOverride = true;
@@ -1177,29 +2358,34 @@ class Program : MyGridProgram
 
         public void ReleaseOverride()
         {
-            if (TheBlock == null || TheBlock.Closed)
+            if (TheBlock == null ||
+                TheBlock.Closed)
             {
                 return;
             }
 
             if (TheBlock.GyroOverride)
             {
-                TheBlock.GyroOverride = false;
+                TheBlock.GyroOverride =
+                    false;
             }
 
-            if (Math.Abs(TheBlock.Pitch) >
+            if (Math.Abs(
+                    TheBlock.Pitch) >
                 GyroWriteDeadband)
             {
                 TheBlock.Pitch = 0;
             }
 
-            if (Math.Abs(TheBlock.Yaw) >
+            if (Math.Abs(
+                    TheBlock.Yaw) >
                 GyroWriteDeadband)
             {
                 TheBlock.Yaw = 0;
             }
 
-            if (Math.Abs(TheBlock.Roll) >
+            if (Math.Abs(
+                    TheBlock.Roll) >
                 GyroWriteDeadband)
             {
                 TheBlock.Roll = 0;
@@ -1214,7 +2400,9 @@ class Program : MyGridProgram
         public void Release()
         {
             ReleaseOverride();
-            Controlled = false;
+
+            controlRoles =
+                ControlRole.None;
         }
     }
 
@@ -1245,10 +2433,12 @@ class Program : MyGridProgram
         {
             Owner = owner;
             Surface = surface;
-            SurfaceIndex = surfaceIndex;
+            SurfaceIndex =
+                surfaceIndex;
         }
 
-        public void Write(string text)
+        public void Write(
+            string text)
         {
             if (Owner == null ||
                 Owner.Closed ||
@@ -1260,19 +2450,29 @@ class Program : MyGridProgram
             if (!initialized)
             {
                 Surface.ContentType =
-                    VRage.Game.GUI.TextPanel
-                        .ContentType.TEXT_AND_IMAGE;
+                    VRage.Game.GUI
+                        .TextPanel
+                        .ContentType
+                        .TEXT_AND_IMAGE;
 
-                Surface.Font = "Monospace";
-                Surface.FontSize = 0.8f;
+                Surface.Font =
+"Monospace";
+
+                Surface.FontSize =
+                    0.8f;
+
                 Surface.Alignment =
-                    VRage.Game.GUI.TextPanel
-                        .TextAlignment.LEFT;
+                    VRage.Game.GUI
+                        .TextPanel
+                        .TextAlignment
+                        .LEFT;
 
                 initialized = true;
             }
 
-            Surface.WriteText(text, false);
+            Surface.WriteText(
+                text,
+                false);
         }
     }
     enum OperatingMode
@@ -1295,24 +2495,272 @@ class Program : MyGridProgram
         UnparkTimer = 16
     }
 
+    [Flags]
+    enum ControlRole
+    {
+        None = 0,
+        Normal = 1,
+        Cruise = 2,
+        Slave = 4
+    }
+
+    [Flags]
+    enum ThrusterDisableReason
+    {
+        None = 0,
+        Park = 1,
+        Cruise = 2,
+        Standby = 4
+    }
+
+    sealed class DisabledThrusterState
+    {
+        public bool OriginalEnabled;
+        public ThrusterDisableReason Reasons;
+    }
+
+    sealed class DirectionalCapacity
+    {
+        public double Forward,Backward,Left,Right,Up,Down;
+
+        public void Clear()
+        {
+            Forward = 0;
+            Backward = 0;
+            Left = 0;
+            Right = 0;
+            Up = 0;
+            Down = 0;
+        }
+
+        public void Add(
+            DirectionalCapacity other)
+        {
+            if (other == null)
+            {
+                return;
+            }
+
+            Forward += other.Forward;
+            Backward += other.Backward;
+            Left += other.Left;
+            Right += other.Right;
+            Up += other.Up;
+            Down += other.Down;
+        }
+
+        public void CopyFrom(
+            DirectionalCapacity other)
+        {
+            if (other == null)
+            {
+                Clear();
+                return;
+            }
+
+            Forward = other.Forward;
+            Backward = other.Backward;
+            Left = other.Left;
+            Right = other.Right;
+            Up = other.Up;
+            Down = other.Down;
+        }
+
+        public double GetSignedAxisCapacity(
+            Vector3D localDirection)
+        {
+            double capacity = 0;
+
+            if (localDirection.X > 0)
+            {
+                capacity +=
+                    Right *
+                    localDirection.X;
+            }
+            else if (localDirection.X < 0)
+            {
+                capacity +=
+                    Left *
+                    -localDirection.X;
+            }
+
+            if (localDirection.Y > 0)
+            {
+                capacity +=
+                    Up *
+                    localDirection.Y;
+            }
+            else if (localDirection.Y < 0)
+            {
+                capacity +=
+                    Down *
+                    -localDirection.Y;
+            }
+
+            if (localDirection.Z > 0)
+            {
+                capacity +=
+                    Backward *
+                    localDirection.Z;
+            }
+            else if (localDirection.Z < 0)
+            {
+                capacity +=
+                    Forward *
+                    -localDirection.Z;
+            }
+
+            return capacity;
+        }
+    }
+
+    sealed class NacelleAimSolution
+    {
+        public VectorThrust Nacelle;
+        public double CommandAngle,ReachableProjectedCapacity,CurrentProjectedCapacity,Alignment;
+
+        public void Clear()
+        {
+            Nacelle = null;
+            CommandAngle = 0;
+            ReachableProjectedCapacity = 0;
+            CurrentProjectedCapacity = 0;
+            Alignment = 0;
+        }
+    }
+
+    struct TopologyFingerprint :
+        IEquatable<TopologyFingerprint>
+    {
+        public long Count;
+        public ulong Xor,Sum;
+
+        public bool Equals(
+            TopologyFingerprint other)
+        {
+            return Count ==
+                       other.Count &&
+                   Xor ==
+                       other.Xor &&
+                   Sum ==
+                       other.Sum;
+        }
+
+        public override bool Equals(
+            object obj)
+        {
+            return obj is
+                       TopologyFingerprint &&
+                   Equals(
+                       (TopologyFingerprint)
+                           obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash =
+                    (int)Count ^
+                    (int)(Count >> 32);
+
+                hash =
+                    hash * 397 ^
+                    (int)Xor ^
+                    (int)(Xor >> 32);
+
+                hash =
+                    hash * 397 ^
+                    (int)Sum ^
+                    (int)(Sum >> 32);
+
+                return hash;
+            }
+        }
+
+        public static bool operator ==(
+            TopologyFingerprint left,
+            TopologyFingerprint right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(
+            TopologyFingerprint left,
+            TopologyFingerprint right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
     sealed class MasterCommand
     {
         public long MasterProgrammableBlockId,ControllerId,Sequence;
 
-        // Dimensionless demand. A magnitude of one asks a participant to
-        // use its currently effective controlled capacity in this direction.
+        // Direction is world-space. Magnitude is the requested fraction
+        // of each participant's projected capacity in that direction.
         public Vector3D NormalizedForceDemand;
 
-        public bool Cruise,LevelWithGravity;
+        public bool Dampeners,Cruise,LevelWithGravity;
+        public double CruiseTargetSpeed,GearFraction;
 
-        public void CopyFrom(MasterCommand other)
+        public int GearIndex,GearCount;
+
+        public void CopyFrom(
+            MasterCommand other)
         {
-            MasterProgrammableBlockId = other.MasterProgrammableBlockId;
-            ControllerId = other.ControllerId;
-            Sequence = other.Sequence;
-            NormalizedForceDemand = other.NormalizedForceDemand;
-            Cruise = other.Cruise;
-            LevelWithGravity = other.LevelWithGravity;
+            MasterProgrammableBlockId =
+                other.MasterProgrammableBlockId;
+
+            ControllerId =
+                other.ControllerId;
+
+            Sequence =
+                other.Sequence;
+
+            NormalizedForceDemand =
+                other.NormalizedForceDemand;
+
+            Dampeners =
+                other.Dampeners;
+
+            Cruise =
+                other.Cruise;
+
+            CruiseTargetSpeed =
+                other.CruiseTargetSpeed;
+
+            GearIndex =
+                other.GearIndex;
+
+            GearCount =
+                other.GearCount;
+
+            GearFraction =
+                other.GearFraction;
+
+            LevelWithGravity =
+                other.LevelWithGravity;
+        }
+
+        public void Clear()
+        {
+            MasterProgrammableBlockId = 0;
+            ControllerId = 0;
+            Sequence = 0;
+
+            NormalizedForceDemand =
+                Vector3D.Zero;
+
+            Dampeners = true;
+            Cruise = false;
+            CruiseTargetSpeed = 0;
+
+            GearIndex = 0;
+            GearCount = 0;
+            GearFraction = 0;
+
+            LevelWithGravity = false;
         }
     }
 
@@ -1326,53 +2774,78 @@ class Program : MyGridProgram
 
         public double AverageRuntime
         {
-            get { return averageRuntime; }
+            get
+            {
+                return averageRuntime;
+            }
         }
 
         public double MaximumRuntime
         {
-            get { return maximumRuntime; }
+            get
+            {
+                return maximumRuntime;
+            }
         }
 
         public double PreviousRuntime
         {
-            get { return previousRuntime; }
+            get
+            {
+                return previousRuntime;
+            }
         }
 
-        public RuntimeTracker(Program program)
+        public RuntimeTracker(
+            Program program)
         {
             this.program = program;
         }
 
         public void BeginRun()
         {
-            previousRuntime = program.Runtime.LastRunTimeMs;
+            previousRuntime =
+                program.Runtime
+                    .LastRunTimeMs;
         }
 
         public void EndRun()
         {
-            double runtime = program.Runtime.LastRunTimeMs;
+            double runtime =
+                program.Runtime
+                    .LastRunTimeMs;
 
             samples++;
 
             if (samples == 1)
             {
-                averageRuntime = runtime;
-                maximumRuntime = runtime;
+                averageRuntime =
+                    runtime;
+
+                maximumRuntime =
+                    runtime;
+
                 return;
             }
 
             // A small EMA is enough for status without keeping a bloody
             // queue of samples around forever.
-            averageRuntime += (runtime - averageRuntime) * 0.05;
+            averageRuntime +=
+                (runtime -
+                 averageRuntime) *
+                0.05;
 
-            if (runtime > maximumRuntime)
+            if (runtime >
+                maximumRuntime)
             {
-                maximumRuntime = runtime;
+                maximumRuntime =
+                    runtime;
             }
-            else if (samples % 600 == 0)
+            else if (samples %
+                     600 == 0)
             {
-                maximumRuntime = averageRuntime;
+                maximumRuntime =
+                    averageRuntime;
             }
         }
     }
@@ -1385,65 +2858,90 @@ class Program : MyGridProgram
         /// <summary>
         /// Normalizes a vector only if it is non-zero and non-unit.
         /// </summary>
-        public static Vector3D SafeNormalize(Vector3D vector)
+        public static Vector3D SafeNormalize(
+            Vector3D vector)
         {
-            if (Vector3D.IsZero(vector))
+            if (Vector3D.IsZero(
+                    vector))
             {
                 return Vector3D.Zero;
             }
 
-            if (Vector3D.IsUnit(ref vector))
+            if (Vector3D.IsUnit(
+                    ref vector))
             {
                 return vector;
             }
 
-            return Vector3D.Normalize(vector);
+            return Vector3D.Normalize(
+                vector);
         }
 
         /// <summary>
         /// Rejects vector a from vector b.
         /// </summary>
-        public static Vector3D Rejection(Vector3D a, Vector3D b)
+        public static Vector3D Rejection(
+            Vector3D a,
+            Vector3D b)
         {
-            double denominator = b.LengthSquared();
+            double denominator =
+                b.LengthSquared();
 
-            if (a.LengthSquared() <= VectorEpsilon ||
-                denominator <= VectorEpsilon)
+            if (a.LengthSquared() <=
+                    VectorEpsilon ||
+                denominator <=
+                    VectorEpsilon)
             {
                 return Vector3D.Zero;
             }
 
-            return a - Vector3D.Dot(a, b) / denominator * b;
+            return a -
+                   Vector3D.Dot(a, b) /
+                   denominator *
+                   b;
         }
 
         /// <summary>
         /// Projects vector a onto vector b.
         /// </summary>
-        public static Vector3D Projection(Vector3D a, Vector3D b)
+        public static Vector3D Projection(
+            Vector3D a,
+            Vector3D b)
         {
-            double denominator = b.LengthSquared();
+            double denominator =
+                b.LengthSquared();
 
-            if (a.LengthSquared() <= VectorEpsilon ||
-                denominator <= VectorEpsilon)
+            if (a.LengthSquared() <=
+                    VectorEpsilon ||
+                denominator <=
+                    VectorEpsilon)
             {
                 return Vector3D.Zero;
             }
 
-            return Vector3D.Dot(a, b) / denominator * b;
+            return Vector3D.Dot(a, b) /
+                   denominator *
+                   b;
         }
 
-        public static double CosBetween(Vector3D a, Vector3D b)
+        public static double CosBetween(
+            Vector3D a,
+            Vector3D b)
         {
-            double denominator = Math.Sqrt(
-                a.LengthSquared() * b.LengthSquared());
+            double denominator =
+                Math.Sqrt(
+                    a.LengthSquared() *
+                    b.LengthSquared());
 
-            if (denominator <= VectorEpsilon)
+            if (denominator <=
+                VectorEpsilon)
             {
                 return 0;
             }
 
             return MathHelper.Clamp(
-                Vector3D.Dot(a, b) / denominator,
+                Vector3D.Dot(a, b) /
+                denominator,
                 -1,
                 1);
         }
@@ -1452,32 +2950,51 @@ class Program : MyGridProgram
             Vector3D vector,
             double maximumLength)
         {
-            double lengthSquared = vector.LengthSquared();
-            double maximumSquared = maximumLength * maximumLength;
-
-            if (lengthSquared <= maximumSquared)
-            {
-                return vector;
-            }
-
-            if (lengthSquared <= VectorEpsilon)
+            if (maximumLength <= 0)
             {
                 return Vector3D.Zero;
             }
 
-            return vector * (maximumLength / Math.Sqrt(lengthSquared));
-        }
+            double lengthSquared =
+                vector.LengthSquared();
 
-        public static double NormalizeAngle(double angle)
-        {
-            while (angle > Math.PI)
+            double maximumSquared =
+                maximumLength *
+                maximumLength;
+
+            if (lengthSquared <=
+                maximumSquared)
             {
-                angle -= MathHelper.TwoPi;
+                return vector;
             }
 
-            while (angle < -Math.PI)
+            if (lengthSquared <=
+                VectorEpsilon)
             {
-                angle += MathHelper.TwoPi;
+                return Vector3D.Zero;
+            }
+
+            return vector *
+                   (maximumLength /
+                    Math.Sqrt(
+                        lengthSquared));
+        }
+
+        public static double NormalizeAngle(
+            double angle)
+        {
+            while (angle >
+                   Math.PI)
+            {
+                angle -=
+                    MathHelper.TwoPi;
+            }
+
+            while (angle <
+                   -Math.PI)
+            {
+                angle +=
+                    MathHelper.TwoPi;
             }
 
             return angle;
@@ -1488,19 +3005,31 @@ class Program : MyGridProgram
             Vector3D axis,
             double angle)
         {
-            axis = SafeNormalize(axis);
+            axis =
+                SafeNormalize(axis);
 
-            if (axis.LengthSquared() <= VectorEpsilon)
+            if (axis.LengthSquared() <=
+                VectorEpsilon)
             {
                 return vector;
             }
 
-            double cosine = Math.Cos(angle);
-            double sine = Math.Sin(angle);
+            double cosine =
+                Math.Cos(angle);
+
+            double sine =
+                Math.Sin(angle);
 
             return vector * cosine +
-                   Vector3D.Cross(axis, vector) * sine +
-                   axis * Vector3D.Dot(axis, vector) * (1.0 - cosine);
+                   Vector3D.Cross(
+                       axis,
+                       vector) *
+                   sine +
+                   axis *
+                   Vector3D.Dot(
+                       axis,
+                       vector) *
+                   (1.0 - cosine);
         }
 
         /// <summary>
@@ -1511,32 +3040,49 @@ class Program : MyGridProgram
             Vector3D currentDirection,
             Vector3D rotorAxis)
         {
-            Vector3D targetPlanar = Rejection(
-                targetDirection,
-                rotorAxis);
+            Vector3D targetPlanar =
+                Rejection(
+                    targetDirection,
+                    rotorAxis);
 
-            Vector3D currentPlanar = Rejection(
-                currentDirection,
-                rotorAxis);
+            Vector3D currentPlanar =
+                Rejection(
+                    currentDirection,
+                    rotorAxis);
 
-            if (targetPlanar.LengthSquared() <= VectorEpsilon ||
-                currentPlanar.LengthSquared() <= VectorEpsilon)
+            if (targetPlanar
+                    .LengthSquared() <=
+                    VectorEpsilon ||
+                currentPlanar
+                    .LengthSquared() <=
+                    VectorEpsilon)
             {
                 return 0;
             }
 
-            targetPlanar = SafeNormalize(targetPlanar);
-            currentPlanar = SafeNormalize(currentPlanar);
-            rotorAxis = SafeNormalize(rotorAxis);
+            targetPlanar =
+                SafeNormalize(
+                    targetPlanar);
 
-            // This follows the signed vector-pointing method attributed to
-            // Whiplash141 in VTOS. Cross(target, current) matches SE rotor
-            // TargetVelocityRad's observed sign convention.
+            currentPlanar =
+                SafeNormalize(
+                    currentPlanar);
+
+            rotorAxis =
+                SafeNormalize(
+                    rotorAxis);
+
+            // Cross(target, current) matches SE TargetVelocityRad's
+            // observed command sign.
             return Math.Atan2(
                 Vector3D.Dot(
                     rotorAxis,
-                    Vector3D.Cross(targetPlanar, currentPlanar)),
-                Vector3D.Dot(targetPlanar, currentPlanar));
+                    Vector3D.Cross(
+                        targetPlanar,
+                        currentPlanar)),
+                Vector3D.Dot(
+                    targetPlanar,
+                    currentPlanar));
         }
 
         public static Vector3D WorldToLocalDirection(
@@ -1545,7 +3091,8 @@ class Program : MyGridProgram
         {
             return Vector3D.TransformNormal(
                 worldDirection,
-                MatrixD.Transpose(worldMatrix));
+                MatrixD.Transpose(
+                    worldMatrix));
         }
 
         public static Vector3D LocalToWorldDirection(
@@ -1558,9 +3105,35 @@ class Program : MyGridProgram
         }
     }
 
+    static string GetModeText(
+        OperatingMode value)
+    {
+        switch (value)
+        {
+            case OperatingMode.Initializing:
+                return "Initializing";
+
+            case OperatingMode.Active:
+                return "Active";
+
+            case OperatingMode.Master:
+                return "Master";
+
+            case OperatingMode.Slave:
+                return "Slave";
+
+            case OperatingMode.Parked:
+                return "Parked";
+
+            default:
+                return "Unknown";
+        }
+    }
+
     sealed class GridNode
     {
         public readonly IMyCubeGrid Grid;
+
         public readonly List<GridEdge> MechanicalEdges =
             new List<GridEdge>();
 
@@ -1568,10 +3141,13 @@ class Program : MyGridProgram
         public GridNode Parent;
         public GridEdge ParentEdge;
 
-        public int Depth = int.MaxValue;
+        public int Depth =
+            int.MaxValue;
+
         public bool IncludedForControl;
 
-        public GridNode(IMyCubeGrid grid)
+        public GridNode(
+            IMyCubeGrid grid)
         {
             Grid = grid;
         }
@@ -1580,6 +3156,7 @@ class Program : MyGridProgram
     sealed class GridEdge
     {
         public readonly GridNode A,B;
+
         public readonly IMyTerminalBlock Mechanism;
 
         public GridEdge(
@@ -1592,9 +3169,12 @@ class Program : MyGridProgram
             Mechanism = mechanism;
         }
 
-        public GridNode Other(GridNode node)
+        public GridNode Other(
+            GridNode node)
         {
-            return node == A ? B : A;
+            return node == A
+                ? B
+                : A;
         }
     }
 
@@ -1609,7 +3189,9 @@ class Program : MyGridProgram
         public readonly List<IMyProgrammableBlock> ReduxProgrammableBlocks =
             new List<IMyProgrammableBlock>();
 
-        public bool IncludedForControl,ReachableThroughConnection,HasStaticGrid,HasSlaveCapableRedux;
+        public bool IncludedForControl,ReachableThroughConnection,HasStaticGrid,HasSlaveCapableRedux,ReduxGreedy = true,ReduxCanSlave = true;
+
+        public IMyProgrammableBlock PrimaryReduxProgrammableBlock;
     }
 
     sealed class ConnectorEdge
@@ -4014,22 +5596,41 @@ class Program : MyGridProgram
     }
     // ===== Script identity =====
 
-    const string ScriptName = "Vector Thrust Redux",ScriptVersion = "0.1.0",ConfigSection = "Vector Thrust Redux",HeartbeatSection = "Vector Thrust Redux Heartbeat",SurfaceSelector = "VT-Redux:";
+    const string ScriptName = "Vector Thrust Redux",ScriptVersion = "0.2.0",ConfigSection = "Vector Thrust Redux",HeartbeatSection = "Vector Thrust Redux Heartbeat",SurfaceSelector = "VT-Redux:",StateStorageSection = "State",DisabledThrusterStorageSection = "Disabled Thrusters",ParkRotorStorageSection = "Park Rotor Targets",TopologyStorageSection = "Topology";
 
     // ===== Numerical tolerances =====
 
-    const double VectorEpsilon = 1e-8,ForceEpsilon = 1e-3,AngleEpsilon = 1e-4,EqualLimitEpsilon = 1e-4,DirectionBucketCosine = 1.0 - 1e-6,ParallelAxisCosine = 1.0 - 1e-4,DirectParkAlignmentCosine = 1.0 - 1e-4,JointResponseGain = 4.0,MaximumJointVelocityRad = Math.PI,JointWriteDeadbandRad = 1e-3,GyroLevelGain = 4.0,GyroAngularDampingGain = 1.5,GyroCommandAtFullTorque = 30.0,GyroWriteDeadband = 1e-3,SmallGridGyroCapacity = 448000.0,LargeGridGyroCapacity = 33600000.0,SmallGridPrototechGyroCapacity = 4480000.0,LargeGridPrototechGyroCapacity = 201600000.0,MinimumTimeStep = 1.0 / 120.0,MaximumTimeStep = 0.25;
+    const double VectorEpsilon = 1e-8,ForceEpsilon = 1e-3,AngleEpsilon = 1e-4,EqualLimitEpsilon = 1e-4,DirectionBucketCosine = 1.0 - 1e-6,ParallelAxisCosine = 1.0 - 1e-4,DirectParkAlignmentCosine = 1.0 - 1e-4,MinimumJointResponseGain = 0.1,ParkingJointResponseGain = 1.0,MaximumJointResponseGain = 4.0,MaximumJointVelocityRad = Math.PI,JointWriteDeadbandRad = 1e-3,VelocityControlEpsilon = 0.01,ThrustWriteDeadbandFraction = 0.0075,GyroLevelGain = 4.0,GyroAngularDampingGain = 1.5,GyroCommandAtFullTorque = 30.0,GyroWriteDeadband = 1e-3,SmallGridGyroCapacity = 448000.0,LargeGridGyroCapacity = 33600000.0,SmallGridPrototechGyroCapacity = 4480000.0,LargeGridPrototechGyroCapacity = 201600000.0,MinimumTimeStep = 1.0 / 120.0,MaximumTimeStep = 0.25;
 
     // ===== Configuration and persisted state =====
 
     readonly Settings settings = new Settings();
     readonly MyIni storageIni = new MyIni();
 
-    string knownProgrammableBlockCustomData = string.Empty;
+    string knownProgrammableBlockCustomData = string.Empty,lastCommandResult = string.Empty;
 
     bool cruise,automaticParkRequested,forceStatusRefresh;
-    bool scriptDampeners = true,manualParkRequested,controllerMissing = true,potentialMaster,slaveHeartbeatFresh,slaveFallbackPark,wasParkedBeforeSlaving,slaveHeartbeatChangedThisWindow,rescanRequested = true;
+    bool scriptDampeners = true,manualParkRequested,cruiseTargetInitialized,persistedTopologyFingerprintValid,controllerMissing = true,potentialMaster,slaveHeartbeatFresh,slaveFallbackPark,wasParkedBeforeSlaving,slaveHeartbeatChangedThisWindow,lastCommandWasWarning,rescanRequested = true,topologyFingerprintInitialized;
     int selectedGear,slaveHeartbeatAgeUpdate10,update10SkipCounter,update100SkipCounter;
+
+    double cruiseTargetSpeed,availableControlledThrust;
+
+    // Redux may disable one block for several simultaneous reasons. The
+    // original Enabled state is restored only after the final reason ends.
+    readonly Dictionary<long, DisabledThrusterState> disabledThrusterStates =
+        new Dictionary<long, DisabledThrusterState>();
+
+    // Park targets live outside disposable Rotor wrappers so a periodic
+    // deep scan does not casually forget where the bloody joint was going.
+    readonly Dictionary<long, double> parkRotorTargetAngles =
+        new Dictionary<long, double>();
+
+    TopologyFingerprint persistedTopologyFingerprint,lastTopologyFingerprint;
+
+    // Retained until the parking implementation is migrated to the
+    // reason-aware disabledThrusterStates map in Functions.cs.
+    readonly Dictionary<long, bool> parkThrusterEnabledState =
+        new Dictionary<long, bool>();
 
     // ===== Runtime state =====
 
@@ -4044,35 +5645,70 @@ class Program : MyGridProgram
 
     Vector3D requestedForceWorld;
     Vector3D residualForceWorld,normalizedMasterDemand,inducedTorqueWorld;
-
-    double availableControlledThrust;
     double lastControlTimeStep,accumulatedControlTime;
 
     int update1SkipCounter;
 
+    // The game cannot toggle cockpit dampeners normally when no main-grid
+    // thrusters exist, so this controls whether cockpit state is treated
+    // as input or merely synchronized from scriptDampeners.
+    bool hasMainGridThrusters;
+
+    // ===== Direction-aware capacity =====
+
+    readonly DirectionalCapacity localDirectionalCapacity =
+        new DirectionalCapacity(),remoteReduxDirectionalCapacity =
+        new DirectionalCapacity(),constructDirectionalCapacity =
+        new DirectionalCapacity();
+
     // ===== Cached construct model =====
 
-    readonly List<IMyShipController> localControllers = new List<IMyShipController>(),remotelyReachableControllers = new List<IMyShipController>();
+    readonly List<IMyShipController> localControllers =
+        new List<IMyShipController>(),remotelyReachableControllers =
+        new List<IMyShipController>();
 
-    readonly List<Thruster> thrusters = new List<Thruster>(),controlledThrusters = new List<Thruster>(),fixedControlledThrusters = new List<Thruster>(),observedReadOnlyThrusters = new List<Thruster>();
+    readonly List<Thruster> thrusters =
+        new List<Thruster>(),controlledThrusters =
+        new List<Thruster>(),fixedControlledThrusters =
+        new List<Thruster>(),observedReadOnlyThrusters =
+        new List<Thruster>(),localUnmanagedThrusters =
+        new List<Thruster>(),remoteReduxThrusters =
+        new List<Thruster>(),remoteUnmanagedThrusters =
+        new List<Thruster>(),mainGridReverseThrusters =
+        new List<Thruster>();
 
-    readonly List<Rotor> controlledRotors = new List<Rotor>();
-    readonly List<VectorThrust> vectorThrusters = new List<VectorThrust>();
-    readonly List<VectorThrustGroup> vectorThrustGroups = new List<VectorThrustGroup>();
+    readonly List<Rotor> controlledRotors =
+        new List<Rotor>();
 
-    readonly List<Gyro> controlledGyros = new List<Gyro>();
+    readonly List<VectorThrust> vectorThrusters =
+        new List<VectorThrust>();
 
-    readonly List<ParkConnector> parkConnectors = new List<ParkConnector>();
-    readonly List<ParkLandingGear> parkLandingGears = new List<ParkLandingGear>();
+    // Retained until per-nacelle allocation replaces group allocation.
+    readonly List<VectorThrustGroup> vectorThrustGroups =
+        new List<VectorThrustGroup>();
 
-    readonly List<IMyTimerBlock> parkTimers = new List<IMyTimerBlock>(),unparkTimers = new List<IMyTimerBlock>();
+    readonly List<Gyro> controlledGyros =
+        new List<Gyro>();
 
-    readonly List<StatusSurface> statusSurfaces = new List<StatusSurface>();
+    readonly List<ParkConnector> parkConnectors =
+        new List<ParkConnector>();
 
-    readonly Dictionary<long, bool> parkThrusterEnabledState = new Dictionary<long, bool>();
-    readonly Dictionary<long, GridNode> gridNodes = new Dictionary<long, GridNode>();
+    readonly List<ParkLandingGear> parkLandingGears =
+        new List<ParkLandingGear>();
 
-    readonly StringBuilder echoBuilder = new StringBuilder(),statusBuilder = new StringBuilder();
+    readonly List<IMyTimerBlock> parkTimers =
+        new List<IMyTimerBlock>(),unparkTimers =
+        new List<IMyTimerBlock>();
+
+    readonly List<StatusSurface> statusSurfaces =
+        new List<StatusSurface>();
+
+    readonly Dictionary<long, GridNode> gridNodes =
+        new Dictionary<long, GridNode>();
+
+    readonly StringBuilder echoBuilder =
+        new StringBuilder(),statusBuilder =
+        new StringBuilder();
 
     IEnumerator<int> scanStateMachine;
 
@@ -4080,7 +5716,8 @@ class Program : MyGridProgram
 
     public Program()
     {
-        runtimeTracker = new RuntimeTracker(this);
+        runtimeTracker =
+            new RuntimeTracker(this);
 
         LoadStorage();
         LoadConfiguration(true);
@@ -4097,87 +5734,216 @@ class Program : MyGridProgram
     {
         storageIni.Clear();
 
-        storageIni.Set("State", "Cruise", cruise);
-        storageIni.Set("State", "Dampeners", scriptDampeners);
-        storageIni.Set("State", "ManualPark", manualParkRequested);
-        storageIni.Set("State", "Gear", selectedGear);
+        storageIni.Set(
+            StateStorageSection,
+"Cruise",
+            cruise);
 
-        Storage = storageIni.ToString();
+        storageIni.Set(
+            StateStorageSection,
+"Dampeners",
+            scriptDampeners);
+
+        storageIni.Set(
+            StateStorageSection,
+"ManualPark",
+            manualParkRequested);
+
+        storageIni.Set(
+            StateStorageSection,
+"Gear",
+            selectedGear);
+
+        storageIni.Set(
+            StateStorageSection,
+"CruiseTargetSpeed",
+            cruiseTargetSpeed);
+
+        storageIni.Set(
+            StateStorageSection,
+"CruiseTargetInitialized",
+            cruiseTargetInitialized);
+
+        foreach (
+            KeyValuePair<long, DisabledThrusterState> pair
+            in disabledThrusterStates)
+        {
+            DisabledThrusterState state =
+                pair.Value;
+
+            string serialized =
+                (state.OriginalEnabled
+                    ? "1"                    : "0") +
+";"+
+                ((int)state.Reasons).ToString();
+
+            storageIni.Set(
+                DisabledThrusterStorageSection,
+                pair.Key.ToString(),
+                serialized);
+        }
+
+        foreach (
+            KeyValuePair<long, double> pair
+            in parkRotorTargetAngles)
+        {
+            storageIni.Set(
+                ParkRotorStorageSection,
+                pair.Key.ToString(),
+                pair.Value);
+        }
+
+        if (topologyFingerprintInitialized)
+        {
+            storageIni.Set(
+                TopologyStorageSection,
+"Count",
+                lastTopologyFingerprint.Count);
+
+            storageIni.Set(
+                TopologyStorageSection,
+"Xor",
+                lastTopologyFingerprint.Xor.ToString());
+
+            storageIni.Set(
+                TopologyStorageSection,
+"Sum",
+                lastTopologyFingerprint.Sum.ToString());
+        }
+        else if (persistedTopologyFingerprintValid)
+        {
+            storageIni.Set(
+                TopologyStorageSection,
+"Count",
+                persistedTopologyFingerprint.Count);
+
+            storageIni.Set(
+                TopologyStorageSection,
+"Xor",
+                persistedTopologyFingerprint.Xor.ToString());
+
+            storageIni.Set(
+                TopologyStorageSection,
+"Sum",
+                persistedTopologyFingerprint.Sum.ToString());
+        }
+
+        Storage =
+            storageIni.ToString();
     }
 
-    public void Main(string argument, UpdateType updateSource)
+    public void Main(
+        string argument,
+        UpdateType updateSource)
     {
         runtimeTracker.BeginRun();
 
-        double elapsedSeconds = Runtime.TimeSinceLastRun.TotalSeconds;
+        double elapsedSeconds =
+            Runtime.TimeSinceLastRun.TotalSeconds;
 
-        if (elapsedSeconds < MinimumTimeStep)
+        if (elapsedSeconds <
+            MinimumTimeStep)
         {
-            elapsedSeconds = MinimumTimeStep;
+            elapsedSeconds =
+                MinimumTimeStep;
         }
-        else if (elapsedSeconds > MaximumTimeStep)
+        else if (elapsedSeconds >
+                 MaximumTimeStep)
         {
-            elapsedSeconds = MaximumTimeStep;
+            elapsedSeconds =
+                MaximumTimeStep;
         }
 
-        accumulatedControlTime += elapsedSeconds;
+        accumulatedControlTime +=
+            elapsedSeconds;
 
         bool explicitRun =
-            (updateSource & (UpdateType.Terminal | UpdateType.Trigger | UpdateType.Script)) != 0 ||
-            !string.IsNullOrWhiteSpace(argument);
+            (updateSource &
+             (UpdateType.Terminal |
+              UpdateType.Trigger |
+              UpdateType.Script)) != 0 ||
+            !string.IsNullOrWhiteSpace(
+                argument);
+
+        // A pending scan may complete here and make a newly selected
+        // controller available to an explicit command.
+        ContinueRescan();
 
         if (explicitRun)
         {
+            // Commands such as dampeners must apply to the controller the
+            // player is using now, not the one selected on the prior tick.
+            SelectReferenceController();
             HandleArgument(argument);
         }
 
-        ContinueRescan();
-
-        if ((updateSource & UpdateType.Update100) != 0 &&
-            IsScheduled(ref update100SkipCounter, settings.Update100Skip))
+        if ((updateSource &
+             UpdateType.Update100) != 0 &&
+            IsScheduled(
+                ref update100SkipCounter,
+                settings.Update100Skip))
         {
             RunUpdate100();
         }
 
-        if ((updateSource & UpdateType.Update10) != 0 &&
-            IsScheduled(ref update10SkipCounter, settings.Update10Skip))
+        if ((updateSource &
+             UpdateType.Update10) != 0 &&
+            IsScheduled(
+                ref update10SkipCounter,
+                settings.Update10Skip))
         {
             RunUpdate10();
         }
 
-        if ((updateSource & UpdateType.Update1) != 0)
+        if ((updateSource &
+             UpdateType.Update1) != 0)
         {
             heartbeatSequence++;
 
-            if (mode == OperatingMode.Slave)
+            if (mode ==
+                OperatingMode.Slave)
             {
                 ReadActiveSlaveHeartbeat();
             }
 
             EvaluateOperatingMode();
 
-            if (IsScheduled(ref update1SkipCounter, settings.Update1Skip))
+            if (IsScheduled(
+                    ref update1SkipCounter,
+                    settings.Update1Skip))
             {
-                lastControlTimeStep = MathHelper.Clamp(
-                    accumulatedControlTime,
-                    MinimumTimeStep,
-                    MaximumTimeStep);
+                lastControlTimeStep =
+                    MathHelper.Clamp(
+                        accumulatedControlTime,
+                        MinimumTimeStep,
+                        MaximumTimeStep);
 
                 accumulatedControlTime = 0;
 
-                RunFlightControl(lastControlTimeStep);
+                RunFlightControl(
+                    lastControlTimeStep);
             }
 
-            // The heartbeat itself is not skipped. A skipped control frame
-            // republishes the most recent command so slaves do not mistake
-            // a configured performance setting for a dead master.
-            PublishOrClearMasterHeartbeat();
+            // A PB that cannot master has nothing to publish. The second
+            // condition still allows an old owned heartbeat to be cleared
+            // immediately after CanMaster is disabled.
+            if (settings.CanMaster ||
+                heartbeatController != null)
+            {
+                PublishOrClearMasterHeartbeat();
+            }
         }
 
         if (explicitRun)
         {
             EvaluateOperatingMode();
-            PublishOrClearMasterHeartbeat();
+
+            if (settings.CanMaster ||
+                heartbeatController != null)
+            {
+                PublishOrClearMasterHeartbeat();
+            }
+
             forceStatusRefresh = true;
         }
 
@@ -4190,9 +5956,12 @@ class Program : MyGridProgram
         runtimeTracker.EndRun();
     }
 
-    static bool IsScheduled(ref int counter, int skippedIntervals)
+    static bool IsScheduled(
+        ref int counter,
+        int skippedIntervals)
     {
-        if (counter < skippedIntervals)
+        if (counter <
+            skippedIntervals)
         {
             counter++;
             return false;
@@ -4204,22 +5973,240 @@ class Program : MyGridProgram
 
     void LoadStorage()
     {
-        if (string.IsNullOrWhiteSpace(Storage))
+        if (string.IsNullOrWhiteSpace(
+                Storage))
         {
             return;
         }
 
         MyIniParseResult parseResult;
 
-        if (!storageIni.TryParse(Storage, out parseResult))
+        if (!storageIni.TryParse(
+                Storage,
+                out parseResult))
         {
             return;
         }
 
-        cruise = storageIni.Get("State", "Cruise").ToBoolean(false);
-        scriptDampeners = storageIni.Get("State", "Dampeners").ToBoolean(true);
-        manualParkRequested = storageIni.Get("State", "ManualPark").ToBoolean(false);
-        selectedGear = Math.Max(0, storageIni.Get("State", "Gear").ToInt32(0));
+        cruise =
+            storageIni
+                .Get(
+                    StateStorageSection,
+"Cruise")
+                .ToBoolean(false);
+
+        scriptDampeners =
+            storageIni
+                .Get(
+                    StateStorageSection,
+"Dampeners")
+                .ToBoolean(true);
+
+        manualParkRequested =
+            storageIni
+                .Get(
+                    StateStorageSection,
+"ManualPark")
+                .ToBoolean(false);
+
+        selectedGear =
+            Math.Max(
+                0,
+                storageIni
+                    .Get(
+                        StateStorageSection,
+"Gear")
+                    .ToInt32(0));
+
+        cruiseTargetSpeed =
+            storageIni
+                .Get(
+                    StateStorageSection,
+"CruiseTargetSpeed")
+                .ToDouble(0);
+
+        cruiseTargetInitialized =
+            storageIni
+                .Get(
+                    StateStorageSection,
+"CruiseTargetInitialized")
+                .ToBoolean(false);
+
+        LoadDisabledThrusterStates();
+        LoadParkRotorTargets();
+        LoadPersistedTopologyFingerprint();
+    }
+
+    void LoadDisabledThrusterStates()
+    {
+        List<MyIniKey> keys =
+            new List<MyIniKey>();
+
+        storageIni.GetKeys(
+            DisabledThrusterStorageSection,
+            keys);
+
+        for (int i = 0;
+            i < keys.Count;
+            i++)
+        {
+            MyIniKey key =
+                keys[i];
+
+            long entityId;
+
+            if (!long.TryParse(
+                    key.Name,
+                    out entityId))
+            {
+                continue;
+            }
+
+            string serialized =
+                storageIni
+                    .Get(key)
+                    .ToString();
+
+            string[] components =
+                serialized.Split(';');
+
+            if (components.Length != 2)
+            {
+                continue;
+            }
+
+            bool originalEnabled =
+                components[0] == "1";
+
+            int serializedReasons;
+
+            if (!int.TryParse(
+                    components[1],
+                    out serializedReasons))
+            {
+                continue;
+            }
+
+            ThrusterDisableReason reasons =
+                (ThrusterDisableReason)
+                    serializedReasons;
+
+            if (reasons ==
+                ThrusterDisableReason.None)
+            {
+                continue;
+            }
+
+            disabledThrusterStates[
+                entityId] =
+                new DisabledThrusterState
+                {
+                    OriginalEnabled =
+                        originalEnabled,
+                    Reasons = reasons
+                };
+
+            // Compatibility until Functions.cs is migrated.
+            if ((reasons &
+                 ThrusterDisableReason.Park) != 0)
+            {
+                parkThrusterEnabledState[
+                    entityId] =
+                    originalEnabled;
+            }
+        }
+    }
+
+    void LoadParkRotorTargets()
+    {
+        List<MyIniKey> keys =
+            new List<MyIniKey>();
+
+        storageIni.GetKeys(
+            ParkRotorStorageSection,
+            keys);
+
+        for (int i = 0;
+            i < keys.Count;
+            i++)
+        {
+            MyIniKey key =
+                keys[i];
+
+            long entityId;
+
+            if (!long.TryParse(
+                    key.Name,
+                    out entityId))
+            {
+                continue;
+            }
+
+            double target =
+                storageIni
+                    .Get(key)
+                    .ToDouble(
+                        double.NaN);
+
+            if (double.IsNaN(target) ||
+                double.IsInfinity(target))
+            {
+                continue;
+            }
+
+            parkRotorTargetAngles[
+                entityId] =
+                target;
+        }
+    }
+
+    void LoadPersistedTopologyFingerprint()
+    {
+        long count =
+            storageIni
+                .Get(
+                    TopologyStorageSection,
+"Count")
+                .ToInt64(-1);
+
+        string xorText =
+            storageIni
+                .Get(
+                    TopologyStorageSection,
+"Xor")
+                .ToString();
+
+        string sumText =
+            storageIni
+                .Get(
+                    TopologyStorageSection,
+"Sum")
+                .ToString();
+
+        ulong xor;
+        ulong sum;
+
+        if (count < 0 ||
+            !ulong.TryParse(
+                xorText,
+                out xor) ||
+            !ulong.TryParse(
+                sumText,
+                out sum))
+        {
+            return;
+        }
+
+        persistedTopologyFingerprint =
+            new TopologyFingerprint
+            {
+                Count = count,
+                Xor = xor,
+                Sum = sum
+            };
+
+        persistedTopologyFingerprintValid =
+            true;
     }
     sealed class ScanSnapshot
     {
@@ -6135,5 +8122,903 @@ class Program : MyGridProgram
     {
         target.Clear();
         target.AddRange(source);
+    }
+    // ===== Effective movement state =====
+
+    bool EffectiveDampeners
+    {
+        get
+        {
+            return mode ==
+                    OperatingMode.Slave
+                ? activeSlaveCommand
+                    .Dampeners
+                : scriptDampeners;
+        }
+    }
+
+    bool EffectiveCruise
+    {
+        get
+        {
+            return mode ==
+                    OperatingMode.Slave
+                ? activeSlaveCommand
+                    .Cruise
+                : cruise;
+        }
+    }
+
+    double EffectiveCruiseTargetSpeed
+    {
+        get
+        {
+            return mode ==
+                    OperatingMode.Slave
+                ? activeSlaveCommand
+                    .CruiseTargetSpeed
+                : cruiseTargetSpeed;
+        }
+    }
+
+    double EffectiveGearFraction
+    {
+        get
+        {
+            if (mode ==
+                OperatingMode.Slave)
+            {
+                return MathHelper.Clamp(
+                    activeSlaveCommand
+                        .GearFraction,
+                    0,
+                    1);
+            }
+
+            if (settings
+                    .GearFractions.Count == 0)
+            {
+                return 0;
+            }
+
+            return MathHelper.Clamp(
+                settings.GearFractions[
+                    MathHelper.Clamp(
+                        selectedGear,
+                        0,
+                        settings
+                            .GearFractions
+                            .Count -
+                        1)],
+                0,
+                1);
+        }
+    }
+
+    // ===== Command feedback =====
+
+    void SetCommandResult(
+        string result,
+        bool warning)
+    {
+        lastCommandResult =
+            result ?? string.Empty;
+
+        lastCommandWasWarning =
+            warning;
+
+        forceStatusRefresh =
+            true;
+    }
+
+    void ClearCommandResult()
+    {
+        lastCommandResult =
+            string.Empty;
+
+        lastCommandWasWarning =
+            false;
+    }
+
+    // ===== Local movement-state mutation =====
+
+    void SetLocalDampeners(
+        bool enabled)
+    {
+        scriptDampeners =
+            enabled;
+
+        // Keep every local controller synchronized. This is required when
+        // the game refuses to toggle dampeners because the main grid has
+        // no directly controllable thrusters.
+        SetControllerDampeners(
+            enabled);
+    }
+
+    void SetControllerDampeners(
+        bool enabled)
+    {
+        for (int i = 0;
+            i < localControllers.Count;
+            i++)
+        {
+            IMyShipController controller =
+                localControllers[i];
+
+            if (controller == null ||
+                controller.Closed ||
+                !controller.IsFunctional)
+            {
+                continue;
+            }
+
+            if (controller
+                    .DampenersOverride ==
+                enabled)
+            {
+                continue;
+            }
+
+            controller
+                .DampenersOverride =
+                enabled;
+        }
+    }
+
+    void SynchronizeDampenerState()
+    {
+        if (mode ==
+            OperatingMode.Slave)
+        {
+            // Adoption is temporary. Do not overwrite the local persisted
+            // state with the master's state.
+            SetControllerDampeners(
+                activeSlaveCommand
+                    .Dampeners);
+
+            return;
+        }
+
+        if (!hasMainGridThrusters)
+        {
+            // The cockpit UI cannot be trusted as input when Keen thinks
+            // there are no controllable thrusters.
+            SetControllerDampeners(
+                scriptDampeners);
+
+            return;
+        }
+
+        if (referenceController ==
+                null ||
+            referenceController.Closed)
+        {
+            return;
+        }
+
+        bool controllerState =
+            referenceController
+                .DampenersOverride;
+
+        if (controllerState ==
+            scriptDampeners)
+        {
+            return;
+        }
+
+        scriptDampeners =
+            controllerState;
+
+        SetControllerDampeners(
+            scriptDampeners);
+    }
+
+    void SetCruiseEnabled(
+        bool enabled)
+    {
+        if (enabled &&
+            !cruise)
+        {
+            InitializeCruiseTargetFromVelocity();
+        }
+
+        cruise = enabled;
+
+        if (!cruise)
+        {
+            ReleaseThrusterDisableReason(
+                ThrusterDisableReason.Cruise);
+
+            ReleaseTemporaryControlRole(
+                ControlRole.Cruise);
+        }
+
+        RefreshTemporaryControlRoles();
+        RefreshCruiseAuthorityWarning();
+    }
+
+    void ToggleCruise()
+    {
+        SetCruiseEnabled(
+            !cruise);
+    }
+
+    void InitializeCruiseTargetFromVelocity()
+    {
+        if (referenceController ==
+                null ||
+            referenceController.Closed)
+        {
+            cruiseTargetSpeed = 0;
+            cruiseTargetInitialized =
+                false;
+
+            return;
+        }
+
+        Vector3D velocity =
+            referenceController
+                .GetShipVelocities()
+                .LinearVelocity;
+
+        cruiseTargetSpeed =
+            Vector3D.Dot(
+                velocity,
+                referenceController
+                    .WorldMatrix
+                    .Forward);
+
+        cruiseTargetInitialized =
+            true;
+    }
+
+    void EnsureCruiseTargetInitialized()
+    {
+        if (cruiseTargetInitialized)
+        {
+            return;
+        }
+
+        InitializeCruiseTargetFromVelocity();
+    }
+
+    void AdjustCruiseTargetSpeed(
+        double delta)
+    {
+        EnsureCruiseTargetInitialized();
+
+        cruiseTargetSpeed +=
+            delta;
+
+        SetCommandResult(
+"Cruise target: "+
+            cruiseTargetSpeed
+                .ToString("0.###") +
+" m/s",
+            false);
+    }
+
+    // ===== Redux-disabled thruster state =====
+
+    bool WasThrusterDisabledByRedux(
+        long entityId)
+    {
+        DisabledThrusterState state;
+
+        if (!disabledThrusterStates
+                .TryGetValue(
+                    entityId,
+                    out state))
+        {
+            return false;
+        }
+
+        // A player-disabled thruster must not become capacity merely
+        // because Redux later added another disable reason.
+        return state.OriginalEnabled &&
+               state.Reasons !=
+                   ThrusterDisableReason.None;
+    }
+
+    bool TryGetDisabledThrusterState(
+        long entityId,
+        out DisabledThrusterState state)
+    {
+        return disabledThrusterStates
+            .TryGetValue(
+                entityId,
+                out state);
+    }
+
+    void DisableThrusterByRedux(
+        Thruster thruster,
+        ThrusterDisableReason reason)
+    {
+        if (thruster == null)
+        {
+            return;
+        }
+
+        DisableThrusterByRedux(
+            thruster.TheBlock,
+            reason);
+    }
+
+    void DisableThrusterByRedux(
+        IMyThrust block,
+        ThrusterDisableReason reason)
+    {
+        if (block == null ||
+            block.Closed ||
+            reason ==
+                ThrusterDisableReason.None)
+        {
+            return;
+        }
+
+        DisabledThrusterState state;
+
+        if (!disabledThrusterStates
+                .TryGetValue(
+                    block.EntityId,
+                    out state))
+        {
+            state =
+                new DisabledThrusterState
+                {
+                    OriginalEnabled =
+                        block.Enabled,
+                    Reasons =
+                        ThrusterDisableReason.None
+                };
+
+            disabledThrusterStates.Add(
+                block.EntityId,
+                state);
+        }
+
+        state.Reasons |=
+            reason;
+
+        if (block.Enabled)
+        {
+            block.Enabled =
+                false;
+        }
+
+        if ((state.Reasons &
+             ThrusterDisableReason.Park) != 0)
+        {
+            // Compatibility bridge for old parking code until that code
+            // is replaced in the parking tranche.
+            parkThrusterEnabledState[
+                block.EntityId] =
+                state.OriginalEnabled;
+        }
+    }
+
+    void PrepareThrusterForControl(
+        Thruster thruster)
+    {
+        if (thruster == null)
+        {
+            return;
+        }
+
+        PrepareThrusterForControl(
+            thruster.TheBlock);
+    }
+
+    void PrepareThrusterForControl(
+        IMyThrust block)
+    {
+        if (block == null ||
+            block.Closed)
+        {
+            return;
+        }
+
+        DisabledThrusterState state;
+
+        if (!disabledThrusterStates
+                .TryGetValue(
+                    block.EntityId,
+                    out state))
+        {
+            return;
+        }
+
+        if (state.OriginalEnabled &&
+            !block.Enabled)
+        {
+            block.Enabled =
+                true;
+        }
+    }
+
+    void ReleaseThrusterDisableReason(
+        Thruster thruster,
+        ThrusterDisableReason reason)
+    {
+        if (thruster == null)
+        {
+            return;
+        }
+
+        ReleaseThrusterDisableReason(
+            thruster.EntityId,
+            thruster.TheBlock,
+            reason);
+    }
+
+    void ReleaseThrusterDisableReason(
+        long entityId,
+        IMyThrust block,
+        ThrusterDisableReason reason)
+    {
+        DisabledThrusterState state;
+
+        if (!disabledThrusterStates
+                .TryGetValue(
+                    entityId,
+                    out state))
+        {
+            return;
+        }
+
+        state.Reasons &=
+            ~reason;
+
+        if ((reason &
+             ThrusterDisableReason.Park) != 0)
+        {
+            parkThrusterEnabledState.Remove(
+                entityId);
+        }
+
+        if (state.Reasons !=
+            ThrusterDisableReason.None)
+        {
+            if (block != null &&
+                !block.Closed &&
+                block.Enabled)
+            {
+                block.Enabled =
+                    false;
+            }
+
+            return;
+        }
+
+        if (block != null &&
+            !block.Closed)
+        {
+            block.Enabled =
+                state.OriginalEnabled;
+        }
+
+        disabledThrusterStates.Remove(
+            entityId);
+    }
+
+    void ReleaseThrusterDisableReason(
+        ThrusterDisableReason reason)
+    {
+        if (disabledThrusterStates.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> entityIds =
+            new List<long>(
+                disabledThrusterStates.Keys);
+
+        for (int i = 0;
+            i < entityIds.Count;
+            i++)
+        {
+            long entityId =
+                entityIds[i];
+
+            IMyThrust block =
+                FindKnownThrusterBlock(
+                    entityId);
+
+            ReleaseThrusterDisableReason(
+                entityId,
+                block,
+                reason);
+        }
+    }
+
+    IMyThrust FindKnownThrusterBlock(
+        long entityId)
+    {
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            if (thruster.EntityId ==
+                entityId)
+            {
+                return thruster.TheBlock;
+            }
+        }
+
+        return null;
+    }
+
+    void RestorePersistedThrusterState(
+        Thruster thruster)
+    {
+        if (thruster == null)
+        {
+            return;
+        }
+
+        DisabledThrusterState state;
+
+        if (!disabledThrusterStates
+                .TryGetValue(
+                    thruster.EntityId,
+                    out state))
+        {
+            return;
+        }
+
+        if (state.Reasons ==
+            ThrusterDisableReason.None)
+        {
+            disabledThrusterStates.Remove(
+                thruster.EntityId);
+
+            return;
+        }
+
+        if (thruster.TheBlock.Enabled)
+        {
+            thruster.TheBlock.Enabled =
+                false;
+        }
+    }
+
+    void PruneDisabledThrusterStates(
+        HashSet<long> knownThrusterIds)
+    {
+        if (disabledThrusterStates.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> staleIds =
+            new List<long>();
+
+        foreach (
+            KeyValuePair<long, DisabledThrusterState> pair
+            in disabledThrusterStates)
+        {
+            if (!knownThrusterIds.Contains(
+                    pair.Key))
+            {
+                staleIds.Add(
+                    pair.Key);
+            }
+        }
+
+        for (int i = 0;
+            i < staleIds.Count;
+            i++)
+        {
+            long entityId =
+                staleIds[i];
+
+            disabledThrusterStates.Remove(
+                entityId);
+
+            parkThrusterEnabledState.Remove(
+                entityId);
+        }
+    }
+
+    // ===== Temporary block authority =====
+
+    void RefreshTemporaryControlRoles()
+    {
+        bool slave =
+            mode ==
+            OperatingMode.Slave;
+
+        bool cruiseActive =
+            EffectiveCruise;
+
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            bool onMainGrid =
+                thruster
+                    .TheBlock
+                    .CubeGrid ==
+                Me.CubeGrid;
+
+            bool generallyEligible =
+                !thruster.IsIgnored &&
+                (settings.Greedy ||
+                 thruster
+                     .IsExplicitlyUsed);
+
+            bool slaveAuthority =
+                slave &&
+                onMainGrid &&
+                generallyEligible;
+
+            bool cruiseAuthority =
+                cruiseActive &&
+                onMainGrid &&
+                IsMainGridReverseThruster(
+                    thruster) &&
+                generallyEligible;
+
+            thruster.SetControlRole(
+                ControlRole.Slave,
+                slaveAuthority);
+
+            thruster.SetControlRole(
+                ControlRole.Cruise,
+                cruiseAuthority);
+
+            if (!cruiseAuthority)
+            {
+                ReleaseThrusterDisableReason(
+                    thruster,
+                    ThrusterDisableReason
+                        .Cruise);
+            }
+        }
+
+        for (int i = 0;
+            i < controlledGyros.Count;
+            i++)
+        {
+            Gyro gyro =
+                controlledGyros[i];
+
+            bool onMainGrid =
+                gyro
+                    .TheBlock
+                    .CubeGrid ==
+                Me.CubeGrid;
+
+            bool eligible =
+                !gyro.IsIgnored &&
+                (settings.Greedy ||
+                 gyro.IsExplicitlyUsed);
+
+            gyro.SetControlRole(
+                ControlRole.Slave,
+                slave &&
+                onMainGrid &&
+                eligible);
+        }
+
+        RefreshMainGridReverseThrusters();
+    }
+
+    void ReleaseTemporaryControlRole(
+        ControlRole role)
+    {
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            thrusters[i]
+                .SetControlRole(
+                    role,
+                    false);
+        }
+
+        for (int i = 0;
+            i < controlledGyros.Count;
+            i++)
+        {
+            controlledGyros[i]
+                .SetControlRole(
+                    role,
+                    false);
+        }
+    }
+
+    bool IsMainGridReverseThruster(
+        Thruster thruster)
+    {
+        if (thruster == null ||
+            referenceController ==
+                null ||
+            thruster
+                .TheBlock
+                .CubeGrid !=
+            Me.CubeGrid)
+        {
+            return false;
+        }
+
+        return Vector3D.Dot(
+                   VectorMath.SafeNormalize(
+                       thruster
+                           .ForceDirectionWorld),
+                   referenceController
+                       .WorldMatrix
+                       .Backward) >=
+               DirectionBucketCosine;
+    }
+
+    void RefreshMainGridReverseThrusters()
+    {
+        mainGridReverseThrusters.Clear();
+
+        if (referenceController ==
+            null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            if (IsMainGridReverseThruster(
+                    thruster))
+            {
+                mainGridReverseThrusters.Add(
+                    thruster);
+            }
+        }
+    }
+
+    void RefreshMainGridThrusterState()
+    {
+        hasMainGridThrusters =
+            false;
+
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            if (thruster.TheBlock.CubeGrid ==
+                Me.CubeGrid)
+            {
+                hasMainGridThrusters =
+                    true;
+
+                break;
+            }
+        }
+
+        RefreshMainGridReverseThrusters();
+    }
+
+    void RefreshCruiseAuthorityWarning()
+    {
+        if (!EffectiveCruise ||
+            mainGridReverseThrusters.Count ==
+                0)
+        {
+            return;
+        }
+
+        if (settings.Greedy)
+        {
+            bool allIgnored =
+                true;
+
+            for (int i = 0;
+                i <
+                    mainGridReverseThrusters
+                        .Count;
+                i++)
+            {
+                if (!mainGridReverseThrusters[i]
+                        .IsIgnored)
+                {
+                    allIgnored =
+                        false;
+
+                    break;
+                }
+            }
+
+            if (allIgnored)
+            {
+                SetCommandResult(
+"WARNING: Cruise cannot control "+
+"main-grid reverse thrusters; "+
+"all are "+
+                    settings.IgnoreTag +
+".",
+                    true);
+            }
+
+            return;
+        }
+
+        bool hasExplicitlyUsed =
+            false;
+
+        for (int i = 0;
+            i <
+                mainGridReverseThrusters
+                    .Count;
+            i++)
+        {
+            Thruster thruster =
+                mainGridReverseThrusters[i];
+
+            if (!thruster.IsIgnored &&
+                thruster.IsExplicitlyUsed)
+            {
+                hasExplicitlyUsed =
+                    true;
+
+                break;
+            }
+        }
+
+        if (!hasExplicitlyUsed)
+        {
+            SetCommandResult(
+"WARNING: Cruise cannot control "+
+"main-grid reverse thrusters; "+
+"add "+
+                settings.UseTag +
+".",
+                true);
+        }
+    }
+
+    // ===== Operating-mode role transitions =====
+
+    void ApplyOperatingModeControlRoles(
+        OperatingMode previousMode,
+        OperatingMode newMode)
+    {
+        if (previousMode ==
+                OperatingMode.Slave &&
+            newMode !=
+                OperatingMode.Slave)
+        {
+            ReleaseTemporaryControlRole(
+                ControlRole.Slave);
+
+            // Restore the locally persisted mode after temporarily
+            // adopting the master's dampener state.
+            SetControllerDampeners(
+                scriptDampeners);
+        }
+
+        if (previousMode !=
+                OperatingMode.Slave &&
+            newMode ==
+                OperatingMode.Slave)
+        {
+            SetControllerDampeners(
+                activeSlaveCommand
+                    .Dampeners);
+        }
+
+        RefreshTemporaryControlRoles();
     }
 }
