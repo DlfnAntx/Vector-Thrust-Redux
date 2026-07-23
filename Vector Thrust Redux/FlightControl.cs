@@ -725,27 +725,34 @@ namespace IngameScript
                 Vector3D.Zero;
 
             for (int i = 0;
-                i <
-                    localUnmanagedThrusters.Count;
+                i < localUnmanagedThrusters.Count;
                 i++)
             {
-                force +=
-                    localUnmanagedThrusters[i]
-                        .CurrentForceWorld;
+                Thruster thruster =
+                    localUnmanagedThrusters[i];
+
+                if (!thruster.Controlled)
+                {
+                    force +=
+                        thruster.CurrentForceWorld;
+                }
             }
 
             if (mode ==
                 OperatingMode.Master)
             {
                 for (int i = 0;
-                    i <
-                        remoteUnmanagedThrusters
-                            .Count;
+                    i < remoteUnmanagedThrusters.Count;
                     i++)
                 {
-                    force +=
-                        remoteUnmanagedThrusters[i]
-                            .CurrentForceWorld;
+                    Thruster thruster =
+                        remoteUnmanagedThrusters[i];
+
+                    if (!thruster.Controlled)
+                    {
+                        force +=
+                            thruster.CurrentForceWorld;
+                    }
                 }
             }
 
