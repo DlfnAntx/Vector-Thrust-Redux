@@ -399,38 +399,19 @@ namespace IngameScript
                 return 0;
             }
 
-            // A separate scanner script replaces this current-orientation fallback
-            // with model-only remote nacelles using the same limit-aware
-            // optimizer as local nacelles.
-            double capacity = 0;
+            double capacity =
+                GetRemoteFixedProjectedCapacity(
+                    remoteFixedReduxThrusters,
+                    targetDirection);
 
             for (int i = 0;
-                i < remoteReduxThrusters.Count;
+                i < remoteNacelles.Count;
                 i++)
             {
-                Thruster thruster =
-                    remoteReduxThrusters[i];
-
-                if (!thruster.IsUsable)
-                {
-                    continue;
-                }
-
-                double alignment =
-                    Vector3D.Dot(
-                        thruster
-                            .ForceDirectionWorld,
-                        targetDirection);
-
-                if (alignment <= 0)
-                {
-                    continue;
-                }
-
                 capacity +=
-                    alignment *
-                    thruster
-                        .MaximumEffectiveThrust;
+                    remoteNacelles[i]
+                        .GetMaximumProjectedCapacity(
+                            targetDirection);
             }
 
             return capacity;
