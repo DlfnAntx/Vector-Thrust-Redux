@@ -769,6 +769,8 @@ namespace IngameScript
                         thruster);
                 }
             }
+
+            RefreshCruiseAuthorityWarning();
         }
 
         void RefreshMainGridThrusterState()
@@ -798,6 +800,9 @@ namespace IngameScript
 
         void RefreshCruiseAuthorityWarning()
         {
+            cruiseAuthorityWarning =
+                string.Empty;
+
             if (!EffectiveCruise ||
                 mainGridReverseThrusters.Count ==
                     0)
@@ -828,13 +833,11 @@ namespace IngameScript
 
                 if (allIgnored)
                 {
-                    SetCommandResult(
-                        "WARNING: Cruise cannot control " +
-                        "main-grid reverse thrusters; " +
-                        "all are " +
+                    cruiseAuthorityWarning =
+                        "Cruise cannot control main-grid " +
+                        "reverse thrusters; all are " +
                         settings.IgnoreTag +
-                        ".",
-                        true);
+                        ".";
                 }
 
                 return;
@@ -864,13 +867,11 @@ namespace IngameScript
 
             if (!hasExplicitlyUsed)
             {
-                SetCommandResult(
-                    "WARNING: Cruise cannot control " +
-                    "main-grid reverse thrusters; " +
-                    "add " +
+                cruiseAuthorityWarning =
+                    "Cruise cannot control main-grid " +
+                    "reverse thrusters; add " +
                     settings.UseTag +
-                    ".",
-                    true);
+                    ".";
             }
         }
 

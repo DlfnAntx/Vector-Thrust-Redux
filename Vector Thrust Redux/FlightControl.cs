@@ -385,6 +385,24 @@ namespace IngameScript
             return capacity;
         }
 
+        double GetCommandProjectedCapacity(
+            Vector3D targetDirection)
+        {
+            double capacity =
+                GetLocalProjectedCapacity(
+                    targetDirection);
+
+            if (mode ==
+                OperatingMode.Master)
+            {
+                capacity +=
+                    GetRemoteReduxProjectedCapacity(
+                        targetDirection);
+            }
+
+            return capacity;
+        }
+
         double GetRemoteReduxProjectedCapacity(
             Vector3D targetDirection)
         {
@@ -505,7 +523,7 @@ namespace IngameScript
             if (hasMovementInput)
             {
                 double directionalCapacity =
-                    GetLocalProjectedCapacity(
+                    GetCommandProjectedCapacity(
                         movementDirection);
 
                 double acceleration =
@@ -594,7 +612,7 @@ namespace IngameScript
                                 .Backward;
 
                     double capacity =
-                        GetLocalProjectedCapacity(
+                        GetCommandProjectedCapacity(
                             adjustmentDirection);
 
                     double availableAcceleration =
@@ -634,7 +652,7 @@ namespace IngameScript
                 VectorEpsilon)
             {
                 double lateralCapacity =
-                    GetLocalProjectedCapacity(
+                    GetCommandProjectedCapacity(
                         lateralDirection);
 
                 desiredAcceleration +=
@@ -710,7 +728,7 @@ namespace IngameScript
                 accelerationMagnitude;
 
             double maximumAcceleration =
-                GetLocalProjectedCapacity(
+                GetCommandProjectedCapacity(
                     direction) /
                 physicalMass;
 
@@ -875,11 +893,35 @@ namespace IngameScript
                         continue;
                     }
 
-                    if (bestSolution == null ||
+                    bool betterCapacity =
+                        bestSolution == null ||
                         solution
                             .ReachableProjectedCapacity >
                         bestSolution
-                            .ReachableProjectedCapacity)
+                            .ReachableProjectedCapacity +
+                        ForceEpsilon;
+
+                    bool equalCapacity =
+                        bestSolution != null &&
+                        Math.Abs(
+                            solution
+                                .ReachableProjectedCapacity -
+                            bestSolution
+                                .ReachableProjectedCapacity) <=
+                        ForceEpsilon;
+
+                    bool deterministicTieBreak =
+                        equalCapacity &&
+                        bestNacelle != null &&
+                        nacelle
+                            .Rotor
+                            .EntityId <
+                        bestNacelle
+                            .Rotor
+                            .EntityId;
+
+                    if (betterCapacity ||
+                        deterministicTieBreak)
                     {
                         bestNacelle =
                             nacelle;

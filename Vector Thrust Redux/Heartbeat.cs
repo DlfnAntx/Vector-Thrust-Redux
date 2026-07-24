@@ -412,6 +412,23 @@ namespace IngameScript
                 return false;
             }
 
+            string versionText;
+
+            if (!TryReadSectionValue(
+                    controller.CustomData,
+                    HeartbeatSection,
+                    "Version",
+                    out versionText) ||
+                string.IsNullOrWhiteSpace(versionText))
+            {
+                return false;
+            }
+
+            if (GetVersionMajor(versionText) != GetVersionMajor(ScriptVersion))
+            {
+                return false;
+            }
+            
             string masterIdText;
             string controllerIdText;
             string sequenceText;
@@ -532,9 +549,15 @@ namespace IngameScript
             int commandGearIndex;
             int commandGearCount;
 
-            bool.TryParse(
-                dampenersText,
-                out commandDampeners);
+            bool parsedDampeners;
+
+            if (bool.TryParse(
+                    dampenersText,
+                    out parsedDampeners))
+            {
+                commandDampeners =
+                    parsedDampeners;
+            }
 
             bool.TryParse(
                 cruiseText,
@@ -626,6 +649,27 @@ namespace IngameScript
                 0;
 
             activeSlaveCommand.Clear();
+        }
+
+        static int GetVersionMajor(string version)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                return -1;
+            }
+
+            int separator = version.IndexOf('.');
+
+            string majorText =
+                separator >= 0
+                    ? version.Substring(0, separator)
+                    : version;
+
+            int major;
+
+            return int.TryParse(majorText, out major)
+                ? major
+                : -1;
         }
 
         // ===== Custom Data section handling =====

@@ -355,8 +355,13 @@ namespace IngameScript
 
                 if (!hasControlledThrusters)
                 {
-                    // Explicitly used rotor without usable thrust: Redux may
-                    // stop/park it, but it is not a vector nacelle.
+                    // Explicit [VT-use] grants authority, but without usable thrust
+                    // there is no vector solution to calculate. Stop stale motion.
+                    if (rotor.IsExplicitlyUsed)
+                    {
+                        rotor.Stop();
+                    }
+
                     continue;
                 }
 
@@ -559,7 +564,9 @@ namespace IngameScript
 
                 if (!controlledByRemoteRedux ||
                     rotorBlock.TopGrid == null ||
-                    !rotorBlock.IsFunctional)
+                    !rotorBlock.IsFunctional ||
+                    !rotorBlock.Enabled ||
+                    rotorBlock.RotorLock)
                 {
                     AddRemoteThrustersAsFixed(
                         snapshot,

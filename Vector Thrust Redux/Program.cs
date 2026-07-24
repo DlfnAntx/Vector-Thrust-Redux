@@ -153,6 +153,7 @@ namespace IngameScript
 
         string lastCommandResult = string.Empty;
         bool lastCommandWasWarning;
+        string cruiseAuthorityWarning = string.Empty;
 
         // The game cannot toggle cockpit dampeners normally when no main-grid
         // thrusters exist, so this controls whether cockpit state is treated

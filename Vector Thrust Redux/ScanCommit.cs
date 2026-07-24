@@ -1,7 +1,9 @@
 // <mdk sortorder="95" />   // ScanCommit.cs
 using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
+using VRage.Game.ModAPI.Ingame;
 
 namespace IngameScript
 {
@@ -285,6 +287,11 @@ namespace IngameScript
                 remotelyReachableControllers,
                 snapshot.RemoteControllers);
 
+            if (remotelyReachableControllers.Count == 0)
+            {
+                ResetSlaveHeartbeat();
+            }
+
             ReplaceContents(
                 thrusters,
                 snapshot.Thrusters);
@@ -426,11 +433,9 @@ namespace IngameScript
 
             SweepOwnedHeartbeatsAfterScan();
 
-            lastTopologyFingerprint =
-                CalculateTopologyFingerprint();
+            //lastTopologyFingerprint = CalculateTopologyFingerprint();
 
-            topologyFingerprintInitialized =
-                true;
+            //topologyFingerprintInitialized = true;
 
             forceStatusRefresh =
                 true;

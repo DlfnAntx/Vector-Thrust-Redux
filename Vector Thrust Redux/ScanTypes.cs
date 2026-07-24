@@ -1,7 +1,9 @@
 // <mdk sortorder="80" />   // ScanTypes.cs
 using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
+using VRage.Game.ModAPI.Ingame;
 using VRageMath;
 
 namespace IngameScript

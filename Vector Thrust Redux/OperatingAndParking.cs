@@ -1,7 +1,9 @@
 // <mdk sortorder="55" />   // OperatingAndParking.cs
 using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
+using VRage.Game.ModAPI.Ingame;
 using VRageMath;
 
 namespace IngameScript
@@ -416,6 +418,8 @@ namespace IngameScript
 
             TriggerTimers(
                 parkTimers);
+            
+            Save();
         }
 
         void ExitPark()
@@ -444,6 +448,8 @@ namespace IngameScript
 
             TriggerTimers(
                 unparkTimers);
+            
+            Save();
         }
 
         void EnsureNewCacheIsParked()

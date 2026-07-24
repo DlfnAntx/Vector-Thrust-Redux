@@ -71,6 +71,23 @@ namespace IngameScript
                         true;
                 }
 
+                if (EffectiveCruise &&
+                    !string.IsNullOrEmpty(
+                        cruiseAuthorityWarning))
+                {
+                    if (result.Length > 0)
+                    {
+                        result +=
+                            "\n";
+                    }
+
+                    result +=
+                        cruiseAuthorityWarning;
+
+                    warning =
+                        true;
+                }
+
                 if (results.Length > 0)
                 {
                     results.AppendLine();
@@ -693,14 +710,6 @@ namespace IngameScript
         {
             argumentIndex = 1;
 
-            if (words[0] ==
-                    "cruise" ||
-                words[0] ==
-                    "cruisecontrol")
-            {
-                return true;
-            }
-
             if (words.Length >= 2 &&
                 words[0] ==
                     "cruise" &&
@@ -711,7 +720,10 @@ namespace IngameScript
                 return true;
             }
 
-            return false;
+            return words[0] ==
+                    "cruise" ||
+                words[0] ==
+                    "cruisecontrol";
         }
 
         static bool IsParkingCommand(

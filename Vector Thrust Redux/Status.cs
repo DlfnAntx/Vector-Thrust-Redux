@@ -100,6 +100,16 @@ namespace IngameScript
             }
 
             if (!string.IsNullOrEmpty(
+                    cruiseAuthorityWarning))
+            {
+                echoBuilder
+                    .AppendLine()
+                    .Append("WARNING: ")
+                    .AppendLine(
+                        cruiseAuthorityWarning);
+            }
+
+            if (!string.IsNullOrEmpty(
                     lastCommandResult))
             {
                 echoBuilder
@@ -182,6 +192,15 @@ namespace IngameScript
                     .ToString("0.0"))
                 .AppendLine(" kN");
 
+            if (!string.IsNullOrEmpty(
+                    cruiseAuthorityWarning))
+            {
+                statusBuilder
+                    .Append("WARN ")
+                    .AppendLine(
+                        cruiseAuthorityWarning);
+            }
+            
             if (!string.IsNullOrEmpty(
                     lastCommandResult))
             {

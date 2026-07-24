@@ -1,7 +1,9 @@
 // <mdk sortorder="75" />   // Topology.cs
 using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
+using VRage.Game.ModAPI.Ingame;
 
 namespace IngameScript
 {
@@ -443,22 +445,19 @@ namespace IngameScript
                     value))
             {
                 return ulong.MaxValue -
-                       1;
+                    1;
             }
 
             if (double.IsNegativeInfinity(
                     value))
             {
                 return ulong.MaxValue -
-                       2;
+                    2;
             }
 
-            long bits =
-                BitConverter.DoubleToInt64Bits(
-                    value);
-
             return unchecked(
-                (ulong)bits);
+                (ulong)(uint)
+                    value.GetHashCode());
         }
 
         static ulong HashStableText(

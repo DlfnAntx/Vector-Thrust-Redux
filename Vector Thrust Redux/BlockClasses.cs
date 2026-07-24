@@ -187,6 +187,7 @@ namespace IngameScript
                     controlRoles =
                         ControlRole.None;
 
+                    ClearOverride();
                     return;
                 }
 
@@ -1496,7 +1497,8 @@ namespace IngameScript
                     Thruster thruster =
                         Thrusters[i];
 
-                    if (!thruster.IsUsable)
+                    if (!thruster.Controlled ||
+                        !thruster.IsUsable)
                     {
                         continue;
                     }

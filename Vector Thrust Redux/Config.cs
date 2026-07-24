@@ -201,28 +201,36 @@ namespace IngameScript
             return value.Length == 0 ? fallback : value;
         }
 
-        void ReadGearFractions(string serializedPercentages)
+        void ReadGearFractions(
+            string serializedPercentages)
         {
-            string[] values = serializedPercentages.Split(
-                new[] { ';', ',' },
-                StringSplitOptions.RemoveEmptyEntries);
+            string[] values =
+                serializedPercentages.Split(
+                    new[] { ';' },
+                    StringSplitOptions
+                        .RemoveEmptyEntries);
 
-            List<double> parsed = new List<double>();
+            List<double> parsed =
+                new List<double>();
 
-            for (int i = 0; i < values.Length; i++)
+            for (int i = 0;
+                i < values.Length;
+                i++)
             {
                 double percentage;
 
                 if (!double.TryParse(
-                    values[i].Trim(),
-                    out percentage))
+                        values[i].Trim(),
+                        out percentage))
                 {
                     continue;
                 }
 
                 if (percentage > 0)
                 {
-                    parsed.Add(percentage / 100.0);
+                    parsed.Add(
+                        percentage /
+                        100.0);
                 }
             }
 
@@ -232,7 +240,9 @@ namespace IngameScript
             }
 
             settings.GearFractions.Clear();
-            settings.GearFractions.AddRange(parsed);
+
+            settings.GearFractions.AddRange(
+                parsed);
         }
 
         void WriteConfigurationDefaults()
