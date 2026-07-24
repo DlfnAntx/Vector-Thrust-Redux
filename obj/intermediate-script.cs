@@ -187,6 +187,7 @@ partial class Program
                 controlRoles =
                     ControlRole.None;
 
+                ClearOverride();
                 return;
             }
 
@@ -1496,7 +1497,8 @@ partial class Program
                 Thruster thruster =
                     Thrusters[i];
 
-                if (!thruster.IsUsable)
+                if (!thruster.Controlled ||
+                    !thruster.IsUsable)
                 {
                     continue;
                 }
@@ -3313,6 +3315,1005 @@ partial class Program
 }
 partial class Program
 {
+    // ===== Commands =====
+
+    void HandleArgument(
+        string argument)
+    {
+        if (string.IsNullOrWhiteSpace(
+                argument))
+        {
+            return;
+        }
+
+        string[] commands =
+            argument.Split(
+                new[]
+                {
+                    ';',
+                    '\n',
+                    '\r'
+                },
+                StringSplitOptions
+                    .RemoveEmptyEntries);
+
+        bool encounteredCommand =
+            false;
+
+        bool encounteredWarning =
+            false;
+
+        StringBuilder results =
+            new StringBuilder();
+
+        for (int i = 0;
+            i < commands.Length;
+            i++)
+        {
+            string command =
+                NormalizeCommand(
+                    commands[i]);
+
+            if (command.Length == 0)
+            {
+                continue;
+            }
+
+            encounteredCommand =
+                true;
+
+            string result;
+            bool warning;
+
+            if (!TryHandleCommand(
+                    command,
+                    out result,
+                    out warning))
+            {
+                result =
+                    "Unknown command: \"" +
+                    command +
+                    "\"";
+
+                warning =
+                    true;
+            }
+
+            if (EffectiveCruise &&
+                !string.IsNullOrEmpty(
+                    cruiseAuthorityWarning))
+            {
+                if (result.Length > 0)
+                {
+                    result +=
+                        "\n";
+                }
+
+                result +=
+                    cruiseAuthorityWarning;
+
+                warning =
+                    true;
+            }
+
+            if (results.Length > 0)
+            {
+                results.AppendLine();
+            }
+
+            results.Append(result);
+
+            encounteredWarning |=
+                warning;
+        }
+
+        if (!encounteredCommand)
+        {
+            return;
+        }
+
+        SetCommandResult(
+            results.ToString(),
+            encounteredWarning);
+
+        Save();
+    }
+
+    bool TryHandleCommand(
+        string command,
+        out string result,
+        out bool warning)
+    {
+        result =
+            string.Empty;
+
+        warning =
+            false;
+
+        string[] words =
+            command.Split(
+                new[] { ' ' },
+                StringSplitOptions
+                    .RemoveEmptyEntries);
+
+        if (words.Length == 0)
+        {
+            return false;
+        }
+
+        int argumentIndex;
+
+        if (IsDampenerCommand(
+                words,
+                out argumentIndex))
+        {
+            return TryHandleDampenerCommand(
+                words,
+                argumentIndex,
+                out result,
+                out warning);
+        }
+
+        if (IsCruiseCommand(
+                words,
+                out argumentIndex))
+        {
+            return TryHandleCruiseCommand(
+                words,
+                argumentIndex,
+                out result,
+                out warning);
+        }
+
+        if (IsParkingCommand(
+                words,
+                out argumentIndex))
+        {
+            return TryHandleParkingCommand(
+                words,
+                argumentIndex,
+                out result,
+                out warning);
+        }
+
+        if (words[0] ==
+                "unpark" ||
+            words[0] ==
+                "undock")
+        {
+            manualParkRequested =
+                false;
+
+            slaveFallbackPark =
+                false;
+
+            result =
+                "Parking: OFF";
+
+            return true;
+        }
+
+        if (words[0] ==
+            "gear")
+        {
+            return TryHandleGearCommand(
+                words,
+                1,
+                out result,
+                out warning);
+        }
+
+        if (words[0] ==
+                "rescan" ||
+            words[0] ==
+                "scan" ||
+            words[0] ==
+                "refresh")
+        {
+            if (words.Length != 1)
+            {
+                result =
+                    "Invalid rescan command: \"" +
+                    command +
+                    "\"";
+
+                warning =
+                    true;
+
+                return true;
+            }
+
+            RequestRescan();
+
+            result =
+                "Deep rescan requested.";
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryHandleDampenerCommand(
+        string[] words,
+        int argumentIndex,
+        out string result,
+        out bool warning)
+    {
+        result =
+            string.Empty;
+
+        warning =
+            false;
+
+        bool enabled;
+
+        if (!TryReadToggleState(
+                words,
+                argumentIndex,
+                scriptDampeners,
+                out enabled))
+        {
+            result =
+                "Expected dampeners " +
+                "on, off, or toggle.";
+
+            warning =
+                true;
+
+            return true;
+        }
+
+        SetLocalDampeners(
+            enabled);
+
+        result =
+            "Local dampeners: " +
+            (scriptDampeners
+                ? "ON"
+                : "OFF");
+
+        if (mode ==
+            OperatingMode.Slave)
+        {
+            result +=
+                " (master remains effective while slaved)";
+        }
+
+        return true;
+    }
+
+    bool TryHandleCruiseCommand(
+        string[] words,
+        int argumentIndex,
+        out string result,
+        out bool warning)
+    {
+        result =
+            string.Empty;
+
+        warning =
+            false;
+
+        if (argumentIndex >=
+            words.Length)
+        {
+            ToggleCruise();
+
+            result =
+                GetLocalCruiseResult();
+
+            return true;
+        }
+
+        string operation =
+            words[argumentIndex];
+
+        bool state;
+
+        if (TryReadNamedState(
+                operation,
+                cruise,
+                out state))
+        {
+            if (argumentIndex + 1 !=
+                words.Length)
+            {
+                result =
+                    "Unexpected text after " +
+                    "Cruise state.";
+
+                warning =
+                    true;
+
+                return true;
+            }
+
+            SetCruiseEnabled(
+                state);
+
+            result =
+                GetLocalCruiseResult();
+
+            return true;
+        }
+
+        double directDelta;
+
+        if (TryParseSignedDelta(
+                words,
+                argumentIndex,
+                out directDelta))
+        {
+            AdjustCruiseTargetSpeed(
+                directDelta);
+
+            result =
+                GetLocalCruiseResult();
+
+            return true;
+        }
+
+        bool increase =
+            operation ==
+                "increase" ||
+            operation ==
+                "increment" ||
+            operation ==
+                "up" ||
+            operation ==
+                "add" ||
+            operation ==
+                "faster";
+
+        bool decrease =
+            operation ==
+                "decrease" ||
+            operation ==
+                "decrement" ||
+            operation ==
+                "down" ||
+            operation ==
+                "subtract" ||
+            operation ==
+                "slower";
+
+        if (increase ||
+            decrease)
+        {
+            if (argumentIndex + 2 !=
+                words.Length)
+            {
+                result =
+                    "Cruise adjustment requires " +
+                    "one speed value.";
+
+                warning =
+                    true;
+
+                return true;
+            }
+
+            double amount;
+
+            if (!double.TryParse(
+                    words[
+                        argumentIndex + 1],
+                    out amount))
+            {
+                result =
+                    "Invalid Cruise speed: \"" +
+                    words[
+                        argumentIndex + 1] +
+                    "\"";
+
+                warning =
+                    true;
+
+                return true;
+            }
+
+            amount =
+                Math.Abs(amount);
+
+            AdjustCruiseTargetSpeed(
+                increase
+                    ? amount
+                    : -amount);
+
+            result =
+                GetLocalCruiseResult();
+
+            return true;
+        }
+
+        if (operation ==
+                "target" ||
+            operation ==
+                "speed" ||
+            operation ==
+                "set")
+        {
+            if (argumentIndex + 2 !=
+                words.Length)
+            {
+                result =
+                    "Cruise target requires " +
+                    "one speed value.";
+
+                warning =
+                    true;
+
+                return true;
+            }
+
+            double target;
+
+            if (!double.TryParse(
+                    words[
+                        argumentIndex + 1],
+                    out target))
+            {
+                result =
+                    "Invalid Cruise target: \"" +
+                    words[
+                        argumentIndex + 1] +
+                    "\"";
+
+                warning =
+                    true;
+
+                return true;
+            }
+
+            cruiseTargetSpeed =
+                target;
+
+            cruiseTargetInitialized =
+                true;
+
+            result =
+                GetLocalCruiseResult();
+
+            return true;
+        }
+
+        result =
+            "Expected Cruise on, off, toggle, " +
+            "+value, -value, increase value, " +
+            "decrease value, or target value.";
+
+        warning =
+            true;
+
+        return true;
+    }
+
+    bool TryHandleParkingCommand(
+        string[] words,
+        int argumentIndex,
+        out string result,
+        out bool warning)
+    {
+        result =
+            string.Empty;
+
+        warning =
+            false;
+
+        bool enabled;
+
+        if (!TryReadToggleState(
+                words,
+                argumentIndex,
+                manualParkRequested,
+                out enabled))
+        {
+            result =
+                "Expected parking " +
+                "on, off, or toggle.";
+
+            warning =
+                true;
+
+            return true;
+        }
+
+        manualParkRequested =
+            enabled;
+
+        slaveFallbackPark =
+            false;
+
+        result =
+            "Parking: " +
+            (manualParkRequested
+                ? "ON"
+                : "OFF");
+
+        return true;
+    }
+
+    bool TryHandleGearCommand(
+        string[] words,
+        int argumentIndex,
+        out string result,
+        out bool warning)
+    {
+        result =
+            string.Empty;
+
+        warning =
+            false;
+
+        int gearCount =
+            settings
+                .GearFractions.Count;
+
+        if (gearCount <= 0)
+        {
+            result =
+                "No gears are configured.";
+
+            warning =
+                true;
+
+            return true;
+        }
+
+        if (argumentIndex >=
+            words.Length)
+        {
+            selectedGear =
+                (selectedGear + 1) %
+                gearCount;
+
+            result =
+                GetLocalGearResult();
+
+            return true;
+        }
+
+        if (argumentIndex + 1 !=
+            words.Length)
+        {
+            result =
+                "Gear accepts one argument.";
+
+            warning =
+                true;
+
+            return true;
+        }
+
+        string operation =
+            words[argumentIndex];
+
+        if (operation ==
+                "next" ||
+            operation ==
+                "up" ||
+            operation ==
+                "increase" ||
+            operation ==
+                "increment")
+        {
+            selectedGear =
+                (selectedGear + 1) %
+                gearCount;
+
+            result =
+                GetLocalGearResult();
+
+            return true;
+        }
+
+        if (operation ==
+                "previous" ||
+            operation ==
+                "prev" ||
+            operation ==
+                "down" ||
+            operation ==
+                "decrease" ||
+            operation ==
+                "decrement")
+        {
+            selectedGear--;
+
+            if (selectedGear < 0)
+            {
+                selectedGear =
+                    gearCount - 1;
+            }
+
+            result =
+                GetLocalGearResult();
+
+            return true;
+        }
+
+        int requestedGear;
+
+        if (!int.TryParse(
+                operation,
+                out requestedGear))
+        {
+            result =
+                "Invalid gear: \"" +
+                operation +
+                "\"";
+
+            warning =
+                true;
+
+            return true;
+        }
+
+        if (requestedGear < 1 ||
+            requestedGear > gearCount)
+        {
+            result =
+                "Gear must be between 1 and " +
+                gearCount +
+                ".";
+
+            warning =
+                true;
+
+            return true;
+        }
+
+        selectedGear =
+            requestedGear - 1;
+
+        result =
+            GetLocalGearResult();
+
+        return true;
+    }
+
+    static bool IsDampenerCommand(
+        string[] words,
+        out int argumentIndex)
+    {
+        argumentIndex = 1;
+
+        if (words[0] ==
+                "dampeners" ||
+            words[0] ==
+                "dampener" ||
+            words[0] ==
+                "dampers" ||
+            words[0] ==
+                "damper" ||
+            words[0] ==
+                "damping" ||
+            words[0] ==
+                "dampening")
+        {
+            return true;
+        }
+
+        if (words.Length >= 2 &&
+            words[0] ==
+                "inertia" &&
+            (words[1] ==
+                 "dampeners" ||
+             words[1] ==
+                 "dampener" ||
+             words[1] ==
+                 "damping"))
+        {
+            argumentIndex = 2;
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool IsCruiseCommand(
+        string[] words,
+        out int argumentIndex)
+    {
+        argumentIndex = 1;
+
+        if (words.Length >= 2 &&
+            words[0] ==
+                "cruise" &&
+            words[1] ==
+                "control")
+        {
+            argumentIndex = 2;
+            return true;
+        }
+
+        return words[0] ==
+                "cruise" ||
+            words[0] ==
+                "cruisecontrol";
+    }
+
+    static bool IsParkingCommand(
+        string[] words,
+        out int argumentIndex)
+    {
+        argumentIndex = 1;
+
+        return words[0] ==
+                   "park" ||
+               words[0] ==
+                   "parking";
+    }
+
+    static bool TryReadToggleState(
+        string[] words,
+        int argumentIndex,
+        bool currentValue,
+        out bool result)
+    {
+        if (argumentIndex >=
+            words.Length)
+        {
+            result =
+                !currentValue;
+
+            return true;
+        }
+
+        if (argumentIndex + 1 !=
+            words.Length)
+        {
+            result =
+                currentValue;
+
+            return false;
+        }
+
+        return TryReadNamedState(
+            words[argumentIndex],
+            currentValue,
+            out result);
+    }
+
+    static bool TryReadNamedState(
+        string operation,
+        bool currentValue,
+        out bool result)
+    {
+        if (operation ==
+                "on" ||
+            operation ==
+                "enable" ||
+            operation ==
+                "enabled" ||
+            operation ==
+                "start")
+        {
+            result = true;
+            return true;
+        }
+
+        if (operation ==
+                "off" ||
+            operation ==
+                "disable" ||
+            operation ==
+                "disabled" ||
+            operation ==
+                "stop")
+        {
+            result = false;
+            return true;
+        }
+
+        if (operation ==
+                "toggle" ||
+            operation ==
+                "switch")
+        {
+            result =
+                !currentValue;
+
+            return true;
+        }
+
+        result =
+            currentValue;
+
+        return false;
+    }
+
+    static bool TryParseSignedDelta(
+        string[] words,
+        int argumentIndex,
+        out double delta)
+    {
+        delta = 0;
+
+        if (argumentIndex >=
+            words.Length)
+        {
+            return false;
+        }
+
+        if (argumentIndex + 1 ==
+            words.Length)
+        {
+            string serialized =
+                words[argumentIndex];
+
+            if (serialized.Length < 2 ||
+                serialized[0] != '+' &&
+                serialized[0] != '-')
+            {
+                return false;
+            }
+
+            return double.TryParse(
+                serialized,
+                out delta);
+        }
+
+        if (argumentIndex + 2 ==
+                words.Length &&
+            (words[argumentIndex] ==
+                 "+" ||
+             words[argumentIndex] ==
+                 "-"))
+        {
+            double amount;
+
+            if (!double.TryParse(
+                    words[
+                        argumentIndex + 1],
+                    out amount))
+            {
+                return false;
+            }
+
+            delta =
+                words[argumentIndex] ==
+                    "+"
+                    ? Math.Abs(amount)
+                    : -Math.Abs(amount);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    string GetLocalCruiseResult()
+    {
+        string result =
+            "Local Cruise: " +
+            (cruise
+                ? "ON"
+                : "OFF");
+
+        if (cruiseTargetInitialized)
+        {
+            result +=
+                " @ " +
+                cruiseTargetSpeed
+                    .ToString("0.###") +
+                " m/s";
+        }
+
+        if (mode ==
+            OperatingMode.Slave)
+        {
+            result +=
+                " (master remains effective while slaved)";
+        }
+
+        return result;
+    }
+
+    string GetLocalGearResult()
+    {
+        int gearCount =
+            settings
+                .GearFractions.Count;
+
+        double percentage =
+            gearCount > 0
+                ? settings
+                    .GearFractions[
+                        MathHelper.Clamp(
+                            selectedGear,
+                            0,
+                            gearCount - 1)] *
+                  100
+                : 0;
+
+        string result =
+            "Local gear: " +
+            (selectedGear + 1) +
+            "/" +
+            gearCount +
+            " (" +
+            percentage
+                .ToString("0.##") +
+            "%)";
+
+        if (mode ==
+            OperatingMode.Slave)
+        {
+            result +=
+                " (master remains effective while slaved)";
+        }
+
+        return result;
+    }
+
+    static string NormalizeCommand(
+        string command)
+    {
+        if (string.IsNullOrWhiteSpace(
+                command))
+        {
+            return string.Empty;
+        }
+
+        command =
+            command
+                .Trim()
+                .ToLowerInvariant();
+
+        StringBuilder normalized =
+            new StringBuilder(
+                command.Length);
+
+        bool previousWasWhitespace =
+            false;
+
+        for (int i = 0;
+            i < command.Length;
+            i++)
+        {
+            char character =
+                command[i];
+
+            bool whitespace =
+                char.IsWhiteSpace(
+                    character);
+
+            if (whitespace)
+            {
+                if (!previousWasWhitespace &&
+                    normalized.Length > 0)
+                {
+                    normalized.Append(' ');
+                }
+
+                previousWasWhitespace =
+                    true;
+
+                continue;
+            }
+
+            normalized.Append(
+                character);
+
+            previousWasWhitespace =
+                false;
+        }
+
+        if (normalized.Length > 0 &&
+            normalized[
+                normalized.Length - 1] ==
+            ' ')
+        {
+            normalized.Length--;
+        }
+
+        return normalized.ToString();
+    }
+}
+partial class Program
+{
     sealed class Settings
     {
         // Ownership
@@ -3505,28 +4506,36 @@ partial class Program
         return value.Length == 0 ? fallback : value;
     }
 
-    void ReadGearFractions(string serializedPercentages)
+    void ReadGearFractions(
+        string serializedPercentages)
     {
-        string[] values = serializedPercentages.Split(
-            new[] { ';', ',' },
-            StringSplitOptions.RemoveEmptyEntries);
+        string[] values =
+            serializedPercentages.Split(
+                new[] { ';' },
+                StringSplitOptions
+                    .RemoveEmptyEntries);
 
-        List<double> parsed = new List<double>();
+        List<double> parsed =
+            new List<double>();
 
-        for (int i = 0; i < values.Length; i++)
+        for (int i = 0;
+            i < values.Length;
+            i++)
         {
             double percentage;
 
             if (!double.TryParse(
-                values[i].Trim(),
-                out percentage))
+                    values[i].Trim(),
+                    out percentage))
             {
                 continue;
             }
 
             if (percentage > 0)
             {
-                parsed.Add(percentage / 100.0);
+                parsed.Add(
+                    percentage /
+                    100.0);
             }
         }
 
@@ -3536,7 +4545,9 @@ partial class Program
         }
 
         settings.GearFractions.Clear();
-        settings.GearFractions.AddRange(parsed);
+
+        settings.GearFractions.AddRange(
+            parsed);
     }
 
     void WriteConfigurationDefaults()
@@ -3624,32 +4635,38 @@ partial class Program
 }
 partial class Program
 {
-    readonly List<VectorThrustGroup> groupAllocationWork =
-        new List<VectorThrustGroup>();
-
     readonly HashSet<VectorThrust> aimedNacelles =
         new HashSet<VectorThrust>();
 
-    IMyShipController heartbeatController;
+    readonly HashSet<VectorThrust> availableNacelles =
+        new HashSet<VectorThrust>();
 
     // ===== Scheduled work =====
 
     void RunUpdate100()
     {
         LoadConfiguration(false);
-        RequestRescan();
+
+        // The lightweight fingerprint implementation arrives with the
+        // scanner replacement. It requests a deep scan only when relevant
+        // topology or discovery tags have changed.
+        CheckTopologyFingerprint();
     }
 
     void RunUpdate10()
     {
         SelectReferenceController();
         DetectTopologyChanges();
+
+        RefreshTemporaryControlRoles();
+        SynchronizeDampenerState();
         RefreshEffectiveCapacity();
 
         potentialMaster =
             settings.CanMaster &&
             referenceController != null &&
-            referenceController.IsUnderControl;
+            referenceController
+                .IsUnderControl;
 
         UpdateAutomaticParkRequest();
 
@@ -3675,11 +4692,13 @@ partial class Program
                 long.MinValue &&
             slaveHeartbeatAgeUpdate10 < 2;
 
-        slaveHeartbeatChangedThisWindow = false;
+        slaveHeartbeatChangedThisWindow =
+            false;
 
         EvaluateOperatingMode();
 
-        if (mode == OperatingMode.Parked)
+        if (mode ==
+            OperatingMode.Parked)
         {
             UpdateParkedRotors();
         }
@@ -3687,12 +4706,15 @@ partial class Program
         WriteStatus(false);
     }
 
-    void RunFlightControl(double timeStep)
+    void RunFlightControl(
+        double timeStep)
     {
         SelectReferenceController();
 
-        if (mode == OperatingMode.Parked ||
-            mode == OperatingMode.Initializing ||
+        if (mode ==
+                OperatingMode.Parked ||
+            mode ==
+                OperatingMode.Initializing ||
             referenceController == null)
         {
             ClearControlledThrust();
@@ -3701,57 +4723,112 @@ partial class Program
         }
 
         RestoreThrustersAfterPark();
-        RefreshAvailableControlledThrust();
+        RefreshTemporaryControlRoles();
+        SynchronizeDampenerState();
+        RefreshEffectiveCapacity();
 
         Vector3D centerOfMass =
             referenceController.CenterOfMass;
 
         Vector3D request;
 
-        if (mode == OperatingMode.Slave)
+        if (mode ==
+            OperatingMode.Slave)
         {
-            request =
-                activeSlaveCommand
-                    .NormalizedForceDemand *
-                availableControlledThrust;
+            Vector3D demand =
+                VectorMath.ClampMagnitude(
+                    activeSlaveCommand
+                        .NormalizedForceDemand,
+                    1);
 
-            // Player-controlled or foreign thrusters remain visible to
-            // the local solver, so a slave does not blindly duplicate
-            // force already being produced on its component.
-            request -= GetObservedForceWorld();
+            Vector3D direction =
+                VectorMath.SafeNormalize(
+                    demand);
+
+            double demandFraction =
+                demand.Length();
+
+            double localCapacity =
+                GetLocalProjectedCapacity(
+                    direction);
+
+            request =
+                direction *
+                demandFraction *
+                localCapacity;
         }
         else
         {
-            request = CalculateLocalForceRequest(
-                timeStep);
+            Vector3D constructRequest =
+                CalculateLocalForceRequest(
+                    timeStep);
 
-            if (availableControlledThrust >
-                ForceEpsilon)
+            constructRequest -=
+                GetUnmanagedConstructForceWorld();
+
+            if (mode ==
+                OperatingMode.Master)
             {
+                Vector3D direction =
+                    VectorMath.SafeNormalize(
+                        constructRequest);
+
+                double localCapacity =
+                    GetLocalProjectedCapacity(
+                        direction);
+
+                double remoteCapacity =
+                    GetRemoteReduxProjectedCapacity(
+                        direction);
+
+                double participantCapacity =
+                    localCapacity +
+                    remoteCapacity;
+
+                double demandFraction =
+                    participantCapacity >
+                            ForceEpsilon
+                        ? MathHelper.Clamp(
+                            constructRequest
+                                .Length() /
+                            participantCapacity,
+                            0,
+                            1)
+                        : 0;
+
                 normalizedMasterDemand =
-                    VectorMath.ClampMagnitude(
-                        request /
-                        availableControlledThrust,
-                        1.0);
+                    direction *
+                    demandFraction;
+
+                request =
+                    direction *
+                    demandFraction *
+                    localCapacity;
             }
             else
             {
                 normalizedMasterDemand =
                     Vector3D.Zero;
+
+                request =
+                    constructRequest;
             }
         }
 
-        requestedForceWorld = request;
+        requestedForceWorld =
+            request;
 
         AllocateControlledThrust(
             request,
-            centerOfMass);
+            centerOfMass,
+            timeStep);
 
         bool levelWithGravity =
-            mode == OperatingMode.Slave
+            mode ==
+                    OperatingMode.Slave
                 ? activeSlaveCommand
                     .LevelWithGravity
-                : cruise &&
+                : EffectiveCruise &&
                   settings
                       .CruiseLevelsWithGravity;
 
@@ -3771,6 +4848,7 @@ partial class Program
         }
 
         RefreshAvailableControlledThrust();
+        RefreshDirectionalCapacity();
     }
 
     void RefreshAvailableControlledThrust()
@@ -3778,20 +4856,209 @@ partial class Program
         availableControlledThrust = 0;
 
         for (int i = 0;
-            i < controlledThrusters.Count;
+            i < thrusters.Count;
             i++)
         {
             Thruster thruster =
-                controlledThrusters[i];
+                thrusters[i];
 
-            if (!thruster.IsUsable)
+            if (!thruster.Controlled ||
+                !thruster.IsUsable)
             {
                 continue;
             }
 
             availableControlledThrust +=
-                thruster.MaximumEffectiveThrust;
+                thruster
+                    .MaximumEffectiveThrust;
         }
+    }
+
+    void RefreshDirectionalCapacity()
+    {
+        localDirectionalCapacity.Clear();
+        remoteReduxDirectionalCapacity.Clear();
+        constructDirectionalCapacity.Clear();
+
+        if (referenceController ==
+            null)
+        {
+            return;
+        }
+
+        MatrixD matrix =
+            referenceController
+                .WorldMatrix;
+
+        localDirectionalCapacity.Forward =
+            GetLocalProjectedCapacity(
+                matrix.Forward);
+
+        localDirectionalCapacity.Backward =
+            GetLocalProjectedCapacity(
+                matrix.Backward);
+
+        localDirectionalCapacity.Left =
+            GetLocalProjectedCapacity(
+                matrix.Left);
+
+        localDirectionalCapacity.Right =
+            GetLocalProjectedCapacity(
+                matrix.Right);
+
+        localDirectionalCapacity.Up =
+            GetLocalProjectedCapacity(
+                matrix.Up);
+
+        localDirectionalCapacity.Down =
+            GetLocalProjectedCapacity(
+                matrix.Down);
+
+        remoteReduxDirectionalCapacity.Forward =
+            GetRemoteReduxProjectedCapacity(
+                matrix.Forward);
+
+        remoteReduxDirectionalCapacity.Backward =
+            GetRemoteReduxProjectedCapacity(
+                matrix.Backward);
+
+        remoteReduxDirectionalCapacity.Left =
+            GetRemoteReduxProjectedCapacity(
+                matrix.Left);
+
+        remoteReduxDirectionalCapacity.Right =
+            GetRemoteReduxProjectedCapacity(
+                matrix.Right);
+
+        remoteReduxDirectionalCapacity.Up =
+            GetRemoteReduxProjectedCapacity(
+                matrix.Up);
+
+        remoteReduxDirectionalCapacity.Down =
+            GetRemoteReduxProjectedCapacity(
+                matrix.Down);
+
+        constructDirectionalCapacity.CopyFrom(
+            localDirectionalCapacity);
+
+        constructDirectionalCapacity.Add(
+            remoteReduxDirectionalCapacity);
+    }
+
+    double GetLocalProjectedCapacity(
+        Vector3D targetDirection)
+    {
+        targetDirection =
+            VectorMath.SafeNormalize(
+                targetDirection);
+
+        if (targetDirection
+                .LengthSquared() <=
+            VectorEpsilon)
+        {
+            return 0;
+        }
+
+        double capacity = 0;
+
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            if (!thruster.Controlled ||
+                !thruster.IsUsable)
+            {
+                continue;
+            }
+
+            if (thruster.Nacelle != null &&
+                thruster.Nacelle
+                    .Rotor
+                    .Controlled)
+            {
+                continue;
+            }
+
+            capacity +=
+                thruster
+                    .GetCurrentProjectedCapacity(
+                        targetDirection);
+        }
+
+        for (int i = 0;
+            i < vectorThrusters.Count;
+            i++)
+        {
+            VectorThrust nacelle =
+                vectorThrusters[i];
+
+            if (!nacelle
+                    .Rotor
+                    .Controlled)
+            {
+                continue;
+            }
+
+            capacity +=
+                nacelle
+                    .GetMaximumProjectedCapacity(
+                        targetDirection);
+        }
+
+        return capacity;
+    }
+
+    double GetCommandProjectedCapacity(
+        Vector3D targetDirection)
+    {
+        double capacity =
+            GetLocalProjectedCapacity(
+                targetDirection);
+
+        if (mode ==
+            OperatingMode.Master)
+        {
+            capacity +=
+                GetRemoteReduxProjectedCapacity(
+                    targetDirection);
+        }
+
+        return capacity;
+    }
+
+    double GetRemoteReduxProjectedCapacity(
+        Vector3D targetDirection)
+    {
+        targetDirection =
+            VectorMath.SafeNormalize(
+                targetDirection);
+
+        if (targetDirection
+                .LengthSquared() <=
+            VectorEpsilon)
+        {
+            return 0;
+        }
+
+        double capacity =
+            GetRemoteFixedProjectedCapacity(
+                remoteFixedReduxThrusters,
+                targetDirection);
+
+        for (int i = 0;
+            i < remoteNacelles.Count;
+            i++)
+        {
+            capacity +=
+                remoteNacelles[i]
+                    .GetMaximumProjectedCapacity(
+                        targetDirection);
+        }
+
+        return capacity;
     }
 
     // ===== Input and force calculation =====
@@ -3806,7 +5073,8 @@ partial class Program
         double physicalMass =
             shipMass.PhysicalMass;
 
-        if (physicalMass <= ForceEpsilon)
+        if (physicalMass <=
+            ForceEpsilon)
         {
             return Vector3D.Zero;
         }
@@ -3822,258 +5090,498 @@ partial class Program
             referenceController
                 .GetNaturalGravity();
 
+        Vector3 moveIndicator =
+            referenceController
+                .MoveIndicator;
+
+        Vector3D desiredAcceleration;
+
+        if (EffectiveCruise)
+        {
+            desiredAcceleration =
+                CalculateCruiseAcceleration(
+                    moveIndicator,
+                    velocity,
+                    physicalMass,
+                    timeStep);
+        }
+        else
+        {
+            desiredAcceleration =
+                CalculateNormalAcceleration(
+                    moveIndicator,
+                    velocity,
+                    physicalMass,
+                    timeStep);
+        }
+
+        // F_thrust + m*g = m*a
+        // therefore F_thrust = m*(a - g).
+        return physicalMass *
+               (desiredAcceleration -
+                gravity);
+    }
+
+    Vector3D CalculateNormalAcceleration(
+        Vector3 moveIndicator,
+        Vector3D velocity,
+        double physicalMass,
+        double timeStep)
+    {
         Vector3D movementInput =
             Vector3D.TransformNormal(
-                referenceController
-                    .MoveIndicator,
+                moveIndicator,
                 referenceController
                     .WorldMatrix);
-
-        bool hasMovementInput =
-            movementInput.LengthSquared() >
-            VectorEpsilon;
 
         Vector3D movementDirection =
             VectorMath.SafeNormalize(
                 movementInput);
 
-        double maximumAcceleration =
-            availableControlledThrust /
-            physicalMass;
-
-        double gearFraction =
-            settings.GearFractions[
-                MathHelper.Clamp(
-                    selectedGear,
-                    0,
-                    settings
-                        .GearFractions.Count - 1)];
+        bool hasMovementInput =
+            movementDirection
+                .LengthSquared() >
+            VectorEpsilon;
 
         Vector3D desiredAcceleration =
-            movementDirection *
-            maximumAcceleration *
-            gearFraction;
+            Vector3D.Zero;
 
-        scriptDampeners =
-            referenceController
-                .DampenersOverride;
-
-        if (scriptDampeners)
+        if (hasMovementInput)
         {
-            Vector3D velocityToDamp =
-                velocity;
+            double directionalCapacity =
+                GetCommandProjectedCapacity(
+                    movementDirection);
 
-            if (hasMovementInput)
+            double acceleration =
+                directionalCapacity /
+                physicalMass *
+                EffectiveGearFraction;
+
+            desiredAcceleration =
+                movementDirection *
+                acceleration;
+        }
+
+        if (!EffectiveDampeners)
+        {
+            return ClampAccelerationToCapacity(
+                desiredAcceleration,
+                physicalMass);
+        }
+
+        Vector3D velocityToDamp =
+            velocity;
+
+        if (velocityToDamp.Length() <=
+            VelocityControlEpsilon)
+        {
+            velocityToDamp =
+                Vector3D.Zero;
+        }
+
+        if (hasMovementInput)
+        {
+            double desiredDirectionSpeed =
+                Vector3D.Dot(
+                    velocityToDamp,
+                    movementDirection);
+
+            if (desiredDirectionSpeed > 0)
             {
-                double desiredDirectionSpeed =
-                    Vector3D.Dot(
-                        velocity,
-                        movementDirection);
-
-                if (desiredDirectionSpeed > 0)
-                {
-                    velocityToDamp -=
-                        movementDirection *
-                        desiredDirectionSpeed;
-                }
+                velocityToDamp -=
+                    movementDirection *
+                    desiredDirectionSpeed;
             }
+        }
 
-            if (cruise)
-            {
-                Vector3D forward =
-                    referenceController
-                        .WorldMatrix.Forward;
-
-                double forwardSpeed =
-                    Vector3D.Dot(
-                        velocityToDamp,
-                        forward);
-
-                if (forwardSpeed > 0)
-                {
-                    velocityToDamp -=
-                        forward *
-                        forwardSpeed;
-                }
-            }
-
-            Vector3D dampingAcceleration =
+        if (velocityToDamp
+                .LengthSquared() >
+            VectorEpsilon)
+        {
+            desiredAcceleration +=
                 -velocityToDamp /
                 Math.Max(
                     timeStep,
                     MinimumTimeStep);
-
-            dampingAcceleration =
-                VectorMath.ClampMagnitude(
-                    dampingAcceleration,
-                    maximumAcceleration);
-
-            desiredAcceleration +=
-                dampingAcceleration;
         }
 
-        desiredAcceleration =
-            VectorMath.ClampMagnitude(
-                desiredAcceleration,
-                maximumAcceleration);
-
-        // F_thrust + m*g = m*a
-        // therefore F_thrust = m*(a - g).
-        Vector3D requiredAppliedForce =
-            physicalMass *
-            (desiredAcceleration - gravity);
-
-        return requiredAppliedForce -
-               GetObservedForceWorld();
+        return ClampAccelerationToCapacity(
+            desiredAcceleration,
+            physicalMass);
     }
 
-    Vector3D GetObservedForceWorld()
+    Vector3D CalculateCruiseAcceleration(
+        Vector3 moveIndicator,
+        Vector3D velocity,
+        double physicalMass,
+        double timeStep)
     {
-        Vector3D force = Vector3D.Zero;
+        if (mode !=
+            OperatingMode.Slave)
+        {
+            EnsureCruiseTargetInitialized();
+
+            double longitudinalInput =
+                -moveIndicator.Z;
+
+            if (Math.Abs(
+                    longitudinalInput) >
+                VectorEpsilon)
+            {
+                Vector3D adjustmentDirection =
+                    longitudinalInput >= 0
+                        ? referenceController
+                            .WorldMatrix
+                            .Forward
+                        : referenceController
+                            .WorldMatrix
+                            .Backward;
+
+                double capacity =
+                    GetCommandProjectedCapacity(
+                        adjustmentDirection);
+
+                double availableAcceleration =
+                    capacity /
+                    physicalMass *
+                    EffectiveGearFraction;
+
+                cruiseTargetSpeed +=
+                    longitudinalInput *
+                    availableAcceleration *
+                    timeStep;
+            }
+        }
+
+        Vector3 lateralInput =
+            moveIndicator;
+
+        // Longitudinal input adjusts target speed rather than adding a
+        // second competing acceleration request.
+        lateralInput.Z = 0;
+
+        Vector3D lateralWorldInput =
+            Vector3D.TransformNormal(
+                lateralInput,
+                referenceController
+                    .WorldMatrix);
+
+        Vector3D lateralDirection =
+            VectorMath.SafeNormalize(
+                lateralWorldInput);
+
+        Vector3D desiredAcceleration =
+            Vector3D.Zero;
+
+        if (lateralDirection
+                .LengthSquared() >
+            VectorEpsilon)
+        {
+            double lateralCapacity =
+                GetCommandProjectedCapacity(
+                    lateralDirection);
+
+            desiredAcceleration +=
+                lateralDirection *
+                (lateralCapacity /
+                 physicalMass *
+                 EffectiveGearFraction);
+        }
+
+        Vector3D forward =
+            referenceController
+                .WorldMatrix
+                .Forward;
+
+        Vector3D desiredVelocity =
+            forward *
+            EffectiveCruiseTargetSpeed;
+
+        Vector3D velocityError =
+            desiredVelocity -
+            velocity;
+
+        if (!EffectiveDampeners)
+        {
+            // Cruise always owns longitudinal speed. The local dampener
+            // mode decides whether Cruise also removes lateral drift.
+            velocityError =
+                VectorMath.Projection(
+                    velocityError,
+                    forward);
+        }
+
+        if (velocityError.Length() <=
+            VelocityControlEpsilon)
+        {
+            velocityError =
+                Vector3D.Zero;
+        }
+
+        if (velocityError
+                .LengthSquared() >
+            VectorEpsilon)
+        {
+            desiredAcceleration +=
+                velocityError /
+                Math.Max(
+                    timeStep,
+                    MinimumTimeStep);
+        }
+
+        return ClampAccelerationToCapacity(
+            desiredAcceleration,
+            physicalMass);
+    }
+
+    Vector3D ClampAccelerationToCapacity(
+        Vector3D acceleration,
+        double physicalMass)
+    {
+        double accelerationMagnitude =
+            acceleration.Length();
+
+        if (accelerationMagnitude <=
+                VectorEpsilon ||
+            physicalMass <=
+                ForceEpsilon)
+        {
+            return Vector3D.Zero;
+        }
+
+        Vector3D direction =
+            acceleration /
+            accelerationMagnitude;
+
+        double maximumAcceleration =
+            GetCommandProjectedCapacity(
+                direction) /
+            physicalMass;
+
+        return VectorMath.ClampMagnitude(
+            acceleration,
+            maximumAcceleration);
+    }
+
+    Vector3D GetUnmanagedConstructForceWorld()
+    {
+        Vector3D force =
+            Vector3D.Zero;
 
         for (int i = 0;
-            i <
-                observedReadOnlyThrusters.Count;
+            i < localUnmanagedThrusters.Count;
             i++)
         {
-            force +=
-                observedReadOnlyThrusters[i]
-                    .CurrentForceWorld;
+            Thruster thruster =
+                localUnmanagedThrusters[i];
+
+            if (!thruster.Controlled)
+            {
+                force +=
+                    thruster.CurrentForceWorld;
+            }
+        }
+
+        if (mode ==
+            OperatingMode.Master)
+        {
+            for (int i = 0;
+                i < remoteUnmanagedThrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    remoteUnmanagedThrusters[i];
+
+                if (!thruster.Controlled)
+                {
+                    force +=
+                        thruster.CurrentForceWorld;
+                }
+            }
         }
 
         return force;
+    }
+
+    // Retained temporarily for old status and compatibility call sites.
+    // It no longer includes remote Redux-managed output.
+    Vector3D GetObservedForceWorld()
+    {
+        return GetUnmanagedConstructForceWorld();
     }
 
     // ===== Force allocation =====
 
     void AllocateControlledThrust(
         Vector3D request,
-        Vector3D centerOfMass)
+        Vector3D centerOfMass,
+        double timeStep)
     {
-        residualForceWorld = request;
-        inducedTorqueWorld = Vector3D.Zero;
+        residualForceWorld =
+            request;
+
+        inducedTorqueWorld =
+            Vector3D.Zero;
 
         for (int i = 0;
-            i < controlledThrusters.Count;
+            i < thrusters.Count;
             i++)
         {
-            controlledThrusters[i]
-                .ResetDemand();
+            if (thrusters[i].Controlled)
+            {
+                thrusters[i]
+                    .ResetDemand();
+            }
         }
 
         aimedNacelles.Clear();
+        availableNacelles.Clear();
 
-        // Static sources are cheap and need no mechanical movement.
+        // Fixed controlled sources and sources beyond an unowned rotor are
+        // useful at their current orientation.
         for (int i = 0;
-            i <
-                fixedControlledThrusters.Count;
+            i < thrusters.Count;
             i++)
         {
+            Thruster thruster =
+                thrusters[i];
+
+            if (!thruster.Controlled ||
+                thruster.Nacelle != null &&
+                thruster.Nacelle
+                    .Rotor
+                    .Controlled)
+            {
+                continue;
+            }
+
             AllocateSingleThruster(
-                fixedControlledThrusters[i],
+                thruster,
                 ref residualForceWorld,
                 centerOfMass,
                 ref inducedTorqueWorld);
         }
 
-        // Non-primary nacelle thrusters remain useful at their current
-        // orientation but do not dictate joint aiming.
+        // Secondary directions are current-orientation sources. Their
+        // future direction is included in the nacelle reachability score,
+        // but only current force can be allocated this tick.
         for (int i = 0;
             i < vectorThrusters.Count;
             i++)
         {
-            vectorThrusters[i]
-                .AllocateSecondary(
-                    ref residualForceWorld,
-                    centerOfMass,
-                    ref inducedTorqueWorld);
-        }
+            VectorThrust nacelle =
+                vectorThrusters[i];
 
-        groupAllocationWork.Clear();
-
-        for (int i = 0;
-            i < vectorThrustGroups.Count;
-            i++)
-        {
-            groupAllocationWork.Add(
-                vectorThrustGroups[i]);
-        }
-
-        while (groupAllocationWork.Count > 0 &&
-               residualForceWorld
-                   .LengthSquared() >
-               ForceEpsilon * ForceEpsilon)
-        {
-            int bestIndex = -1;
-            double bestScore = ForceEpsilon;
-
-            for (int i = 0;
-                i <
-                    groupAllocationWork.Count;
-                i++)
-            {
-                double score =
-                    groupAllocationWork[i]
-                        .Score(
-                            residualForceWorld);
-
-                if (score <= bestScore)
-                {
-                    continue;
-                }
-
-                bestScore = score;
-                bestIndex = i;
-            }
-
-            if (bestIndex < 0)
-            {
-                break;
-            }
-
-            VectorThrustGroup group =
-                groupAllocationWork[
-                    bestIndex];
-
-            groupAllocationWork.RemoveAt(
-                bestIndex);
-
-            Vector3D reachableRequest =
-                group.ReachableComponent(
-                    residualForceWorld);
-
-            if (reachableRequest
-                    .LengthSquared() <=
-                VectorEpsilon)
+            if (!nacelle
+                    .Rotor
+                    .Controlled)
             {
                 continue;
             }
 
-            for (int i = 0;
-                i < group.Nacelles.Count;
-                i++)
-            {
-                VectorThrust nacelle =
-                    group.Nacelles[i];
+            nacelle.AllocateSecondary(
+                ref residualForceWorld,
+                centerOfMass,
+                ref inducedTorqueWorld);
 
-                nacelle.Aim(reachableRequest);
-                aimedNacelles.Add(nacelle);
+            availableNacelles.Add(
+                nacelle);
+        }
+
+        while (availableNacelles.Count >
+                   0 &&
+               residualForceWorld
+                   .LengthSquared() >
+               ForceEpsilon *
+               ForceEpsilon)
+        {
+            Vector3D targetDirection =
+                VectorMath.SafeNormalize(
+                    residualForceWorld);
+
+            VectorThrust bestNacelle =
+                null;
+
+            NacelleAimSolution bestSolution =
+                null;
+
+            foreach (
+                VectorThrust nacelle
+                in availableNacelles)
+            {
+                NacelleAimSolution solution =
+                    new NacelleAimSolution();
+
+                if (!nacelle.TrySolveAim(
+                        targetDirection,
+                        solution))
+                {
+                    continue;
+                }
+
+                bool betterCapacity =
+                    bestSolution == null ||
+                    solution
+                        .ReachableProjectedCapacity >
+                    bestSolution
+                        .ReachableProjectedCapacity +
+                    ForceEpsilon;
+
+                bool equalCapacity =
+                    bestSolution != null &&
+                    Math.Abs(
+                        solution
+                            .ReachableProjectedCapacity -
+                        bestSolution
+                            .ReachableProjectedCapacity) <=
+                    ForceEpsilon;
+
+                bool deterministicTieBreak =
+                    equalCapacity &&
+                    bestNacelle != null &&
+                    nacelle
+                        .Rotor
+                        .EntityId <
+                    bestNacelle
+                        .Rotor
+                        .EntityId;
+
+                if (betterCapacity ||
+                    deterministicTieBreak)
+                {
+                    bestNacelle =
+                        nacelle;
+
+                    bestSolution =
+                        solution;
+                }
             }
 
-            // Current alignment determines immediate contribution. Any
-            // deficit naturally remains in residualForceWorld and is
-            // offered to the next compatible group rather than receiving
-            // the VTOS' fixed 15% "gift".
-            for (int i = 0;
-                i < group.Nacelles.Count;
-                i++)
+            if (bestNacelle == null)
             {
-                group.Nacelles[i]
-                    .AllocatePrimary(
-                        ref residualForceWorld,
-                        centerOfMass,
-                        ref inducedTorqueWorld);
+                break;
             }
+
+            availableNacelles.Remove(
+                bestNacelle);
+
+            double requestedProjection =
+                Vector3D.Dot(
+                    residualForceWorld,
+                    targetDirection);
+
+            bestNacelle.Aim(
+                bestSolution,
+                requestedProjection,
+                timeStep);
+
+            aimedNacelles.Add(
+                bestNacelle);
+
+            bestNacelle.AllocatePrimary(
+                ref residualForceWorld,
+                centerOfMass,
+                ref inducedTorqueWorld);
         }
 
         for (int i = 0;
@@ -4083,20 +5591,31 @@ partial class Program
             VectorThrust nacelle =
                 vectorThrusters[i];
 
+            if (!nacelle
+                    .Rotor
+                    .Controlled)
+            {
+                continue;
+            }
+
             if (!aimedNacelles.Contains(
                     nacelle))
             {
-                nacelle.Aim(
-                    Vector3D.Zero);
+                nacelle.Rotor.Stop();
             }
         }
 
+        ApplyCruiseThrusterSuppression();
+
         for (int i = 0;
-            i < controlledThrusters.Count;
+            i < thrusters.Count;
             i++)
         {
-            controlledThrusters[i]
-                .ApplyDemand();
+            if (thrusters[i].Controlled)
+            {
+                thrusters[i]
+                    .ApplyDemand();
+            }
         }
     }
 
@@ -4107,24 +5626,77 @@ partial class Program
         ref Vector3D inducedTorque)
     {
         double contribution =
-            thruster.AddOptimalContribution(
-                ref residual);
+            thruster
+                .AddOptimalContribution(
+                    ref residual);
 
-        if (contribution <= ForceEpsilon)
+        if (contribution <=
+            ForceEpsilon)
         {
             return;
         }
 
         Vector3D force =
-            thruster.ForceDirectionWorld *
+            thruster
+                .ForceDirectionWorld *
             contribution;
 
         Vector3D lever =
-            thruster.TheBlock.GetPosition() -
+            thruster
+                .TheBlock
+                .GetPosition() -
             centerOfMass;
 
         inducedTorque +=
-            Vector3D.Cross(lever, force);
+            Vector3D.Cross(
+                lever,
+                force);
+    }
+
+    void ApplyCruiseThrusterSuppression()
+    {
+        if (!EffectiveCruise)
+        {
+            ReleaseThrusterDisableReason(
+                ThrusterDisableReason.Cruise);
+
+            return;
+        }
+
+        for (int i = 0;
+            i <
+                mainGridReverseThrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                mainGridReverseThrusters[i];
+
+            if (!thruster.Controlled)
+            {
+                continue;
+            }
+
+            if (thruster
+                    .DesiredEffectiveThrust >
+                ForceEpsilon)
+            {
+                ReleaseThrusterDisableReason(
+                    thruster,
+                    ThrusterDisableReason.Cruise);
+
+                PrepareThrusterForControl(
+                    thruster);
+
+                continue;
+            }
+
+            // A zero override does not reliably prevent vanilla dampeners
+            // from applying reverse thrust. Disabling only the owned
+            // reverse thrusters makes Cruise authoritative.
+            DisableThrusterByRedux(
+                thruster,
+                ThrusterDisableReason.Cruise);
+        }
     }
 
     // ===== Gyro control =====
@@ -4177,7 +5749,8 @@ partial class Program
 
                 Vector3D currentUp =
                     referenceController
-                        .WorldMatrix.Up;
+                        .WorldMatrix
+                        .Up;
 
                 Vector3D levelingAxis =
                     Vector3D.Cross(
@@ -4216,8 +5789,6 @@ partial class Program
                         .GetShipVelocities()
                         .AngularVelocity;
 
-                // Reject yaw from angular damping so gravity leveling does
-                // not choose or hold a heading.
                 Vector3D rollPitchVelocity =
                     VectorMath.Rejection(
                         angularVelocity,
@@ -4229,7 +5800,8 @@ partial class Program
             }
         }
 
-        if (angularCommand.LengthSquared() <=
+        if (angularCommand
+                .LengthSquared() <=
             GyroWriteDeadband *
             GyroWriteDeadband)
         {
@@ -4257,655 +5829,24 @@ partial class Program
                 .ReleaseOverride();
         }
     }
-
-    // ===== Operating state =====
-
-    void SelectReferenceController()
-    {
-        IMyShipController selected = null;
-
-        for (int i = 0;
-            i < localControllers.Count;
-            i++)
-        {
-            IMyShipController controller =
-                localControllers[i];
-
-            if (controller == null ||
-                controller.Closed ||
-                !controller.IsFunctional ||
-                !controller.CanControlShip)
-            {
-                continue;
-            }
-
-            if (controller.IsUnderControl)
-            {
-                selected = controller;
-                break;
-            }
-
-            if (selected == null ||
-                controller.IsMainCockpit)
-            {
-                selected = controller;
-            }
-        }
-
-        referenceController = selected;
-        controllerMissing =
-            referenceController == null;
-
-        potentialMaster =
-            settings.CanMaster &&
-            referenceController != null &&
-            referenceController.IsUnderControl;
-    }
-
-    void EvaluateOperatingMode()
-    {
-        SelectReferenceController();
-
-        if (mode == OperatingMode.Slave &&
-            !slaveHeartbeatFresh)
-        {
-            slaveFallbackPark =
-                wasParkedBeforeSlaving;
-        }
-
-        OperatingMode requestedMode;
-
-        if (controllerMissing ||
-            Me.CubeGrid.IsStatic ||
-            manualParkRequested)
-        {
-            requestedMode =
-                OperatingMode.Parked;
-        }
-        else if (settings.CanSlave &&
-                 slaveHeartbeatFresh &&
-                 !potentialMaster)
-        {
-            requestedMode =
-                OperatingMode.Slave;
-        }
-        else if (automaticParkRequested ||
-                 slaveFallbackPark)
-        {
-            requestedMode =
-                OperatingMode.Parked;
-        }
-        else if (potentialMaster)
-        {
-            requestedMode =
-                OperatingMode.Master;
-        }
-        else
-        {
-            requestedMode =
-                OperatingMode.Active;
-        }
-
-        if (requestedMode == mode)
-        {
-            return;
-        }
-
-        ChangeOperatingMode(requestedMode);
-    }
-
-    void ChangeOperatingMode(
-        OperatingMode newMode)
-    {
-        OperatingMode previousMode = mode;
-
-        if (previousMode ==
-                OperatingMode.Parked &&
-            newMode !=
-                OperatingMode.Parked)
-        {
-            ExitPark();
-        }
-
-        if (previousMode ==
-                OperatingMode.Slave &&
-            newMode !=
-                OperatingMode.Slave &&
-            !slaveHeartbeatFresh)
-        {
-            slaveFallbackPark =
-                wasParkedBeforeSlaving;
-        }
-
-        mode = newMode;
-
-        if (newMode ==
-            OperatingMode.Slave)
-        {
-            wasParkedBeforeSlaving =
-                previousMode ==
-                OperatingMode.Parked;
-
-            slaveFallbackPark = false;
-        }
-
-        if (newMode ==
-                OperatingMode.Parked &&
-            previousMode !=
-                OperatingMode.Parked)
-        {
-            ClearMasterHeartbeat();
-            BeginPark();
-        }
-
-        forceStatusRefresh = true;
-    }
-
-    // ===== Parking =====
-
-    void UpdateAutomaticParkRequest()
-    {
-        if (settings.ParkOnlyByCommand)
-        {
-            automaticParkRequested = false;
-            return;
-        }
-
-        bool shouldPark = false;
-
-        for (int i = 0;
-            i < parkConnectors.Count;
-            i++)
-        {
-            if (ConnectorRequiresParking(
-                    parkConnectors[i]))
-            {
-                shouldPark = true;
-                break;
-            }
-        }
-
-        if (!shouldPark)
-        {
-            for (int i = 0;
-                i < parkLandingGears.Count;
-                i++)
-            {
-                if (LandingGearRequiresParking(
-                        parkLandingGears[i]))
-                {
-                    shouldPark = true;
-                    break;
-                }
-            }
-        }
-
-        automaticParkRequested = shouldPark;
-    }
-
-    bool ConnectorRequiresParking(
-        ParkConnector parkConnector)
-    {
-        IMyShipConnector connector =
-            parkConnector.Block;
-
-        if (connector == null ||
-            connector.Closed ||
-            connector.Status !=
-                MyShipConnectorStatus.Connected)
-        {
-            return false;
-        }
-
-        IMyShipConnector other =
-            connector.OtherConnector;
-
-        if (other == null)
-        {
-            return false;
-        }
-
-        GridNode targetNode;
-
-        if (!gridNodes.TryGetValue(
-                other.CubeGrid.EntityId,
-                out targetNode))
-        {
-            return other.CubeGrid.IsStatic;
-        }
-
-        GridComponent target =
-            targetNode.Component;
-
-        if (target == null)
-        {
-            return other.CubeGrid.IsStatic;
-        }
-
-        if (target.HasStaticGrid)
-        {
-            return true;
-        }
-
-        if (target.Controllers.Count == 0)
-        {
-            // Dynamic, controller-less attachment: likely cargo.
-            return false;
-        }
-
-        if (potentialMaster &&
-            target.HasSlaveCapableRedux)
-        {
-            // A piloted master remains active so the remote Redux instance
-            // can wake from park and become its slave.
-            return false;
-        }
-
-        return true;
-    }
-
-    bool LandingGearRequiresParking(
-        ParkLandingGear parkLandingGear)
-    {
-        IMyLandingGear landingGear =
-            parkLandingGear.Block;
-
-        if (landingGear == null ||
-            landingGear.Closed ||
-            !landingGear.IsFunctional)
-        {
-            return false;
-        }
-
-        // The programmable-block IMyLandingGear API does not expose the
-        // attached entity. Redux therefore cannot distinguish terrain, a
-        // controlled ship, and controller-less cargo. Parking on any eligible
-        // lock is the conservative behavior; [VT-ignore] excludes cargo gear.
-        return landingGear.IsLocked;
-    }
-
-    void BeginPark()
-    {
-        ClearControlledThrust();
-        ReleaseGyros();
-
-        Vector3D gravity =
-            referenceController != null
-                ? referenceController
-                    .GetNaturalGravity()
-                : Vector3D.Zero;
-
-        // IMyCubeGrid does not expose a local-grid physical COM to PB
-        // scripts. WorldAABB.Center is deliberately local to this grid and
-        // avoids contaminating a slave's park target with master mass.
-        Vector3D localRootCenter =
-            Me.CubeGrid.WorldAABB.Center;
-
-        for (int i = 0;
-            i < controlledThrusters.Count;
-            i++)
-        {
-            Thruster thruster =
-                controlledThrusters[i];
-
-            long entityId =
-                thruster.EntityId;
-
-            if (!parkThrusterEnabledState
-                    .ContainsKey(entityId))
-            {
-                parkThrusterEnabledState.Add(
-                    entityId,
-                    thruster.TheBlock.Enabled);
-            }
-
-            thruster.ClearOverride();
-            thruster.TheBlock.Enabled = false;
-        }
-
-        for (int i = 0;
-            i < controlledRotors.Count;
-            i++)
-        {
-            controlledRotors[i]
-                .BeginPark(
-                    gravity,
-                    localRootCenter);
-        }
-
-        TriggerTimers(parkTimers);
-    }
-
-    void ExitPark()
-    {
-        RestoreThrustersAfterPark();
-
-        for (int i = 0;
-            i < controlledRotors.Count;
-            i++)
-        {
-            controlledRotors[i]
-                .CancelPark();
-        }
-
-        TriggerTimers(unparkTimers);
-    }
-
-    void EnsureNewCacheIsParked()
-    {
-        for (int i = 0;
-            i < controlledThrusters.Count;
-            i++)
-        {
-            Thruster thruster =
-                controlledThrusters[i];
-
-            if (!parkThrusterEnabledState
-                    .ContainsKey(
-                        thruster.EntityId))
-            {
-                parkThrusterEnabledState.Add(
-                    thruster.EntityId,
-                    thruster.TheBlock.Enabled);
-            }
-
-            thruster.ClearOverride();
-            thruster.TheBlock.Enabled = false;
-        }
-
-        ReleaseGyros();
-
-        // A refresh while already parked must not restart preferred-angle
-        // correction after an external force has moved a settled joint.
-        for (int i = 0;
-            i < controlledRotors.Count;
-            i++)
-        {
-            if (Math.Abs(
-                    controlledRotors[i]
-                        .TheBlock
-                        .TargetVelocityRad) >
-                JointWriteDeadbandRad)
-            {
-                controlledRotors[i]
-                    .TheBlock
-                    .TargetVelocityRad = 0;
-            }
-        }
-    }
-
-    void UpdateParkedRotors()
-    {
-        for (int i = 0;
-            i < controlledRotors.Count;
-            i++)
-        {
-            controlledRotors[i]
-                .UpdatePark();
-        }
-    }
-
-    void ClearControlledThrust()
-    {
-        for (int i = 0;
-            i < controlledThrusters.Count;
-            i++)
-        {
-            controlledThrusters[i]
-                .ClearOverride();
-        }
-    }
-
-    void RestoreThrustersAfterPark()
-    {
-        if (parkThrusterEnabledState.Count == 0)
-        {
-            return;
-        }
-
-        for (int i = 0;
-            i < controlledThrusters.Count;
-            i++)
-        {
-            Thruster thruster =
-                controlledThrusters[i];
-
-            bool wasEnabled;
-
-            if (!parkThrusterEnabledState
-                    .TryGetValue(
-                        thruster.EntityId,
-                        out wasEnabled))
-            {
-                continue;
-            }
-
-            thruster.TheBlock.Enabled =
-                wasEnabled;
-        }
-
-        parkThrusterEnabledState.Clear();
-    }
-
-    void RestoreParkedThruster(
-        long entityId,
-        IMyThrust block)
-    {
-        bool wasEnabled;
-
-        if (!parkThrusterEnabledState
-                .TryGetValue(
-                    entityId,
-                    out wasEnabled))
-        {
-            return;
-        }
-
-        if (block != null &&
-            !block.Closed)
-        {
-            block.Enabled = wasEnabled;
-        }
-
-        parkThrusterEnabledState.Remove(
-            entityId);
-    }
-
-    bool WasThrusterDisabledByPark(
-        long entityId)
-    {
-        return parkThrusterEnabledState
-            .ContainsKey(entityId);
-    }
-
-    void TriggerTimers(
-        List<IMyTimerBlock> timers)
-    {
-        for (int i = 0;
-            i < timers.Count;
-            i++)
-        {
-            IMyTimerBlock timer =
-                timers[i];
-
-            if (timer == null ||
-                timer.Closed ||
-                !timer.IsFunctional)
-            {
-                continue;
-            }
-
-            timer.Trigger();
-        }
-    }
-
-    // ===== Commands =====
-
-    void HandleArgument(string argument)
-    {
-        if (string.IsNullOrWhiteSpace(argument))
-        {
-            return;
-        }
-
-        string[] commands =
-            argument.ToLowerInvariant()
-                .Split(
-                    new[] { ';', '\n', '\r' },
-                    StringSplitOptions
-                        .RemoveEmptyEntries);
-
-        for (int i = 0;
-            i < commands.Length;
-            i++)
-        {
-            string command =
-                commands[i].Trim();
-
-            if (command == "park")
-            {
-                manualParkRequested =
-                    !manualParkRequested;
-
-                slaveFallbackPark = false;
-            }
-            else if (command == "park on")
-            {
-                manualParkRequested = true;
-                slaveFallbackPark = false;
-            }
-            else if (command == "park off" ||
-                     command == "unpark")
-            {
-                manualParkRequested = false;
-                slaveFallbackPark = false;
-            }
-            else if (command == "cruise")
-            {
-                cruise = !cruise;
-            }
-            else if (command == "cruise on")
-            {
-                cruise = true;
-            }
-            else if (command == "cruise off")
-            {
-                cruise = false;
-            }
-            else if (command == "dampeners")
-            {
-                scriptDampeners =
-                    !scriptDampeners;
-
-                if (referenceController != null)
-                {
-                    referenceController
-                        .DampenersOverride =
-                        scriptDampeners;
-                }
-            }
-            else if (command == "gear")
-            {
-                selectedGear++;
-
-                if (selectedGear >=
-                    settings
-                        .GearFractions.Count)
-                {
-                    selectedGear = 0;
-                }
-            }
-            else if (command == "rescan")
-            {
-                RequestRescan();
-            }
-        }
-
-        Save();
-    }
-
-    // ===== Topology change detection =====
-
-    void DetectTopologyChanges()
-    {
-        HashSet<long> seenConnectors =
-            new HashSet<long>();
-
-        for (int i = 0;
-            i < topologyConnectors.Count;
-            i++)
-        {
-            IMyShipConnector connector =
-                topologyConnectors[i];
-
-            if (connector == null ||
-                connector.Closed)
-            {
-                continue;
-            }
-
-            long targetId =
-                connector.OtherConnector != null
-                    ? connector
-                        .OtherConnector
-                        .EntityId
-                    : 0;
-
-            long previousTarget;
-
-            if (!observedConnectorTargets
-                    .TryGetValue(
-                        connector.EntityId,
-                        out previousTarget) ||
-                previousTarget != targetId)
-            {
-                observedConnectorTargets[
-                    connector.EntityId] =
-                    targetId;
-
-                RequestRescan();
-            }
-
-            seenConnectors.Add(
-                connector.EntityId);
-        }
-
-        for (int i = 0;
-            i < parkLandingGears.Count;
-            i++)
-        {
-            IMyLandingGear gear =
-                parkLandingGears[i].Block;
-
-            if (gear == null ||
-                gear.Closed)
-            {
-                continue;
-            }
-
-            bool previous;
-
-            if (!observedLandingGearLocks
-                    .TryGetValue(
-                        gear.EntityId,
-                        out previous) ||
-                previous != gear.IsLocked)
-            {
-                observedLandingGearLocks[
-                    gear.EntityId] =
-                    gear.IsLocked;
-
-                RequestRescan();
-            }
-        }
-    }
-
-    // ===== Master/slave heartbeat =====
+}
+partial class Program
+{
+    // ===== Master heartbeat =====
 
     void PublishOrClearMasterHeartbeat()
     {
-        if (mode != OperatingMode.Master ||
-            referenceController == null)
+        if (!settings.CanMaster)
+        {
+            ClearMasterHeartbeat();
+            return;
+        }
+
+        if (mode !=
+                OperatingMode.Master ||
+            referenceController == null ||
+            !referenceController
+                .IsUnderControl)
         {
             ClearMasterHeartbeat();
             return;
@@ -4925,51 +5866,100 @@ partial class Program
         StringBuilder section =
             new StringBuilder();
 
-        section.Append('[')
+        section
+            .Append('[')
             .Append(HeartbeatSection)
             .AppendLine("]");
 
-        section.Append("Version=")
-            .AppendLine(ScriptVersion);
-
-        section.Append("MasterProgrammableBlockId=")
-            .AppendLine(Me.EntityId.ToString());
-
-        section.Append("ControllerId=")
+        section
+            .Append("Version=")
             .AppendLine(
-                referenceController.EntityId
+                ScriptVersion);
+
+        section
+            .Append(
+                "MasterProgrammableBlockId=")
+            .AppendLine(
+                Me.EntityId.ToString());
+
+        section
+            .Append("ControllerId=")
+            .AppendLine(
+                referenceController
+                    .EntityId
                     .ToString());
 
-        section.Append("Sequence=")
+        section
+            .Append("Sequence=")
             .AppendLine(
-                heartbeatSequence.ToString());
+                heartbeatSequence
+                    .ToString());
 
-        section.Append("Demand=")
+        section
+            .Append("Demand=")
             .AppendLine(
                 SerializeVector(
                     normalizedMasterDemand));
 
-        section.Append("Cruise=")
+        section
+            .Append("Dampeners=")
+            .AppendLine(
+                scriptDampeners
+                    .ToString());
+
+        section
+            .Append("Cruise=")
             .AppendLine(
                 cruise.ToString());
 
-        section.Append("LevelWithGravity=")
+        section
+            .Append(
+                "CruiseTargetSpeed=")
+            .AppendLine(
+                cruiseTargetSpeed
+                    .ToString("R"));
+
+        section
+            .Append("GearIndex=")
+            .AppendLine(
+                selectedGear
+                    .ToString());
+
+        section
+            .Append("GearCount=")
+            .AppendLine(
+                settings
+                    .GearFractions
+                    .Count
+                    .ToString());
+
+        section
+            .Append("GearFraction=")
+            .AppendLine(
+                EffectiveGearFraction
+                    .ToString("R"));
+
+        section
+            .Append(
+                "LevelWithGravity=")
             .AppendLine(
                 (cruise &&
-                settings
-                    .CruiseLevelsWithGravity)
+                 settings
+                     .CruiseLevelsWithGravity)
                 .ToString());
 
         referenceController.CustomData =
             ReplaceSection(
-                referenceController.CustomData,
+                referenceController
+                    .CustomData,
                 HeartbeatSection,
                 section.ToString());
     }
 
     void ClearMasterHeartbeat()
     {
-        if (heartbeatController == null)
+        if (heartbeatController ==
+            null)
         {
             return;
         }
@@ -4977,7 +5967,8 @@ partial class Program
         RemoveOwnedHeartbeat(
             heartbeatController);
 
-        heartbeatController = null;
+        heartbeatController =
+            null;
     }
 
     void RemoveOwnedHeartbeat(
@@ -5005,7 +5996,8 @@ partial class Program
         if (!long.TryParse(
                 masterId,
                 out parsedId) ||
-            parsedId != Me.EntityId)
+            parsedId !=
+                Me.EntityId)
         {
             return;
         }
@@ -5016,23 +6008,120 @@ partial class Program
                 HeartbeatSection);
     }
 
+    void RemoveOwnedHeartbeatsExcept(
+        IMyShipController preservedController)
+    {
+        long preservedId =
+            preservedController !=
+                    null
+                ? preservedController
+                    .EntityId
+                : 0;
+
+        for (int i = 0;
+            i < localControllers.Count;
+            i++)
+        {
+            IMyShipController controller =
+                localControllers[i];
+
+            if (controller == null ||
+                controller.EntityId ==
+                    preservedId)
+            {
+                continue;
+            }
+
+            RemoveOwnedHeartbeat(
+                controller);
+        }
+
+        // A controller that used to be local can become remote after a
+        // connector/topology change. Sweep these too so an old section
+        // cannot outlive the in-memory heartbeatController reference.
+        for (int i = 0;
+            i <
+                remotelyReachableControllers
+                    .Count;
+            i++)
+        {
+            IMyShipController controller =
+                remotelyReachableControllers[i];
+
+            if (controller == null ||
+                controller.EntityId ==
+                    preservedId)
+            {
+                continue;
+            }
+
+            RemoveOwnedHeartbeat(
+                controller);
+        }
+    }
+
+    void SweepOwnedHeartbeatsAfterScan()
+    {
+        IMyShipController preserved =
+            mode ==
+                    OperatingMode.Master &&
+                referenceController !=
+                    null &&
+                referenceController
+                    .IsUnderControl
+                ? referenceController
+                : null;
+
+        RemoveOwnedHeartbeatsExcept(
+            preserved);
+
+        if (preserved == null)
+        {
+            heartbeatController =
+                null;
+        }
+        else
+        {
+            heartbeatController =
+                preserved;
+        }
+    }
+
+    // ===== Slave heartbeat =====
+
     void TryReadAnySlaveHeartbeat()
     {
         for (int i = 0;
             i <
-                remotelyReachableControllers.Count;
+                remotelyReachableControllers
+                    .Count;
             i++)
         {
+            IMyShipController controller =
+                remotelyReachableControllers[i];
+
+            // Space Engineers already elects a single actively controlled
+            // controller across a connected construct. There's no need to
+            // reinvent the wheel here.
+            if (controller == null ||
+                controller.Closed ||
+                !controller.IsUnderControl)
+            {
+                continue;
+            }
+
             MasterCommand command;
 
             if (!TryReadMasterCommand(
-                    remotelyReachableControllers[i],
+                    controller,
                     out command))
             {
                 continue;
             }
 
-            AcceptSlaveCommand(command);
+            AcceptSlaveCommand(
+                command);
+
             return;
         }
     }
@@ -5041,11 +6130,19 @@ partial class Program
     {
         for (int i = 0;
             i <
-                remotelyReachableControllers.Count;
+                remotelyReachableControllers
+                    .Count;
             i++)
         {
             IMyShipController controller =
                 remotelyReachableControllers[i];
+
+            if (controller == null ||
+                controller.Closed ||
+                !controller.IsUnderControl)
+            {
+                continue;
+            }
 
             if (activeSlaveCommand
                     .ControllerId != 0 &&
@@ -5066,7 +6163,8 @@ partial class Program
             }
 
             if (activeSlaveCommand
-                    .MasterProgrammableBlockId != 0 &&
+                    .MasterProgrammableBlockId !=
+                    0 &&
                 command
                     .MasterProgrammableBlockId !=
                 activeSlaveCommand
@@ -5075,7 +6173,9 @@ partial class Program
                 continue;
             }
 
-            AcceptSlaveCommand(command);
+            AcceptSlaveCommand(
+                command);
+
             return;
         }
     }
@@ -5083,11 +6183,17 @@ partial class Program
     void AcceptSlaveCommand(
         MasterCommand command)
     {
-        if (command.Sequence !=
+        bool changed =
+            command.Sequence !=
                 lastSlaveHeartbeatSequence ||
             command
                 .MasterProgrammableBlockId !=
-            slaveMasterProgrammableBlockId)
+                slaveMasterProgrammableBlockId ||
+            command.ControllerId !=
+                activeSlaveCommand
+                    .ControllerId;
+
+        if (changed)
         {
             lastSlaveHeartbeatSequence =
                 command.Sequence;
@@ -5097,33 +6203,60 @@ partial class Program
                     .MasterProgrammableBlockId;
 
             slaveHeartbeatAgeUpdate10 = 0;
+
             slaveHeartbeatChangedThisWindow =
                 true;
-            slaveHeartbeatFresh = true;
+
+            slaveHeartbeatFresh =
+                true;
         }
 
         activeSlaveCommand.CopyFrom(
             command);
+
+        if (mode ==
+            OperatingMode.Slave)
+        {
+            SynchronizeDampenerState();
+            RefreshTemporaryControlRoles();
+        }
     }
 
     bool TryReadMasterCommand(
         IMyShipController controller,
         out MasterCommand command)
     {
-        command = null;
+        command =
+            null;
 
         if (controller == null ||
-            controller.Closed)
+            controller.Closed ||
+            !controller.IsUnderControl)
         {
             return false;
         }
 
+        string versionText;
+
+        if (!TryReadSectionValue(
+                controller.CustomData,
+                HeartbeatSection,
+                "Version",
+                out versionText) ||
+            string.IsNullOrWhiteSpace(versionText))
+        {
+            return false;
+        }
+
+        if (GetVersionMajor(versionText) != GetVersionMajor(ScriptVersion))
+        {
+            return false;
+        }
+            
         string masterIdText;
         string controllerIdText;
         string sequenceText;
         string demandText;
-        string cruiseText;
-        string levelText;
 
         if (!TryReadSectionValue(
                 controller.CustomData,
@@ -5170,6 +6303,28 @@ partial class Program
             return false;
         }
 
+        if (masterId ==
+                Me.EntityId ||
+            controllerId !=
+                controller.EntityId)
+        {
+            return false;
+        }
+
+        string dampenersText;
+        string cruiseText;
+        string cruiseTargetText;
+        string gearIndexText;
+        string gearCountText;
+        string gearFractionText;
+        string levelText;
+
+        TryReadSectionValue(
+            controller.CustomData,
+            HeartbeatSection,
+            "Dampeners",
+            out dampenersText);
+
         TryReadSectionValue(
             controller.CustomData,
             HeartbeatSection,
@@ -5179,11 +6334,54 @@ partial class Program
         TryReadSectionValue(
             controller.CustomData,
             HeartbeatSection,
+            "CruiseTargetSpeed",
+            out cruiseTargetText);
+
+        TryReadSectionValue(
+            controller.CustomData,
+            HeartbeatSection,
+            "GearIndex",
+            out gearIndexText);
+
+        TryReadSectionValue(
+            controller.CustomData,
+            HeartbeatSection,
+            "GearCount",
+            out gearCountText);
+
+        TryReadSectionValue(
+            controller.CustomData,
+            HeartbeatSection,
+            "GearFraction",
+            out gearFractionText);
+
+        TryReadSectionValue(
+            controller.CustomData,
+            HeartbeatSection,
             "LevelWithGravity",
             out levelText);
 
+        bool commandDampeners =
+            true;
+
         bool commandCruise;
         bool commandLevel;
+
+        double commandCruiseTarget;
+        double commandGearFraction;
+
+        int commandGearIndex;
+        int commandGearCount;
+
+        bool parsedDampeners;
+
+        if (bool.TryParse(
+                dampenersText,
+                out parsedDampeners))
+        {
+            commandDampeners =
+                parsedDampeners;
+        }
 
         bool.TryParse(
             cruiseText,
@@ -5193,22 +6391,109 @@ partial class Program
             levelText,
             out commandLevel);
 
-        command = new MasterCommand
-        {
-            MasterProgrammableBlockId =
-                masterId,
-            ControllerId = controllerId,
-            Sequence = sequence,
-            NormalizedForceDemand =
-                VectorMath.ClampMagnitude(
-                    demand,
-                    1),
-            Cruise = commandCruise,
-            LevelWithGravity =
-                commandLevel
-        };
+        double.TryParse(
+            cruiseTargetText,
+            out commandCruiseTarget);
+
+        double.TryParse(
+            gearFractionText,
+            out commandGearFraction);
+
+        int.TryParse(
+            gearIndexText,
+            out commandGearIndex);
+
+        int.TryParse(
+            gearCountText,
+            out commandGearCount);
+
+        command =
+            new MasterCommand
+            {
+                MasterProgrammableBlockId =
+                    masterId,
+
+                ControllerId =
+                    controllerId,
+
+                Sequence =
+                    sequence,
+
+                NormalizedForceDemand =
+                    VectorMath.ClampMagnitude(
+                        demand,
+                        1),
+
+                Dampeners =
+                    commandDampeners,
+
+                Cruise =
+                    commandCruise,
+
+                CruiseTargetSpeed =
+                    commandCruiseTarget,
+
+                GearIndex =
+                    Math.Max(
+                        0,
+                        commandGearIndex),
+
+                GearCount =
+                    Math.Max(
+                        0,
+                        commandGearCount),
+
+                GearFraction =
+                    MathHelper.Clamp(
+                        commandGearFraction,
+                        0,
+                        1),
+
+                LevelWithGravity =
+                    commandLevel
+            };
 
         return true;
+    }
+
+    void ResetSlaveHeartbeat()
+    {
+        slaveHeartbeatFresh =
+            false;
+
+        slaveHeartbeatChangedThisWindow =
+            false;
+
+        slaveHeartbeatAgeUpdate10 = 0;
+
+        lastSlaveHeartbeatSequence =
+            long.MinValue;
+
+        slaveMasterProgrammableBlockId =
+            0;
+
+        activeSlaveCommand.Clear();
+    }
+
+    static int GetVersionMajor(string version)
+    {
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            return -1;
+        }
+
+        int separator = version.IndexOf('.');
+
+        string majorText =
+            separator >= 0
+                ? version.Substring(0, separator)
+                : version;
+
+        int major;
+
+        return int.TryParse(majorText, out major)
+            ? major
+            : -1;
     }
 
     // ===== Custom Data section handling =====
@@ -5217,23 +6502,28 @@ partial class Program
         string customData,
         string sectionName)
     {
-        if (string.IsNullOrEmpty(customData))
+        if (string.IsNullOrEmpty(
+                customData))
         {
             return -1;
         }
 
         string header =
-            "[" + sectionName + "]";
+            "[" +
+            sectionName +
+            "]";
 
         int searchIndex = 0;
 
         while (searchIndex <
                customData.Length)
         {
-            int index = customData.IndexOf(
-                header,
-                searchIndex,
-                StringComparison.OrdinalIgnoreCase);
+            int index =
+                customData.IndexOf(
+                    header,
+                    searchIndex,
+                    StringComparison
+                        .OrdinalIgnoreCase);
 
             if (index < 0)
             {
@@ -5242,21 +6532,30 @@ partial class Program
 
             bool startsLine =
                 index == 0 ||
-                customData[index - 1] == '\n';
+                customData[
+                    index - 1] ==
+                '\n';
 
-            int after = index + header.Length;
+            int after =
+                index +
+                header.Length;
 
             bool endsLine =
-                after >= customData.Length ||
-                customData[after] == '\r' ||
-                customData[after] == '\n';
+                after >=
+                    customData.Length ||
+                customData[after] ==
+                    '\r' ||
+                customData[after] ==
+                    '\n';
 
-            if (startsLine && endsLine)
+            if (startsLine &&
+                endsLine)
             {
                 return index;
             }
 
-            searchIndex = index + 1;
+            searchIndex =
+                index + 1;
         }
 
         return -1;
@@ -5283,20 +6582,25 @@ partial class Program
 
             lineStart++;
 
-            int cursor = lineStart;
+            int cursor =
+                lineStart;
 
             while (cursor <
                        customData.Length &&
-                   (customData[cursor] == ' ' ||
-                    customData[cursor] == '\t' ||
-                    customData[cursor] == '\r'))
+                   (customData[cursor] ==
+                        ' ' ||
+                    customData[cursor] ==
+                        '\t' ||
+                    customData[cursor] ==
+                        '\r'))
             {
                 cursor++;
             }
 
             if (cursor <
                     customData.Length &&
-                customData[cursor] == '[')
+                customData[cursor] ==
+                    '[')
             {
                 int closing =
                     customData.IndexOf(
@@ -5309,7 +6613,8 @@ partial class Program
                 }
             }
 
-            searchIndex = lineStart;
+            searchIndex =
+                lineStart;
         }
 
         return customData.Length;
@@ -5321,7 +6626,8 @@ partial class Program
         string key,
         out string value)
     {
-        value = null;
+        value =
+            null;
 
         int start =
             FindSectionStart(
@@ -5337,7 +6643,8 @@ partial class Program
             FindNextSectionStart(
                 customData,
                 start +
-                sectionName.Length + 2);
+                sectionName.Length +
+                2);
 
         int headerEnd =
             customData.IndexOf(
@@ -5353,10 +6660,13 @@ partial class Program
         string section =
             customData.Substring(
                 headerEnd + 1,
-                end - headerEnd - 1);
+                end -
+                headerEnd -
+                1);
 
         string[] lines =
-            section.Replace(
+            section
+                .Replace(
                     "\r",
                     string.Empty)
                 .Split('\n');
@@ -5365,7 +6675,8 @@ partial class Program
             i < lines.Length;
             i++)
         {
-            string line = lines[i];
+            string line =
+                lines[i];
 
             int separator =
                 line.IndexOf('=');
@@ -5376,7 +6687,8 @@ partial class Program
             }
 
             string candidateKey =
-                line.Substring(
+                line
+                    .Substring(
                         0,
                         separator)
                     .Trim();
@@ -5390,7 +6702,8 @@ partial class Program
             }
 
             value =
-                line.Substring(
+                line
+                    .Substring(
                         separator + 1)
                     .Trim();
 
@@ -5406,7 +6719,8 @@ partial class Program
         string replacement)
     {
         customData =
-            customData ?? string.Empty;
+            customData ??
+            string.Empty;
 
         replacement =
             replacement.TrimEnd(
@@ -5427,7 +6741,8 @@ partial class Program
             }
 
             string separator =
-                customData.EndsWith("\n")
+                customData.EndsWith(
+                    "\n")
                     ? string.Empty
                     : "\n";
 
@@ -5440,18 +6755,23 @@ partial class Program
             FindNextSectionStart(
                 customData,
                 start +
-                sectionName.Length + 2);
+                sectionName.Length +
+                2);
 
-        return customData.Substring(0, start) +
+        return customData.Substring(
+                   0,
+                   start) +
                replacement +
-               customData.Substring(end);
+               customData.Substring(
+                   end);
     }
 
     static string RemoveSection(
         string customData,
         string sectionName)
     {
-        if (string.IsNullOrEmpty(customData))
+        if (string.IsNullOrEmpty(
+                customData))
         {
             return customData;
         }
@@ -5470,38 +6790,50 @@ partial class Program
             FindNextSectionStart(
                 customData,
                 start +
-                sectionName.Length + 2);
+                sectionName.Length +
+                2);
 
         string before =
-            customData.Substring(0, start);
+            customData.Substring(
+                0,
+                start);
 
         string after =
-            customData.Substring(end);
+            customData.Substring(
+                end);
 
-        if (before.EndsWith("\n") &&
-            after.StartsWith("\n"))
+        if (before.EndsWith(
+                "\n") &&
+            after.StartsWith(
+                "\n"))
         {
-            after = after.Substring(1);
+            after =
+                after.Substring(1);
         }
 
-        return before + after;
+        return before +
+               after;
     }
 
     static string SerializeVector(
         Vector3D vector)
     {
-        return vector.X.ToString("R") +
-            ";" +
-            vector.Y.ToString("R") +
-            ";" +
-            vector.Z.ToString("R");
+        return vector.X
+                   .ToString("R") +
+               ";" +
+               vector.Y
+                   .ToString("R") +
+               ";" +
+               vector.Z
+                   .ToString("R");
     }
 
     static bool TryParseVector(
         string serialized,
         out Vector3D vector)
     {
-        vector = Vector3D.Zero;
+        vector =
+            Vector3D.Zero;
 
         if (string.IsNullOrWhiteSpace(
                 serialized))
@@ -5512,7 +6844,8 @@ partial class Program
         string[] components =
             serialized.Split(';');
 
-        if (components.Length != 3)
+        if (components.Length !=
+            3)
         {
             return false;
         }
@@ -5534,187 +6867,596 @@ partial class Program
             return false;
         }
 
-        vector = new Vector3D(x, y, z);
+        vector =
+            new Vector3D(
+                x,
+                y,
+                z);
+
         return true;
     }
+}
+partial class Program
+{
+    IMyShipController heartbeatController;
 
-    // ===== Status =====
+    // ===== Controller selection =====
 
-    void WriteStatus(bool force)
+    void SelectReferenceController()
     {
-        echoBuilder.Clear();
+        IMyShipController previousController =
+            referenceController;
 
-        echoBuilder
-            .AppendLine(ScriptName)
-            .Append("v")
-            .AppendLine(ScriptVersion)
-            .AppendLine();
+        IMyShipController selected =
+            null;
 
-        echoBuilder
-            .Append("Mode: ")
-            .AppendLine(mode.ToString());
-
-        echoBuilder
-            .Append("Controller: ")
-            .AppendLine(
-                referenceController != null
-                    ? referenceController
-                        .CustomName
-                    : "NONE");
-
-        echoBuilder
-            .Append("Dampeners: ")
-            .AppendLine(
-                scriptDampeners
-                    ? "ON"
-                    : "OFF");
-
-        echoBuilder
-            .Append("Cruise: ")
-            .AppendLine(
-                cruise
-                    ? "ON"
-                    : "OFF");
-
-        echoBuilder
-            .Append("Gear: ")
-            .Append(selectedGear + 1)
-            .Append("/")
-            .Append(settings
-                .GearFractions.Count)
-            .Append(" (")
-            .Append(
-                (settings
-                    .GearFractions[
-                        MathHelper.Clamp(
-                            selectedGear,
-                            0,
-                            settings
-                                .GearFractions
-                                .Count - 1)] *
-                 100)
-                .ToString("0.##"))
-            .AppendLine("%)");
-
-        echoBuilder
-            .Append("Nacelles: ")
-            .AppendLine(
-                vectorThrusters.Count
-                    .ToString());
-
-        echoBuilder
-            .Append("Controlled thrust: ")
-            .Append(
-                (availableControlledThrust /
-                 1000.0)
-                .ToString("0.##"))
-            .AppendLine(" kN");
-
-        echoBuilder
-            .Append("Residual: ")
-            .Append(
-                (residualForceWorld.Length() /
-                 1000.0)
-                .ToString("0.##"))
-            .AppendLine(" kN");
-
-        echoBuilder
-            .Append("Gyros: ")
-            .AppendLine(
-                controlledGyros.Count
-                    .ToString());
-
-        if (mode == OperatingMode.Slave)
+        for (int i = 0;
+            i < localControllers.Count;
+            i++)
         {
-            echoBuilder
-                .Append("Heartbeat age: ")
-                .Append(
-                    slaveHeartbeatAgeUpdate10)
-                .AppendLine("/2");
+            IMyShipController controller =
+                localControllers[i];
+
+            if (controller == null ||
+                controller.Closed ||
+                !controller.IsFunctional ||
+                !controller.CanControlShip)
+            {
+                continue;
+            }
+
+            if (controller.IsUnderControl)
+            {
+                selected =
+                    controller;
+
+                break;
+            }
+
+            if (selected == null ||
+                controller.IsMainCockpit)
+            {
+                selected =
+                    controller;
+            }
         }
 
-        echoBuilder
-            .Append("Runtime: ")
-            .Append(
-                Runtime.LastRunTimeMs
-                    .ToString("0.###"))
-            .Append(" ms | avg ")
-            .Append(
-                runtimeTracker
-                    .AverageRuntime
-                    .ToString("0.###"))
-            .Append(" | max ")
-            .AppendLine(
-                runtimeTracker
-                    .MaximumRuntime
-                    .ToString("0.###"));
+        long previousId =
+            previousController != null
+                ? previousController
+                    .EntityId
+                : 0;
 
-        echoBuilder
-            .Append("Instructions: ")
-            .Append(Runtime
-                .CurrentInstructionCount)
-            .Append("/")
-            .AppendLine(Runtime
-                .MaxInstructionCount
-                .ToString());
+        long selectedId =
+            selected != null
+                ? selected.EntityId
+                : 0;
 
-        Echo(echoBuilder.ToString());
-
-        if (!force &&
-            statusSurfaces.Count == 0)
+        if (heartbeatController != null &&
+            heartbeatController.EntityId !=
+                selectedId)
         {
+            RemoveOwnedHeartbeat(
+                heartbeatController);
+
+            heartbeatController =
+                null;
+        }
+
+        if (previousId !=
+            selectedId)
+        {
+            // A skipped control frame must not publish demand calculated
+            // for the previous controller.
+            normalizedMasterDemand =
+                Vector3D.Zero;
+
+            RefreshMainGridReverseThrusters();
+        }
+
+        referenceController =
+            selected;
+
+        controllerMissing =
+            referenceController ==
+            null;
+
+        potentialMaster =
+            settings.CanMaster &&
+            referenceController !=
+                null &&
+            referenceController
+                .IsUnderControl;
+    }
+
+    // ===== Operating state =====
+
+    void EvaluateOperatingMode()
+    {
+        SelectReferenceController();
+
+        if (mode ==
+                OperatingMode.Slave &&
+            !slaveHeartbeatFresh)
+        {
+            slaveFallbackPark =
+                wasParkedBeforeSlaving;
+        }
+
+        OperatingMode requestedMode;
+
+        if (controllerMissing ||
+            Me.CubeGrid.IsStatic ||
+            manualParkRequested)
+        {
+            requestedMode =
+                OperatingMode.Parked;
+        }
+        else if (settings.CanSlave &&
+                 slaveHeartbeatFresh &&
+                 !potentialMaster)
+        {
+            requestedMode =
+                OperatingMode.Slave;
+        }
+        else if (automaticParkRequested ||
+                 slaveFallbackPark)
+        {
+            requestedMode =
+                OperatingMode.Parked;
+        }
+        else if (potentialMaster)
+        {
+            requestedMode =
+                OperatingMode.Master;
+        }
+        else
+        {
+            requestedMode =
+                OperatingMode.Active;
+        }
+
+        if (requestedMode ==
+            mode)
+        {
+            RefreshTemporaryControlRoles();
             return;
         }
 
-        statusBuilder.Clear();
+        ChangeOperatingMode(
+            requestedMode);
+    }
 
-        statusBuilder
-            .AppendLine("VECTOR THRUST REDUX")
-            .Append("MODE  ")
-            .AppendLine(
-                mode.ToString()
-                    .ToUpperInvariant())
-            .Append("DAMP  ")
-            .AppendLine(
-                scriptDampeners
-                    ? "ON"
-                    : "OFF")
-            .Append("CRUISE ")
-            .AppendLine(
-                cruise
-                    ? "ON"
-                    : "OFF")
-            .Append("GEAR  ")
-            .Append(selectedGear + 1)
-            .Append("/")
-            .AppendLine(
-                settings
-                    .GearFractions.Count
-                    .ToString())
-            .Append("VECTORS ")
-            .AppendLine(
-                vectorThrusters.Count
-                    .ToString())
-            .Append("THRUST ")
-            .Append(
-                (availableControlledThrust /
-                 1000.0)
-                .ToString("0.0"))
-            .AppendLine(" kN")
-            .Append("ERROR ")
-            .Append(
-                (residualForceWorld.Length() /
-                 1000.0)
-                .ToString("0.0"))
-            .AppendLine(" kN");
+    void ChangeOperatingMode(
+        OperatingMode newMode)
+    {
+        OperatingMode previousMode =
+            mode;
+
+        if (previousMode ==
+                OperatingMode.Master &&
+            newMode !=
+                OperatingMode.Master)
+        {
+            ClearMasterHeartbeat();
+            normalizedMasterDemand =
+                Vector3D.Zero;
+        }
+
+        if (previousMode ==
+                OperatingMode.Parked &&
+            newMode !=
+                OperatingMode.Parked)
+        {
+            ExitPark();
+        }
+
+        if (previousMode ==
+                OperatingMode.Slave &&
+            newMode !=
+                OperatingMode.Slave &&
+            !slaveHeartbeatFresh)
+        {
+            slaveFallbackPark =
+                wasParkedBeforeSlaving;
+        }
+
+        mode =
+            newMode;
+
+        if (newMode ==
+            OperatingMode.Slave)
+        {
+            wasParkedBeforeSlaving =
+                previousMode ==
+                OperatingMode.Parked;
+
+            slaveFallbackPark =
+                false;
+        }
+
+        ApplyOperatingModeControlRoles(
+            previousMode,
+            newMode);
+
+        if (newMode ==
+                OperatingMode.Parked &&
+            previousMode !=
+                OperatingMode.Parked)
+        {
+            BeginPark();
+        }
+
+        forceStatusRefresh =
+            true;
+    }
+
+    // ===== Automatic parking =====
+
+    void UpdateAutomaticParkRequest()
+    {
+        if (settings.ParkOnlyByCommand)
+        {
+            automaticParkRequested =
+                false;
+
+            return;
+        }
+
+        bool shouldPark =
+            false;
 
         for (int i = 0;
-            i < statusSurfaces.Count;
+            i < parkConnectors.Count;
             i++)
         {
-            statusSurfaces[i]
-                .Write(
-                    statusBuilder.ToString());
+            if (ConnectorRequiresParking(
+                    parkConnectors[i]))
+            {
+                shouldPark =
+                    true;
+
+                break;
+            }
+        }
+
+        if (!shouldPark)
+        {
+            for (int i = 0;
+                i <
+                    parkLandingGears.Count;
+                i++)
+            {
+                if (LandingGearRequiresParking(
+                        parkLandingGears[i]))
+                {
+                    shouldPark =
+                        true;
+
+                    break;
+                }
+            }
+        }
+
+        automaticParkRequested =
+            shouldPark;
+    }
+
+    bool ConnectorRequiresParking(
+        ParkConnector parkConnector)
+    {
+        IMyShipConnector connector =
+            parkConnector.Block;
+
+        if (connector == null ||
+            connector.Closed ||
+            connector.Status !=
+                MyShipConnectorStatus
+                    .Connected)
+        {
+            return false;
+        }
+
+        IMyShipConnector other =
+            connector.OtherConnector;
+
+        if (other == null)
+        {
+            return false;
+        }
+
+        GridNode targetNode;
+
+        if (!gridNodes.TryGetValue(
+                other.CubeGrid.EntityId,
+                out targetNode))
+        {
+            return other
+                .CubeGrid
+                .IsStatic;
+        }
+
+        GridComponent target =
+            targetNode.Component;
+
+        if (target == null)
+        {
+            return other
+                .CubeGrid
+                .IsStatic;
+        }
+
+        if (target.HasStaticGrid)
+        {
+            return true;
+        }
+
+        if (target.Controllers.Count ==
+            0)
+        {
+            // Dynamic controller-less attachment: likely cargo.
+            return false;
+        }
+
+        if (potentialMaster &&
+            target.HasSlaveCapableRedux)
+        {
+            // A piloted master remains active so the connected Redux PB
+            // can wake from park and temporarily become a slave.
+            return false;
+        }
+
+        return true;
+    }
+
+    bool LandingGearRequiresParking(
+        ParkLandingGear parkLandingGear)
+    {
+        IMyLandingGear landingGear =
+            parkLandingGear.Block;
+
+        if (landingGear == null ||
+            landingGear.Closed ||
+            !landingGear.IsFunctional)
+        {
+            return false;
+        }
+
+        // The PB landing-gear API does not expose the attached entity.
+        // Redux therefore cannot distinguish terrain from another ship.
+        return landingGear.IsLocked;
+    }
+
+    // ===== Parking =====
+
+    void BeginPark()
+    {
+        ClearControlledThrust();
+        ReleaseGyros();
+
+        Vector3D gravity =
+            referenceController !=
+                    null
+                ? referenceController
+                    .GetNaturalGravity()
+                : Vector3D.Zero;
+
+        Vector3D localRootCenter =
+            Me.CubeGrid
+                .WorldAABB
+                .Center;
+
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            if (!thruster.Controlled)
+            {
+                continue;
+            }
+
+            thruster.ClearOverride();
+
+            DisableThrusterByRedux(
+                thruster,
+                ThrusterDisableReason.Park);
+        }
+
+        parkRotorTargetAngles.Clear();
+
+        for (int i = 0;
+            i < controlledRotors.Count;
+            i++)
+        {
+            Rotor rotor =
+                controlledRotors[i];
+
+            if (!rotor.Controlled)
+            {
+                continue;
+            }
+
+            rotor.BeginPark(
+                gravity,
+                localRootCenter);
+        }
+
+        TriggerTimers(
+            parkTimers);
+            
+        Save();
+    }
+
+    void ExitPark()
+    {
+        ReleaseThrusterDisableReason(
+            ThrusterDisableReason.Park);
+
+        parkThrusterEnabledState.Clear();
+
+        for (int i = 0;
+            i < controlledRotors.Count;
+            i++)
+        {
+            Rotor rotor =
+                controlledRotors[i];
+
+            rotor.CancelPark();
+            rotor.Stop();
+        }
+
+        // Park targets are no longer authoritative once flight resumes.
+        parkRotorTargetAngles.Clear();
+
+        normalizedMasterDemand =
+            Vector3D.Zero;
+
+        TriggerTimers(
+            unparkTimers);
+            
+        Save();
+    }
+
+    void EnsureNewCacheIsParked()
+    {
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            RestorePersistedThrusterState(
+                thruster);
+
+            if (!thruster.Controlled)
+            {
+                continue;
+            }
+
+            thruster.ClearOverride();
+
+            DisableThrusterByRedux(
+                thruster,
+                ThrusterDisableReason.Park);
+        }
+
+        ReleaseGyros();
+
+        Vector3D gravity =
+            referenceController !=
+                    null
+                ? referenceController
+                    .GetNaturalGravity()
+                : Vector3D.Zero;
+
+        Vector3D localRootCenter =
+            Me.CubeGrid
+                .WorldAABB
+                .Center;
+
+        for (int i = 0;
+            i < controlledRotors.Count;
+            i++)
+        {
+            Rotor rotor =
+                controlledRotors[i];
+
+            if (!rotor.Controlled)
+            {
+                rotor.Stop();
+                continue;
+            }
+
+            double targetAngle;
+
+            if (parkRotorTargetAngles
+                    .TryGetValue(
+                        rotor.EntityId,
+                        out targetAngle))
+            {
+                rotor.RestoreParkTarget(
+                    targetAngle);
+            }
+            else
+            {
+                // Newly discovered joints get a target; existing joints
+                // retain theirs across wrapper replacement.
+                rotor.BeginPark(
+                    gravity,
+                    localRootCenter);
+            }
+
+            // This is lightweight. UpdatePark only writes when the
+            // resulting command exceeds JointWriteDeadbandRad.
+            rotor.UpdatePark();
+        }
+    }
+
+    void UpdateParkedRotors()
+    {
+        for (int i = 0;
+            i < controlledRotors.Count;
+            i++)
+        {
+            controlledRotors[i]
+                .UpdatePark();
+        }
+    }
+
+    void ClearControlledThrust()
+    {
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            if (thrusters[i].Controlled)
+            {
+                thrusters[i]
+                    .ClearOverride();
+            }
+        }
+    }
+
+    void RestoreThrustersAfterPark()
+    {
+        ReleaseThrusterDisableReason(
+            ThrusterDisableReason.Park);
+
+        parkThrusterEnabledState.Clear();
+    }
+
+    void RestoreParkedThruster(
+        long entityId,
+        IMyThrust block)
+    {
+        ReleaseThrusterDisableReason(
+            entityId,
+            block,
+            ThrusterDisableReason.Park);
+    }
+
+    void TriggerTimers(
+        List<IMyTimerBlock> timers)
+    {
+        for (int i = 0;
+            i < timers.Count;
+            i++)
+        {
+            IMyTimerBlock timer =
+                timers[i];
+
+            if (timer == null ||
+                timer.Closed ||
+                !timer.IsFunctional)
+            {
+                continue;
+            }
+
+            timer.Trigger();
         }
     }
 }
@@ -5848,6 +7590,7 @@ partial class Program : MyGridProgram
 
     string lastCommandResult = string.Empty;
     bool lastCommandWasWarning;
+    string cruiseAuthorityWarning = string.Empty;
 
     // The game cannot toggle cockpit dampeners normally when no main-grid
     // thrusters exist, so this controls whether cockpit state is treated
@@ -6443,6 +8186,2715 @@ partial class Program : MyGridProgram
 }
 partial class Program
 {
+    IEnumerable<int> BuildSnapshotParkingAndStatus(
+        ScanSnapshot snapshot)
+    {
+        // ===== Parking connectors =====
+
+        for (int i = 0;
+            i <
+                snapshot.RawConnectors.Count;
+            i++)
+        {
+            IMyShipConnector block =
+                snapshot.RawConnectors[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        block
+                            .CubeGrid
+                            .EntityId,
+                        out node) ||
+                !node.IncludedForControl)
+            {
+                continue;
+            }
+
+            snapshot
+                .TopologyConnectors
+                .Add(block);
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    block.EntityId);
+
+            if (!CanReadParkingBlock(
+                    tags))
+            {
+                continue;
+            }
+
+            snapshot
+                .ParkConnectors
+                .Add(
+                    new ParkConnector
+                    {
+                        Block =
+                            block,
+
+                        Edge =
+                            FindConnectorEdge(
+                                snapshot
+                                    .ConnectorEdges,
+                                block)
+                    });
+
+            yield return 1;
+        }
+
+        // ===== Parking landing gear =====
+
+        for (int i = 0;
+            i <
+                snapshot
+                    .RawLandingGears
+                    .Count;
+            i++)
+        {
+            IMyLandingGear block =
+                snapshot
+                    .RawLandingGears[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        block
+                            .CubeGrid
+                            .EntityId,
+                        out node) ||
+                !node.IncludedForControl)
+            {
+                continue;
+            }
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    block.EntityId);
+
+            if (!CanReadParkingBlock(
+                    tags))
+            {
+                continue;
+            }
+
+            snapshot
+                .ParkLandingGears
+                .Add(
+                    new ParkLandingGear
+                    {
+                        Block =
+                            block
+                    });
+
+            yield return 1;
+        }
+
+        // ===== Local timer hooks =====
+
+        for (int i = 0;
+            i <
+                snapshot.RawTimers.Count;
+            i++)
+        {
+            IMyTimerBlock timer =
+                snapshot.RawTimers[i];
+
+            if (timer.CubeGrid !=
+                Me.CubeGrid)
+            {
+                continue;
+            }
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    timer.EntityId);
+
+            if ((tags &
+                 BlockTags.ParkTimer) != 0)
+            {
+                snapshot.ParkTimers.Add(
+                    timer);
+            }
+
+            if ((tags &
+                 BlockTags.UnparkTimer) !=
+                0)
+            {
+                snapshot
+                    .UnparkTimers
+                    .Add(timer);
+            }
+
+            yield return 1;
+        }
+
+        DiscoverStatusSurfaces(
+            snapshot);
+    }
+
+    // ===== Atomic snapshot commit =====
+
+    void CommitScanSnapshot(
+        ScanSnapshot snapshot)
+    {
+        HashSet<long> newThrusterIds =
+            new HashSet<long>();
+
+        HashSet<long> newControlledRotorIds =
+            new HashSet<long>();
+
+        HashSet<long> newGyroIds =
+            new HashSet<long>();
+
+        for (int i = 0;
+            i <
+                snapshot.Thrusters.Count;
+            i++)
+        {
+            newThrusterIds.Add(
+                snapshot
+                    .Thrusters[i]
+                    .EntityId);
+        }
+
+        for (int i = 0;
+            i <
+                snapshot
+                    .ControlledRotors
+                    .Count;
+            i++)
+        {
+            newControlledRotorIds.Add(
+                snapshot
+                    .ControlledRotors[i]
+                    .EntityId);
+        }
+
+        for (int i = 0;
+            i <
+                snapshot.Gyros.Count;
+            i++)
+        {
+            newGyroIds.Add(
+                snapshot
+                    .Gyros[i]
+                    .TheBlock
+                    .EntityId);
+        }
+
+        // Release blocks that left the local construct entirely.
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster oldThruster =
+                thrusters[i];
+
+            if (newThrusterIds.Contains(
+                    oldThruster.EntityId))
+            {
+                continue;
+            }
+
+            oldThruster.Release();
+
+            RestoreParkedThruster(
+                oldThruster.EntityId,
+                oldThruster.TheBlock);
+
+            ReleaseThrusterDisableReason(
+                oldThruster.EntityId,
+                oldThruster.TheBlock,
+                ThrusterDisableReason
+                    .Cruise);
+
+            ReleaseThrusterDisableReason(
+                oldThruster.EntityId,
+                oldThruster.TheBlock,
+                ThrusterDisableReason
+                    .Standby);
+        }
+
+        // A previously owned rotor may still exist but no longer have an
+        // owned thruster. Stop it once while relinquishing authority.
+        for (int i = 0;
+            i < controlledRotors.Count;
+            i++)
+        {
+            Rotor oldRotor =
+                controlledRotors[i];
+
+            if (!newControlledRotorIds
+                    .Contains(
+                        oldRotor.EntityId))
+            {
+                oldRotor.Release();
+            }
+        }
+
+        for (int i = 0;
+            i < controlledGyros.Count;
+            i++)
+        {
+            Gyro oldGyro =
+                controlledGyros[i];
+
+            if (!newGyroIds.Contains(
+                    oldGyro
+                        .TheBlock
+                        .EntityId))
+            {
+                oldGyro.Release();
+            }
+        }
+
+        ReplaceContents(
+            localControllers,
+            snapshot.LocalControllers);
+
+        ReplaceContents(
+            remotelyReachableControllers,
+            snapshot.RemoteControllers);
+
+        if (remotelyReachableControllers.Count == 0)
+        {
+            ResetSlaveHeartbeat();
+        }
+
+        ReplaceContents(
+            thrusters,
+            snapshot.Thrusters);
+
+        ReplaceContents(
+            controlledThrusters,
+            snapshot.ControlledThrusters);
+
+        ReplaceContents(
+            fixedControlledThrusters,
+            snapshot.FixedControlledThrusters);
+
+        ReplaceContents(
+            observedReadOnlyThrusters,
+            snapshot.ObservedReadOnlyThrusters);
+
+        ReplaceContents(
+            localUnmanagedThrusters,
+            snapshot.LocalUnmanagedThrusters);
+
+        ReplaceContents(
+            remoteReduxThrusters,
+            snapshot.RemoteReduxThrusters);
+
+        ReplaceContents(
+            remoteUnmanagedThrusters,
+            snapshot.RemoteUnmanagedThrusters);
+
+        ReplaceContents(
+            remoteFixedReduxThrusters,
+            snapshot.RemoteFixedReduxThrusters);
+
+        ReplaceContents(
+            controlledRotors,
+            snapshot.ControlledRotors);
+
+        ReplaceContents(
+            vectorThrusters,
+            snapshot.VectorThrusters);
+
+        ReplaceContents(
+            vectorThrustGroups,
+            snapshot.Groups);
+
+        ReplaceContents(
+            remoteNacelles,
+            snapshot.RemoteNacelles);
+
+        ReplaceContents(
+            controlledGyros,
+            snapshot.Gyros);
+
+        ReplaceContents(
+            parkConnectors,
+            snapshot.ParkConnectors);
+
+        ReplaceContents(
+            parkLandingGears,
+            snapshot.ParkLandingGears);
+
+        ReplaceContents(
+            connectorEdges,
+            snapshot.ConnectorEdges);
+
+        ReplaceContents(
+            topologyConnectors,
+            snapshot.TopologyConnectors);
+
+        ReplaceContents(
+            parkTimers,
+            snapshot.ParkTimers);
+
+        ReplaceContents(
+            unparkTimers,
+            snapshot.UnparkTimers);
+
+        ReplaceContents(
+            statusSurfaces,
+            snapshot.StatusSurfaces);
+
+        gridNodes.Clear();
+
+        foreach (
+            KeyValuePair<long, GridNode> pair
+            in snapshot.GridNodes)
+        {
+            gridNodes.Add(
+                pair.Key,
+                pair.Value);
+        }
+
+        // Restore the physical disabled state before capacity or authority
+        // is evaluated using the new wrappers.
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            RestorePersistedThrusterState(
+                thrusters[i]);
+        }
+
+        PruneDisabledThrusterStates(
+            newThrusterIds);
+
+        SelectReferenceController();
+        RefreshMainGridThrusterState();
+        RefreshTemporaryControlRoles();
+
+        // Clear any stale output on wrappers that still exist but no
+        // longer have normal or temporary authority.
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            if (!thrusters[i].Controlled)
+            {
+                thrusters[i]
+                    .ClearOverride();
+            }
+        }
+
+        for (int i = 0;
+            i < controlledGyros.Count;
+            i++)
+        {
+            if (!controlledGyros[i]
+                    .Controlled)
+            {
+                controlledGyros[i]
+                    .ReleaseOverride();
+            }
+        }
+
+        if (mode ==
+            OperatingMode.Parked)
+        {
+            EnsureNewCacheIsParked();
+        }
+
+        SweepOwnedHeartbeatsAfterScan();
+
+        //lastTopologyFingerprint = CalculateTopologyFingerprint();
+
+        //topologyFingerprintInitialized = true;
+
+        forceStatusRefresh =
+            true;
+    }
+
+    // ===== Status surface discovery =====
+
+    void DiscoverStatusSurfaces(
+        ScanSnapshot snapshot)
+    {
+        HashSet<string> addedSurfaces =
+            new HashSet<string>(
+                StringComparer.Ordinal);
+
+        List<int> selectedIndices =
+            new List<int>();
+
+        for (int i = 0;
+            i < snapshot.Blocks.Count;
+            i++)
+        {
+            IMyTerminalBlock block =
+                snapshot.Blocks[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        block
+                            .CubeGrid
+                            .EntityId,
+                        out node) ||
+                node.Component !=
+                    snapshot.RootComponent)
+            {
+                continue;
+            }
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    block.EntityId);
+
+            IMyTextPanel panel =
+                block as
+                    IMyTextPanel;
+
+            if (panel != null &&
+                (tags &
+                 BlockTags.Status) != 0)
+            {
+                AddStatusSurface(
+                    snapshot
+                        .StatusSurfaces,
+                    addedSurfaces,
+                    block,
+                    panel,
+                    0);
+            }
+
+            IMyTextSurfaceProvider provider =
+                block as
+                    IMyTextSurfaceProvider;
+
+            if (provider == null ||
+                provider.SurfaceCount <= 0)
+            {
+                continue;
+            }
+
+            selectedIndices.Clear();
+
+            GetSelectedSurfaceIndices(
+                block.CustomData,
+                provider.SurfaceCount,
+                selectedIndices);
+
+            if ((tags &
+                 BlockTags.Status) != 0 &&
+                selectedIndices.Count ==
+                    0)
+            {
+                selectedIndices.Add(
+                    0);
+            }
+
+            for (int index = 0;
+                index <
+                    selectedIndices.Count;
+                index++)
+            {
+                int surfaceIndex =
+                    selectedIndices[index];
+
+                AddStatusSurface(
+                    snapshot
+                        .StatusSurfaces,
+                    addedSurfaces,
+                    block,
+                    provider.GetSurface(
+                        surfaceIndex),
+                    surfaceIndex);
+            }
+        }
+    }
+
+    void GetSelectedSurfaceIndices(
+        string customData,
+        int surfaceCount,
+        List<int> output)
+    {
+        if (string.IsNullOrEmpty(
+                customData))
+        {
+            return;
+        }
+
+        string[] lines =
+            customData
+                .Replace(
+                    "\r",
+                    string.Empty)
+                .Split('\n');
+
+        for (int i = 0;
+            i < lines.Length;
+            i++)
+        {
+            string line =
+                lines[i].Trim();
+
+            if (!line.StartsWith(
+                    SurfaceSelector,
+                    StringComparison
+                        .OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string serializedIndex =
+                line
+                    .Substring(
+                        SurfaceSelector
+                            .Length)
+                    .Trim();
+
+            int index;
+
+            if (!int.TryParse(
+                    serializedIndex,
+                    out index) ||
+                index < 0 ||
+                index >= surfaceCount ||
+                output.Contains(
+                    index))
+            {
+                continue;
+            }
+
+            output.Add(
+                index);
+        }
+    }
+
+    static void AddStatusSurface(
+        List<StatusSurface> output,
+        HashSet<string> added,
+        IMyTerminalBlock owner,
+        IMyTextSurface surface,
+        int surfaceIndex)
+    {
+        string key =
+            owner.EntityId +
+            ":" +
+            surfaceIndex;
+
+        if (!added.Add(key))
+        {
+            return;
+        }
+
+        output.Add(
+            new StatusSurface(
+                owner,
+                surface,
+                surfaceIndex));
+    }
+
+    // ===== Discovery policy =====
+
+    bool CanReadParkingBlock(
+        BlockTags tags)
+    {
+        if ((tags &
+             BlockTags.Ignore) != 0)
+        {
+            return false;
+        }
+
+        return settings.Greedy ||
+               (tags &
+                BlockTags.Use) != 0;
+    }
+
+    bool IsReduxProgrammableBlock(
+        IMyProgrammableBlock programmableBlock)
+    {
+        if (programmableBlock ==
+            null)
+        {
+            return false;
+        }
+
+        return FindSectionStart(
+                   programmableBlock
+                       .CustomData,
+                   ConfigSection) >=
+               0;
+    }
+
+    bool ReadReduxCanSlave(
+        IMyProgrammableBlock programmableBlock)
+    {
+        string serialized;
+
+        if (!TryReadSectionValue(
+                programmableBlock.CustomData,
+                ConfigSection,
+                "CanSlave",
+                out serialized))
+        {
+            return true;
+        }
+
+        bool value;
+
+        return bool.TryParse(
+                   serialized,
+                   out value)
+            ? value
+            : true;
+    }
+
+    BlockTags GetTagsFromText(
+        string text)
+    {
+        if (string.IsNullOrEmpty(
+                text))
+        {
+            return BlockTags.None;
+        }
+
+        BlockTags result =
+            BlockTags.None;
+
+        if (ContainsTag(
+                text,
+                settings.UseTag))
+        {
+            result |=
+                BlockTags.Use;
+        }
+
+        if (ContainsTag(
+                text,
+                settings.IgnoreTag))
+        {
+            result |=
+                BlockTags.Ignore;
+        }
+
+        if (ContainsTag(
+                text,
+                settings.StatusTag))
+        {
+            result |=
+                BlockTags.Status;
+        }
+
+        if (ContainsTag(
+                text,
+                settings.ParkTimerTag))
+        {
+            result |=
+                BlockTags.ParkTimer;
+        }
+
+        if (ContainsTag(
+                text,
+                settings.UnparkTimerTag))
+        {
+            result |=
+                BlockTags.UnparkTimer;
+        }
+
+        return result;
+    }
+
+    static bool ContainsTag(
+        string text,
+        string tag)
+    {
+        return !string.IsNullOrEmpty(
+                   text) &&
+               !string.IsNullOrEmpty(
+                   tag) &&
+               text.IndexOf(
+                   tag,
+                   StringComparison
+                       .OrdinalIgnoreCase) >=
+               0;
+    }
+
+    static void MergeTags(
+        Dictionary<long, BlockTags> tags,
+        long entityId,
+        BlockTags additionalTags)
+    {
+        if (additionalTags ==
+            BlockTags.None)
+        {
+            return;
+        }
+
+        BlockTags existing;
+
+        tags.TryGetValue(
+            entityId,
+            out existing);
+
+        tags[entityId] =
+            existing |
+            additionalTags;
+    }
+
+    static BlockTags GetTags(
+        Dictionary<long, BlockTags> tags,
+        long entityId)
+    {
+        BlockTags result;
+
+        return tags.TryGetValue(
+                   entityId,
+                   out result)
+            ? result
+            : BlockTags.None;
+    }
+
+    // ===== General scan helpers =====
+
+    static ConnectorEdge FindConnectorEdge(
+        List<ConnectorEdge> edges,
+        IMyShipConnector connector)
+    {
+        for (int i = 0;
+            i < edges.Count;
+            i++)
+        {
+            if (edges[i]
+                        .A
+                        .EntityId ==
+                    connector.EntityId ||
+                edges[i]
+                        .B
+                        .EntityId ==
+                    connector.EntityId)
+            {
+                return edges[i];
+            }
+        }
+
+        return null;
+    }
+
+    static void AddUniqueGrid(
+        List<IMyCubeGrid> grids,
+        IMyCubeGrid grid)
+    {
+        for (int i = 0;
+            i < grids.Count;
+            i++)
+        {
+            if (grids[i]
+                    .EntityId ==
+                grid.EntityId)
+            {
+                return;
+            }
+        }
+
+        grids.Add(
+            grid);
+    }
+
+    static void ReplaceContents<T>(
+        List<T> target,
+        List<T> source)
+    {
+        target.Clear();
+        target.AddRange(
+            source);
+    }
+}
+partial class Program
+{
+    IEnumerable<int> BuildSnapshotControlModel(
+        ScanSnapshot snapshot)
+    {
+        Dictionary<long, Rotor> localRotorById =
+            new Dictionary<long, Rotor>();
+
+        Dictionary<long, IMyMotorStator> remoteRotorById =
+            new Dictionary<long, IMyMotorStator>();
+
+        Dictionary<long, List<Thruster>> localThrustersByRotor =
+            new Dictionary<long, List<Thruster>>();
+
+        Dictionary<long, List<Thruster>> remoteThrustersByRotor =
+            new Dictionary<long, List<Thruster>>();
+
+        // ===== Rotor candidates =====
+
+        for (int i = 0;
+            i <
+                snapshot.RawRotors.Count;
+            i++)
+        {
+            IMyMotorStator block =
+                snapshot.RawRotors[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        block
+                            .CubeGrid
+                            .EntityId,
+                        out node))
+            {
+                continue;
+            }
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    block.EntityId);
+
+            if (node
+                .IncludedForControl)
+            {
+                // Ownership is deliberately false here. It is finalized
+                // only after controlled thrusters have been associated.
+                Rotor rotor =
+                    new Rotor(
+                        block,
+                        this,
+                        tags,
+                        false);
+
+                localRotorById.Add(
+                    block.EntityId,
+                    rotor);
+
+                snapshot
+                    .RotorCandidates
+                    .Add(rotor);
+            }
+            else if (IsRemoteReduxComponent(
+                         snapshot,
+                         node.Component))
+            {
+                remoteRotorById.Add(
+                    block.EntityId,
+                    block);
+            }
+
+            yield return 1;
+        }
+
+        // ===== Thrusters =====
+
+        for (int i = 0;
+            i <
+                snapshot
+                    .RawThrusters
+                    .Count;
+            i++)
+        {
+            IMyThrust block =
+                snapshot.RawThrusters[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        block
+                            .CubeGrid
+                            .EntityId,
+                        out node))
+            {
+                continue;
+            }
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    block.EntityId);
+
+            if (node.IncludedForControl)
+            {
+                BuildLocalThrusterModel(
+                    snapshot,
+                    node,
+                    block,
+                    tags,
+                    localRotorById,
+                    localThrustersByRotor);
+            }
+            else if (IsRemoteReduxComponent(
+                         snapshot,
+                         node.Component))
+            {
+                BuildRemoteReduxThrusterModel(
+                    snapshot,
+                    node,
+                    block,
+                    tags,
+                    remoteRotorById,
+                    remoteThrustersByRotor);
+            }
+            else if (node
+                         .Component
+                         .ReachableThroughConnection)
+            {
+                Thruster thruster =
+                    new Thruster(
+                        block,
+                        this,
+                        tags,
+                        false);
+
+                snapshot
+                    .RemoteUnmanagedThrusters
+                    .Add(thruster);
+
+                snapshot
+                    .ObservedReadOnlyThrusters
+                    .Add(thruster);
+            }
+
+            yield return 1;
+        }
+
+        FinalizeLocalRotorOwnership(
+            snapshot,
+            localThrustersByRotor);
+
+        FinalizeRemoteRotorModels(
+            snapshot,
+            remoteRotorById,
+            remoteThrustersByRotor);
+
+        foreach (int step in
+            BuildSnapshotGyros(
+                snapshot))
+        {
+            yield return step;
+        }
+    }
+
+    void BuildLocalThrusterModel(
+        ScanSnapshot snapshot,
+        GridNode node,
+        IMyThrust block,
+        BlockTags tags,
+        Dictionary<long, Rotor> rotorById,
+        Dictionary<long, List<Thruster>> thrustersByRotor)
+    {
+        Rotor nearestRotor =
+            FindNearestRotorCandidate(
+                node,
+                rotorById);
+
+        bool onMechanicalSubgrid =
+            node.Depth >
+            0;
+
+        bool explicitlyUsed =
+            (tags &
+             BlockTags.Use) != 0;
+
+        bool ignored =
+            (tags &
+             BlockTags.Ignore) != 0;
+
+        bool normallyControlled =
+            !ignored &&
+            (settings.Greedy
+                ? explicitlyUsed ||
+                  onMechanicalSubgrid ||
+                  nearestRotor != null
+                : explicitlyUsed);
+
+        Thruster thruster =
+            new Thruster(
+                block,
+                this,
+                tags,
+                normallyControlled);
+
+        snapshot.Thrusters.Add(
+            thruster);
+
+        if (normallyControlled)
+        {
+            snapshot
+                .ControlledThrusters
+                .Add(thruster);
+        }
+        else
+        {
+            snapshot
+                .LocalUnmanagedThrusters
+                .Add(thruster);
+
+            snapshot
+                .ObservedReadOnlyThrusters
+                .Add(thruster);
+        }
+
+        if (nearestRotor == null)
+        {
+            if (normallyControlled)
+            {
+                snapshot
+                    .FixedControlledThrusters
+                    .Add(thruster);
+            }
+
+            return;
+        }
+
+        List<Thruster> associated;
+
+        if (!thrustersByRotor
+                .TryGetValue(
+                    nearestRotor.EntityId,
+                    out associated))
+        {
+            associated =
+                new List<Thruster>();
+
+            thrustersByRotor.Add(
+                nearestRotor.EntityId,
+                associated);
+        }
+
+        associated.Add(
+            thruster);
+    }
+
+    void FinalizeLocalRotorOwnership(
+        ScanSnapshot snapshot,
+        Dictionary<long, List<Thruster>> thrustersByRotor)
+    {
+        for (int i = 0;
+            i <
+                snapshot
+                    .RotorCandidates
+                    .Count;
+            i++)
+        {
+            Rotor rotor =
+                snapshot
+                    .RotorCandidates[i];
+
+            List<Thruster> associated;
+
+            bool hasAssociatedThrusters =
+                thrustersByRotor
+                    .TryGetValue(
+                        rotor.EntityId,
+                        out associated);
+
+            bool hasControlledThrusters =
+                false;
+
+            if (hasAssociatedThrusters)
+            {
+                for (int j = 0;
+                    j < associated.Count;
+                    j++)
+                {
+                    if (associated[j]
+                        .Controlled)
+                    {
+                        hasControlledThrusters =
+                            true;
+
+                        break;
+                    }
+                }
+            }
+
+            // Ignore always wins. Outside Greedy mode the rotor itself
+            // must be explicitly used; a used thruster does not silently
+            // grant movement authority over an untagged mechanism.
+            bool controlled =
+                !rotor.IsIgnored &&
+                (rotor.IsExplicitlyUsed ||
+                 settings.Greedy &&
+                 hasControlledThrusters);
+
+            rotor.SetControlRole(
+                ControlRole.Normal,
+                controlled);
+
+            if (!controlled)
+            {
+                if (hasAssociatedThrusters)
+                {
+                    for (int j = 0;
+                        j < associated.Count;
+                        j++)
+                    {
+                        Thruster thruster =
+                            associated[j];
+
+                        if (thruster.Controlled &&
+                            !snapshot
+                                .FixedControlledThrusters
+                                .Contains(
+                                    thruster))
+                        {
+                            snapshot
+                                .FixedControlledThrusters
+                                .Add(
+                                    thruster);
+                        }
+                    }
+                }
+
+                continue;
+            }
+
+            snapshot
+                .ControlledRotors
+                .Add(rotor);
+
+            if (!hasControlledThrusters)
+            {
+                // Explicit [VT-use] grants authority, but without usable thrust
+                // there is no vector solution to calculate. Stop stale motion.
+                if (rotor.IsExplicitlyUsed)
+                {
+                    rotor.Stop();
+                }
+
+                continue;
+            }
+
+            VectorThrust nacelle =
+                new VectorThrust(
+                    rotor,
+                    this);
+
+            snapshot
+                .VectorThrusters
+                .Add(nacelle);
+
+            for (int j = 0;
+                j < associated.Count;
+                j++)
+            {
+                Thruster thruster =
+                    associated[j];
+
+                if (!thruster.Controlled)
+                {
+                    continue;
+                }
+
+                thruster.Nacelle =
+                    nacelle;
+
+                nacelle.Thrusters.Add(
+                    thruster);
+
+                GridNode thrusterNode;
+
+                if (snapshot
+                        .GridNodes
+                        .TryGetValue(
+                            thruster
+                                .TheBlock
+                                .CubeGrid
+                                .EntityId,
+                            out thrusterNode))
+                {
+                    AddNacelleBranchGrids(
+                        nacelle,
+                        thrusterNode,
+                        rotor);
+                }
+            }
+
+            nacelle
+                .RefreshPrimaryDirection();
+        }
+    }
+
+    void BuildRemoteReduxThrusterModel(
+        ScanSnapshot snapshot,
+        GridNode node,
+        IMyThrust block,
+        BlockTags tags,
+        Dictionary<long, IMyMotorStator> rotorById,
+        Dictionary<long, List<Thruster>> thrustersByRotor)
+    {
+        GridComponent component =
+            node.Component;
+
+        IMyMotorStator nearestRotor =
+            FindNearestRawRotor(
+                node,
+                rotorById);
+
+        bool explicitlyUsed =
+            (tags &
+             BlockTags.Use) != 0;
+
+        bool ignored =
+            (tags &
+             BlockTags.Ignore) != 0;
+
+        // The connected master knows this component will temporarily be a
+        // slave. Greedy slaves may therefore use their main-grid blocks as
+        // well as their ordinary mechanical-subgrid blocks.
+        bool controlledByRemoteRedux =
+            !ignored &&
+            component.ReduxCanSlave &&
+            (component.ReduxGreedy ||
+             explicitlyUsed);
+
+        Thruster thruster =
+            new Thruster(
+                block,
+                this,
+                tags,
+                false);
+
+        if (!controlledByRemoteRedux)
+        {
+            snapshot
+                .RemoteUnmanagedThrusters
+                .Add(thruster);
+
+            snapshot
+                .ObservedReadOnlyThrusters
+                .Add(thruster);
+
+            return;
+        }
+
+        snapshot
+            .RemoteReduxThrusters
+            .Add(thruster);
+
+        if (nearestRotor == null)
+        {
+            snapshot
+                .RemoteFixedReduxThrusters
+                .Add(thruster);
+
+            return;
+        }
+
+        List<Thruster> associated;
+
+        if (!thrustersByRotor
+                .TryGetValue(
+                    nearestRotor.EntityId,
+                    out associated))
+        {
+            associated =
+                new List<Thruster>();
+
+            thrustersByRotor.Add(
+                nearestRotor.EntityId,
+                associated);
+        }
+
+        associated.Add(
+            thruster);
+    }
+
+    void FinalizeRemoteRotorModels(
+        ScanSnapshot snapshot,
+        Dictionary<long, IMyMotorStator> rotorById,
+        Dictionary<long, List<Thruster>> thrustersByRotor)
+    {
+        foreach (
+            KeyValuePair<long, List<Thruster>> pair
+            in thrustersByRotor)
+        {
+            IMyMotorStator rotorBlock;
+
+            if (!rotorById.TryGetValue(
+                    pair.Key,
+                    out rotorBlock))
+            {
+                AddRemoteThrustersAsFixed(
+                    snapshot,
+                    pair.Value);
+
+                continue;
+            }
+
+            GridNode rotorNode;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        rotorBlock
+                            .CubeGrid
+                            .EntityId,
+                        out rotorNode))
+            {
+                AddRemoteThrustersAsFixed(
+                    snapshot,
+                    pair.Value);
+
+                continue;
+            }
+
+            BlockTags rotorTags =
+                GetTags(
+                    snapshot.Tags,
+                    rotorBlock.EntityId);
+
+            bool ignored =
+                (rotorTags &
+                 BlockTags.Ignore) != 0;
+
+            bool explicitlyUsed =
+                (rotorTags &
+                 BlockTags.Use) != 0;
+
+            GridComponent component =
+                rotorNode.Component;
+
+            bool controlledByRemoteRedux =
+                !ignored &&
+                component.ReduxCanSlave &&
+                (explicitlyUsed ||
+                 component.ReduxGreedy &&
+                 pair.Value.Count > 0);
+
+            if (!controlledByRemoteRedux ||
+                rotorBlock.TopGrid == null ||
+                !rotorBlock.IsFunctional ||
+                !rotorBlock.Enabled ||
+                rotorBlock.RotorLock)
+            {
+                AddRemoteThrustersAsFixed(
+                    snapshot,
+                    pair.Value);
+
+                continue;
+            }
+
+            RemoteNacelleCapacityModel model =
+                new RemoteNacelleCapacityModel(
+                    rotorBlock);
+
+            model.Thrusters.AddRange(
+                pair.Value);
+
+            snapshot
+                .RemoteNacelles
+                .Add(model);
+        }
+    }
+
+    static void AddRemoteThrustersAsFixed(
+        ScanSnapshot snapshot,
+        List<Thruster> thrusters)
+    {
+        for (int i = 0;
+            i < thrusters.Count;
+            i++)
+        {
+            Thruster thruster =
+                thrusters[i];
+
+            if (!snapshot
+                    .RemoteFixedReduxThrusters
+                    .Contains(
+                        thruster))
+            {
+                snapshot
+                    .RemoteFixedReduxThrusters
+                    .Add(thruster);
+            }
+        }
+    }
+
+    IEnumerable<int> BuildSnapshotGyros(
+        ScanSnapshot snapshot)
+    {
+        for (int i = 0;
+            i <
+                snapshot.RawGyros.Count;
+            i++)
+        {
+            IMyGyro block =
+                snapshot.RawGyros[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        block
+                            .CubeGrid
+                            .EntityId,
+                        out node) ||
+                !node.IncludedForControl ||
+                !IsSupportedGyro(
+                    block))
+            {
+                continue;
+            }
+
+            BlockTags tags =
+                GetTags(
+                    snapshot.Tags,
+                    block.EntityId);
+
+            bool ignored =
+                (tags &
+                 BlockTags.Ignore) != 0;
+
+            if (ignored)
+            {
+                continue;
+            }
+
+            bool onMechanicalSubgrid =
+                node.Depth >
+                0;
+
+            bool explicitlyUsed =
+                (tags &
+                 BlockTags.Use) != 0;
+
+            bool normalAuthority =
+                settings.Greedy
+                    ? explicitlyUsed ||
+                      onMechanicalSubgrid
+                    : explicitlyUsed;
+
+            bool mayNeedTemporarySlaveAuthority =
+                block.CubeGrid ==
+                Me.CubeGrid;
+
+            if (!normalAuthority &&
+                !mayNeedTemporarySlaveAuthority)
+            {
+                continue;
+            }
+
+            Gyro gyro =
+                new Gyro(
+                    block,
+                    this,
+                    tags,
+                    normalAuthority);
+
+            snapshot.Gyros.Add(
+                gyro);
+
+            yield return 1;
+        }
+    }
+
+    Rotor FindNearestRotorCandidate(
+        GridNode node,
+        Dictionary<long, Rotor> rotorById)
+    {
+        GridNode current =
+            node;
+
+        while (current != null &&
+               current.Parent != null)
+        {
+            GridEdge edge =
+                current.ParentEdge;
+
+            IMyMotorStator stator =
+                edge != null
+                    ? edge.Mechanism as
+                        IMyMotorStator
+                    : null;
+
+            if (stator != null &&
+                stator.TopGrid ==
+                    current.Grid)
+            {
+                Rotor rotor;
+
+                if (rotorById.TryGetValue(
+                        stator.EntityId,
+                        out rotor))
+                {
+                    // The nearest physical joint owns the branch boundary
+                    // even when ignored or locked. Never reach through it
+                    // and start moving some unrelated ancestor joint.
+                    return rotor;
+                }
+            }
+
+            current =
+                current.Parent;
+        }
+
+        return null;
+    }
+
+    IMyMotorStator FindNearestRawRotor(
+        GridNode node,
+        Dictionary<long, IMyMotorStator> rotorById)
+    {
+        GridNode current =
+            node;
+
+        while (current != null &&
+               current.Parent != null)
+        {
+            GridEdge edge =
+                current.ParentEdge;
+
+            IMyMotorStator stator =
+                edge != null
+                    ? edge.Mechanism as
+                        IMyMotorStator
+                    : null;
+
+            if (stator != null &&
+                stator.TopGrid ==
+                    current.Grid)
+            {
+                IMyMotorStator rotor;
+
+                if (rotorById.TryGetValue(
+                        stator.EntityId,
+                        out rotor))
+                {
+                    return rotor;
+                }
+            }
+
+            current =
+                current.Parent;
+        }
+
+        return null;
+    }
+
+    void AddNacelleBranchGrids(
+        VectorThrust nacelle,
+        GridNode thrusterNode,
+        Rotor rotor)
+    {
+        GridNode current =
+            thrusterNode;
+
+        while (current != null)
+        {
+            AddUniqueGrid(
+                nacelle.BranchGrids,
+                current.Grid);
+
+            if (current.ParentEdge !=
+                    null &&
+                current.ParentEdge
+                    .Mechanism
+                    .EntityId ==
+                rotor.EntityId)
+            {
+                break;
+            }
+
+            current =
+                current.Parent;
+        }
+    }
+
+    static bool IsRemoteReduxComponent(
+        ScanSnapshot snapshot,
+        GridComponent component)
+    {
+        return component != null &&
+               component !=
+                   snapshot.RootComponent &&
+               !component
+                   .IncludedForControl &&
+               component
+                   .ReachableThroughConnection &&
+               component
+                   .PrimaryReduxProgrammableBlock !=
+                   null;
+    }
+
+    bool IsSupportedGyro(
+        IMyGyro gyro)
+    {
+        string subtype =
+            gyro
+                .BlockDefinition
+                .SubtypeId;
+
+        if (subtype.Equals(
+                "SmallBlockGyro",
+                StringComparison
+                    .OrdinalIgnoreCase) ||
+            subtype.Equals(
+                "LargeBlockGyro",
+                StringComparison
+                    .OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return subtype.Equals(
+                   "SmallPrototechGyro",
+                   StringComparison
+                       .OrdinalIgnoreCase) ||
+               subtype.Equals(
+                   "LargePrototechGyro",
+                   StringComparison
+                       .OrdinalIgnoreCase) ||
+               subtype.Equals(
+                   "SmallPrototechGyroscope",
+                   StringComparison
+                       .OrdinalIgnoreCase) ||
+               subtype.Equals(
+                   "LargePrototechGyroscope",
+                   StringComparison
+                       .OrdinalIgnoreCase);
+    }
+}
+partial class Program
+{
+    IEnumerable<int> ScanConstruct()
+    {
+        ScanSnapshot snapshot =
+            new ScanSnapshot();
+
+        foreach (int step in
+            CollectSnapshotBlocks(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        foreach (int step in
+            BuildSnapshotMechanicalGraph(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        BuildMechanicalComponents(
+            snapshot);
+
+        foreach (int step in
+            BuildSnapshotComponentMetadata(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        foreach (int step in
+            BuildSnapshotConnectorGraph(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        GridNode rootNode =
+            GetOrCreateNode(
+                snapshot.GridNodes,
+                Me.CubeGrid);
+
+        snapshot.RootComponent =
+            rootNode.Component;
+
+        MarkConnectedReachability(
+            snapshot);
+
+        IncludeControlledComponents(
+            snapshot,
+            rootNode);
+
+        AssignRemoteReduxDepths(
+            snapshot);
+
+        foreach (int step in
+            DiscoverRemoteControllers(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        // Supplied by ScanControlModel.cs.
+        foreach (int step in
+            BuildSnapshotControlModel(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        // Supplied by ScanCommit.cs.
+        foreach (int step in
+            BuildSnapshotParkingAndStatus(
+                snapshot))
+        {
+            yield return step;
+        }
+
+        CommitScanSnapshot(
+            snapshot);
+
+        yield return 1;
+    }
+
+    // ===== Block collection =====
+
+    IEnumerable<int> CollectSnapshotBlocks(
+        ScanSnapshot snapshot)
+    {
+        GridTerminalSystem.GetBlocks(
+            snapshot.Blocks);
+
+        List<IMyBlockGroup> groups =
+            new List<IMyBlockGroup>();
+
+        GridTerminalSystem.GetBlockGroups(
+            groups);
+
+        List<IMyTerminalBlock> groupBlocks =
+            new List<IMyTerminalBlock>();
+
+        for (int i = 0;
+            i < groups.Count;
+            i++)
+        {
+            IMyBlockGroup group =
+                groups[i];
+
+            BlockTags groupTags =
+                GetTagsFromText(
+                    group.Name);
+
+            if (groupTags ==
+                BlockTags.None)
+            {
+                continue;
+            }
+
+            groupBlocks.Clear();
+
+            group.GetBlocks(
+                groupBlocks);
+
+            for (int j = 0;
+                j < groupBlocks.Count;
+                j++)
+            {
+                MergeTags(
+                    snapshot.Tags,
+                    groupBlocks[j]
+                        .EntityId,
+                    groupTags);
+            }
+
+            yield return 1;
+        }
+
+        for (int i = 0;
+            i < snapshot.Blocks.Count;
+            i++)
+        {
+            IMyTerminalBlock block =
+                snapshot.Blocks[i];
+
+            BlockTags directTags =
+                GetTagsFromText(
+                    block.CustomName) |
+                GetTagsFromText(
+                    block.CustomData);
+
+            MergeTags(
+                snapshot.Tags,
+                block.EntityId,
+                directTags);
+
+            GetOrCreateNode(
+                snapshot.GridNodes,
+                block.CubeGrid);
+
+            IMyShipController controller =
+                block as
+                    IMyShipController;
+
+            if (controller != null)
+            {
+                snapshot.Controllers.Add(
+                    controller);
+            }
+
+            IMyThrust thrust =
+                block as
+                    IMyThrust;
+
+            if (thrust != null)
+            {
+                snapshot.RawThrusters.Add(
+                    thrust);
+            }
+
+            IMyMotorStator rotor =
+                block as
+                    IMyMotorStator;
+
+            if (rotor != null)
+            {
+                snapshot.RawRotors.Add(
+                    rotor);
+            }
+
+            IMyPistonBase piston =
+                block as
+                    IMyPistonBase;
+
+            if (piston != null)
+            {
+                snapshot.RawPistons.Add(
+                    piston);
+            }
+
+            IMyGyro gyro =
+                block as
+                    IMyGyro;
+
+            if (gyro != null)
+            {
+                snapshot.RawGyros.Add(
+                    gyro);
+            }
+
+            IMyShipConnector connector =
+                block as
+                    IMyShipConnector;
+
+            if (connector != null)
+            {
+                snapshot.RawConnectors.Add(
+                    connector);
+            }
+
+            IMyLandingGear landingGear =
+                block as
+                    IMyLandingGear;
+
+            if (landingGear != null)
+            {
+                snapshot
+                    .RawLandingGears
+                    .Add(
+                        landingGear);
+            }
+
+            IMyTimerBlock timer =
+                block as
+                    IMyTimerBlock;
+
+            if (timer != null)
+            {
+                snapshot.RawTimers.Add(
+                    timer);
+            }
+
+            IMyProgrammableBlock programmableBlock =
+                block as
+                    IMyProgrammableBlock;
+
+            if (programmableBlock != null)
+            {
+                snapshot
+                    .RawProgrammableBlocks
+                    .Add(
+                        programmableBlock);
+            }
+
+            yield return 1;
+        }
+
+        // Ensure the PB grid exists even if a temporarily incomplete
+        // terminal query returned no other block on it.
+        GetOrCreateNode(
+            snapshot.GridNodes,
+            Me.CubeGrid);
+    }
+
+    // ===== Mechanical graph =====
+
+    IEnumerable<int> BuildSnapshotMechanicalGraph(
+        ScanSnapshot snapshot)
+    {
+        for (int i = 0;
+            i <
+                snapshot.RawRotors.Count;
+            i++)
+        {
+            IMyMotorStator rotor =
+                snapshot.RawRotors[i];
+
+            if (rotor.TopGrid ==
+                null)
+            {
+                continue;
+            }
+
+            AddMechanicalEdge(
+                snapshot.GridNodes,
+                rotor.CubeGrid,
+                rotor.TopGrid,
+                rotor);
+
+            yield return 1;
+        }
+
+        for (int i = 0;
+            i <
+                snapshot.RawPistons.Count;
+            i++)
+        {
+            IMyPistonBase piston =
+                snapshot.RawPistons[i];
+
+            if (piston.TopGrid ==
+                null)
+            {
+                continue;
+            }
+
+            AddMechanicalEdge(
+                snapshot.GridNodes,
+                piston.CubeGrid,
+                piston.TopGrid,
+                piston);
+
+            yield return 1;
+        }
+
+        // A counterpart grid may not otherwise contain a block visible
+        // during the first terminal-system pass.
+        for (int i = 0;
+            i <
+                snapshot.RawConnectors.Count;
+            i++)
+        {
+            IMyShipConnector other =
+                snapshot
+                    .RawConnectors[i]
+                    .OtherConnector;
+
+            if (other != null)
+            {
+                GetOrCreateNode(
+                    snapshot.GridNodes,
+                    other.CubeGrid);
+            }
+
+            yield return 1;
+        }
+    }
+
+    void BuildMechanicalComponents(
+        ScanSnapshot snapshot)
+    {
+        List<GridNode> queue =
+            new List<GridNode>();
+
+        foreach (
+            KeyValuePair<long, GridNode> pair
+            in snapshot.GridNodes)
+        {
+            GridNode seed =
+                pair.Value;
+
+            if (seed.Component !=
+                null)
+            {
+                continue;
+            }
+
+            GridComponent component =
+                new GridComponent();
+
+            snapshot.Components.Add(
+                component);
+
+            queue.Clear();
+            queue.Add(seed);
+
+            seed.Component =
+                component;
+
+            for (int index = 0;
+                index < queue.Count;
+                index++)
+            {
+                GridNode node =
+                    queue[index];
+
+                component.Nodes.Add(
+                    node);
+
+                if (node.Grid.IsStatic)
+                {
+                    component.HasStaticGrid =
+                        true;
+                }
+
+                for (int edgeIndex = 0;
+                    edgeIndex <
+                        node
+                            .MechanicalEdges
+                            .Count;
+                    edgeIndex++)
+                {
+                    GridNode neighbor =
+                        node
+                            .MechanicalEdges[
+                                edgeIndex]
+                            .Other(node);
+
+                    if (neighbor.Component !=
+                        null)
+                    {
+                        continue;
+                    }
+
+                    neighbor.Component =
+                        component;
+
+                    queue.Add(
+                        neighbor);
+                }
+            }
+        }
+    }
+
+    // ===== Component metadata =====
+
+    IEnumerable<int> BuildSnapshotComponentMetadata(
+        ScanSnapshot snapshot)
+    {
+        for (int i = 0;
+            i <
+                snapshot.Controllers.Count;
+            i++)
+        {
+            IMyShipController controller =
+                snapshot.Controllers[i];
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        controller
+                            .CubeGrid
+                            .EntityId,
+                        out node))
+            {
+                continue;
+            }
+
+            node.Component
+                .Controllers
+                .Add(controller);
+
+            if (controller.CubeGrid ==
+                Me.CubeGrid)
+            {
+                snapshot
+                    .LocalControllers
+                    .Add(controller);
+            }
+
+            yield return 1;
+        }
+
+        for (int i = 0;
+            i <
+                snapshot
+                    .RawProgrammableBlocks
+                    .Count;
+            i++)
+        {
+            IMyProgrammableBlock programmableBlock =
+                snapshot
+                    .RawProgrammableBlocks[i];
+
+            if (!IsReduxProgrammableBlock(
+                    programmableBlock))
+            {
+                continue;
+            }
+
+            GridNode node;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        programmableBlock
+                            .CubeGrid
+                            .EntityId,
+                        out node))
+            {
+                continue;
+            }
+
+            GridComponent component =
+                node.Component;
+
+            component
+                .ReduxProgrammableBlocks
+                .Add(
+                    programmableBlock);
+
+            bool canSlave =
+                ReadReduxCanSlave(
+                    programmableBlock);
+
+            if (canSlave)
+            {
+                component
+                    .HasSlaveCapableRedux =
+                    true;
+            }
+
+            if (component
+                    .PrimaryReduxProgrammableBlock ==
+                    null ||
+                programmableBlock
+                    .EntityId <
+                component
+                    .PrimaryReduxProgrammableBlock
+                    .EntityId)
+            {
+                component
+                    .PrimaryReduxProgrammableBlock =
+                    programmableBlock;
+
+                component.ReduxGreedy =
+                    ReadReduxGreedy(
+                        programmableBlock);
+
+                component.ReduxCanSlave =
+                    canSlave;
+            }
+
+            yield return 1;
+        }
+    }
+
+    bool ReadReduxGreedy(
+        IMyProgrammableBlock programmableBlock)
+    {
+        string serialized;
+
+        if (!TryReadSectionValue(
+                programmableBlock.CustomData,
+                ConfigSection,
+                "Greedy",
+                out serialized))
+        {
+            return true;
+        }
+
+        bool value;
+
+        return bool.TryParse(
+                   serialized,
+                   out value)
+            ? value
+            : true;
+    }
+
+    // ===== Connector graph =====
+
+    IEnumerable<int> BuildSnapshotConnectorGraph(
+        ScanSnapshot snapshot)
+    {
+        HashSet<ConnectorPairKey> connectorPairs =
+            new HashSet<ConnectorPairKey>();
+
+        for (int i = 0;
+            i <
+                snapshot.RawConnectors.Count;
+            i++)
+        {
+            IMyShipConnector connector =
+                snapshot.RawConnectors[i];
+
+            IMyShipConnector other =
+                connector.OtherConnector;
+
+            if (other == null)
+            {
+                continue;
+            }
+
+            ConnectorPairKey pair =
+                new ConnectorPairKey(
+                    connector.EntityId,
+                    other.EntityId);
+
+            if (!connectorPairs.Add(
+                    pair))
+            {
+                continue;
+            }
+
+            GridNode nodeA;
+            GridNode nodeB;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        connector
+                            .CubeGrid
+                            .EntityId,
+                        out nodeA) ||
+                !snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        other
+                            .CubeGrid
+                            .EntityId,
+                        out nodeB))
+            {
+                continue;
+            }
+
+            snapshot
+                .ConnectorEdges
+                .Add(
+                    new ConnectorEdge
+                    {
+                        A =
+                            connector,
+
+                        B =
+                            other,
+
+                        NodeA =
+                            nodeA,
+
+                        NodeB =
+                            nodeB
+                    });
+
+            yield return 1;
+        }
+    }
+
+    void MarkConnectedReachability(
+        ScanSnapshot snapshot)
+    {
+        GridComponent root =
+            snapshot.RootComponent;
+
+        if (root == null)
+        {
+            return;
+        }
+
+        List<GridComponent> queue =
+            new List<GridComponent>();
+
+        root.ReachableThroughConnection =
+            true;
+
+        queue.Add(root);
+
+        for (int index = 0;
+            index < queue.Count;
+            index++)
+        {
+            GridComponent component =
+                queue[index];
+
+            for (int i = 0;
+                i <
+                    snapshot
+                        .ConnectorEdges
+                        .Count;
+                i++)
+            {
+                ConnectorEdge edge =
+                    snapshot
+                        .ConnectorEdges[i];
+
+                GridComponent other =
+                    null;
+
+                if (edge.NodeA.Component ==
+                    component)
+                {
+                    other =
+                        edge.NodeB.Component;
+                }
+                else if (edge.NodeB.Component ==
+                         component)
+                {
+                    other =
+                        edge.NodeA.Component;
+                }
+
+                if (other == null ||
+                    other
+                        .ReachableThroughConnection)
+                {
+                    continue;
+                }
+
+                other
+                    .ReachableThroughConnection =
+                    true;
+
+                queue.Add(other);
+            }
+        }
+    }
+
+    void IncludeControlledComponents(
+        ScanSnapshot snapshot,
+        GridNode rootNode)
+    {
+        GridComponent root =
+            snapshot.RootComponent;
+
+        if (root == null)
+        {
+            return;
+        }
+
+        root.IncludedForControl =
+            true;
+
+        AssignComponentDepth(
+            root,
+            rootNode,
+            0);
+
+        bool addedComponent;
+
+        do
+        {
+            addedComponent =
+                false;
+
+            for (int i = 0;
+                i <
+                    snapshot
+                        .ConnectorEdges
+                        .Count;
+                i++)
+            {
+                ConnectorEdge edge =
+                    snapshot
+                        .ConnectorEdges[i];
+
+                bool aIncluded =
+                    edge
+                        .NodeA
+                        .Component
+                        .IncludedForControl;
+
+                bool bIncluded =
+                    edge
+                        .NodeB
+                        .Component
+                        .IncludedForControl;
+
+                if (aIncluded ==
+                    bIncluded)
+                {
+                    continue;
+                }
+
+                GridNode source =
+                    aIncluded
+                        ? edge.NodeA
+                        : edge.NodeB;
+
+                GridNode target =
+                    aIncluded
+                        ? edge.NodeB
+                        : edge.NodeA;
+
+                GridComponent targetComponent =
+                    target.Component;
+
+                // A connected mechanical component with another Redux PB
+                // remains independently owned and may become a slave.
+                if (targetComponent
+                        .ReduxProgrammableBlocks
+                        .Count > 0)
+                {
+                    continue;
+                }
+
+                if (!settings.CanMaster)
+                {
+                    continue;
+                }
+
+                targetComponent
+                    .IncludedForControl =
+                    true;
+
+                int sourceDepth =
+                    source.Depth ==
+                        int.MaxValue
+                        ? 0
+                        : source.Depth;
+
+                AssignComponentDepth(
+                    targetComponent,
+                    target,
+                    sourceDepth);
+
+                addedComponent =
+                    true;
+            }
+        }
+        while (addedComponent);
+
+        foreach (
+            KeyValuePair<long, GridNode> pair
+            in snapshot.GridNodes)
+        {
+            pair.Value
+                .IncludedForControl =
+                pair.Value
+                    .Component
+                    .IncludedForControl;
+        }
+    }
+
+    void AssignRemoteReduxDepths(
+        ScanSnapshot snapshot)
+    {
+        for (int i = 0;
+            i <
+                snapshot.Components.Count;
+            i++)
+        {
+            GridComponent component =
+                snapshot.Components[i];
+
+            if (component ==
+                    snapshot.RootComponent ||
+                component.IncludedForControl ||
+                !component
+                    .ReachableThroughConnection ||
+                component
+                    .PrimaryReduxProgrammableBlock ==
+                    null)
+            {
+                continue;
+            }
+
+            GridNode rootNode;
+
+            if (!snapshot
+                    .GridNodes
+                    .TryGetValue(
+                        component
+                            .PrimaryReduxProgrammableBlock
+                            .CubeGrid
+                            .EntityId,
+                        out rootNode))
+            {
+                continue;
+            }
+
+            AssignComponentDepth(
+                component,
+                rootNode,
+                0);
+        }
+    }
+
+    void AssignComponentDepth(
+        GridComponent component,
+        GridNode start,
+        int baseDepth)
+    {
+        List<GridNode> queue =
+            new List<GridNode>();
+
+        if (start.Depth >
+            baseDepth)
+        {
+            start.Depth =
+                baseDepth;
+
+            start.Parent =
+                null;
+
+            start.ParentEdge =
+                null;
+        }
+
+        queue.Add(start);
+
+        for (int index = 0;
+            index < queue.Count;
+            index++)
+        {
+            GridNode node =
+                queue[index];
+
+            for (int i = 0;
+                i <
+                    node
+                        .MechanicalEdges
+                        .Count;
+                i++)
+            {
+                GridEdge edge =
+                    node
+                        .MechanicalEdges[i];
+
+                GridNode neighbor =
+                    edge.Other(node);
+
+                if (neighbor.Component !=
+                    component)
+                {
+                    continue;
+                }
+
+                int proposedDepth =
+                    node.Depth + 1;
+
+                if (proposedDepth >=
+                    neighbor.Depth)
+                {
+                    continue;
+                }
+
+                neighbor.Depth =
+                    proposedDepth;
+
+                neighbor.Parent =
+                    node;
+
+                neighbor.ParentEdge =
+                    edge;
+
+                queue.Add(
+                    neighbor);
+            }
+        }
+    }
+
+    IEnumerable<int> DiscoverRemoteControllers(
+        ScanSnapshot snapshot)
+    {
+        for (int i = 0;
+            i <
+                snapshot.Components.Count;
+            i++)
+        {
+            GridComponent component =
+                snapshot.Components[i];
+
+            if (!component
+                    .ReachableThroughConnection ||
+                component
+                    .IncludedForControl ||
+                component
+                    .ReduxProgrammableBlocks
+                    .Count == 0)
+            {
+                continue;
+            }
+
+            for (int j = 0;
+                j <
+                    component
+                        .Controllers
+                        .Count;
+                j++)
+            {
+                snapshot
+                    .RemoteControllers
+                    .Add(
+                        component
+                            .Controllers[j]);
+            }
+
+            yield return 1;
+        }
+    }
+
+    // ===== Graph helpers =====
+
+    static GridNode GetOrCreateNode(
+        Dictionary<long, GridNode> nodes,
+        IMyCubeGrid grid)
+    {
+        GridNode node;
+
+        if (!nodes.TryGetValue(
+                grid.EntityId,
+                out node))
+        {
+            node =
+                new GridNode(grid);
+
+            nodes.Add(
+                grid.EntityId,
+                node);
+        }
+
+        return node;
+    }
+
+    static void AddMechanicalEdge(
+        Dictionary<long, GridNode> nodes,
+        IMyCubeGrid gridA,
+        IMyCubeGrid gridB,
+        IMyTerminalBlock mechanism)
+    {
+        GridNode a =
+            GetOrCreateNode(
+                nodes,
+                gridA);
+
+        GridNode b =
+            GetOrCreateNode(
+                nodes,
+                gridB);
+
+        GridEdge edge =
+            new GridEdge(
+                a,
+                b,
+                mechanism);
+
+        a.MechanicalEdges.Add(
+            edge);
+
+        b.MechanicalEdges.Add(
+            edge);
+    }
+}
+partial class Program
+{
     sealed class ScanSnapshot
     {
         public readonly List<IMyTerminalBlock> Blocks =
@@ -6505,16 +10957,38 @@ partial class Program
         public readonly List<Thruster> ObservedReadOnlyThrusters =
             new List<Thruster>();
 
+        public readonly List<Thruster> LocalUnmanagedThrusters =
+            new List<Thruster>();
+
+        public readonly List<Thruster> RemoteReduxThrusters =
+            new List<Thruster>();
+
+        public readonly List<Thruster> RemoteUnmanagedThrusters =
+            new List<Thruster>();
+
+        public readonly List<Thruster> RemoteFixedReduxThrusters =
+            new List<Thruster>();
+
+        public readonly List<Rotor> RotorCandidates =
+            new List<Rotor>();
+
         public readonly List<Rotor> ControlledRotors =
             new List<Rotor>();
 
         public readonly List<VectorThrust> VectorThrusters =
             new List<VectorThrust>();
 
+        public readonly List<RemoteNacelleCapacityModel> RemoteNacelles =
+            new List<RemoteNacelleCapacityModel>();
+
+        // Kept empty by the new allocator. It survives only for status and
+        // source compatibility until the old type is fully removed.
         public readonly List<VectorThrustGroup> Groups =
             new List<VectorThrustGroup>();
 
-        public readonly List<Gyro> ControlledGyros =
+        // This list contains every non-ignored gyro Redux may temporarily
+        // control. Its Normal role may still be absent.
+        public readonly List<Gyro> Gyros =
             new List<Gyro>();
 
         public readonly List<ParkConnector> ParkConnectors =
@@ -6538,6 +11012,358 @@ partial class Program
         public GridComponent RootComponent;
     }
 
+    sealed class RemoteNacelleCapacityModel
+    {
+        readonly List<double> candidateCommandAngles =
+            new List<double>();
+
+        public readonly IMyMotorStator Rotor;
+
+        public readonly List<Thruster> Thrusters =
+            new List<Thruster>();
+
+        public RemoteNacelleCapacityModel(
+            IMyMotorStator rotor)
+        {
+            Rotor = rotor;
+        }
+
+        public Vector3D AxisWorld
+        {
+            get
+            {
+                return Rotor
+                    .WorldMatrix
+                    .Up;
+            }
+        }
+
+        public double GetMaximumProjectedCapacity(
+            Vector3D targetDirection)
+        {
+            targetDirection =
+                VectorMath.SafeNormalize(
+                    targetDirection);
+
+            if (Rotor == null ||
+                Rotor.Closed ||
+                Rotor.TopGrid == null ||
+                !Rotor.IsFunctional ||
+                targetDirection
+                    .LengthSquared() <=
+                VectorEpsilon)
+            {
+                return 0;
+            }
+
+            candidateCommandAngles.Clear();
+
+            AddCandidate(0);
+
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    Thrusters[i];
+
+                if (!IsPotentiallyUsable(
+                        thruster))
+                {
+                    continue;
+                }
+
+                double commandAngle =
+                    VectorMath.RotorCommandAngle(
+                        targetDirection,
+                        thruster
+                            .ForceDirectionWorld,
+                        AxisWorld);
+
+                AddCandidate(
+                    ClampCommandDeltaToLimits(
+                        commandAngle));
+            }
+
+            double currentAngle =
+                Rotor.Angle;
+
+            if (HasFiniteLowerLimit(
+                    Rotor.LowerLimitRad))
+            {
+                AddCandidate(
+                    Rotor.LowerLimitRad -
+                    currentAngle);
+            }
+
+            if (HasFiniteUpperLimit(
+                    Rotor.UpperLimitRad))
+            {
+                AddCandidate(
+                    Rotor.UpperLimitRad -
+                    currentAngle);
+            }
+
+            double bestCapacity = 0;
+            double bestMovement =
+                double.MaxValue;
+
+            for (int i = 0;
+                i <
+                    candidateCommandAngles.Count;
+                i++)
+            {
+                double candidate =
+                    ClampCommandDeltaToLimits(
+                        candidateCommandAngles[i]);
+
+                double capacity =
+                    EvaluateProjectedCapacity(
+                        targetDirection,
+                        candidate);
+
+                double movement =
+                    Math.Abs(candidate);
+
+                if (capacity >
+                        bestCapacity +
+                        ForceEpsilon ||
+                    Math.Abs(
+                        capacity -
+                        bestCapacity) <=
+                        ForceEpsilon &&
+                    movement <
+                        bestMovement)
+                {
+                    bestCapacity =
+                        capacity;
+
+                    bestMovement =
+                        movement;
+                }
+            }
+
+            return bestCapacity;
+        }
+
+        void AddCandidate(
+            double commandAngle)
+        {
+            commandAngle =
+                ClampCommandDeltaToLimits(
+                    commandAngle);
+
+            for (int i = 0;
+                i <
+                    candidateCommandAngles.Count;
+                i++)
+            {
+                if (Math.Abs(
+                        candidateCommandAngles[i] -
+                        commandAngle) <=
+                    AngleEpsilon)
+                {
+                    return;
+                }
+            }
+
+            candidateCommandAngles.Add(
+                commandAngle);
+        }
+
+        double EvaluateProjectedCapacity(
+            Vector3D targetDirection,
+            double commandAngle)
+        {
+            double capacity = 0;
+
+            for (int i = 0;
+                i < Thrusters.Count;
+                i++)
+            {
+                Thruster thruster =
+                    Thrusters[i];
+
+                if (!IsPotentiallyUsable(
+                        thruster))
+                {
+                    continue;
+                }
+
+                Vector3D predictedDirection =
+                    VectorMath.RotateAroundAxis(
+                        thruster
+                            .ForceDirectionWorld,
+                        AxisWorld,
+                        -commandAngle);
+
+                double alignment =
+                    Vector3D.Dot(
+                        predictedDirection,
+                        targetDirection);
+
+                if (alignment <= 0)
+                {
+                    continue;
+                }
+
+                capacity +=
+                    alignment *
+                    thruster
+                        .MaximumEffectiveThrust;
+            }
+
+            return capacity;
+        }
+
+        static bool IsPotentiallyUsable(
+            Thruster thruster)
+        {
+            if (thruster == null ||
+                thruster.IsIgnored ||
+                thruster.TheBlock == null ||
+                thruster.TheBlock.Closed ||
+                !thruster
+                    .TheBlock
+                    .IsFunctional)
+            {
+                return false;
+            }
+
+            // A connected master cannot see the remote PB's Storage map,
+            // so it cannot distinguish player-disabled from Redux-parked
+            // remote thrusters. Capacity therefore models functional
+            // potential; the slave remains the final authority.
+            return thruster
+                       .MaximumEffectiveThrust >
+                   ForceEpsilon;
+        }
+
+        double ClampCommandDeltaToLimits(
+            double rawCommandDelta)
+        {
+            rawCommandDelta =
+                VectorMath.NormalizeAngle(
+                    rawCommandDelta);
+
+            bool finiteLower =
+                HasFiniteLowerLimit(
+                    Rotor.LowerLimitRad);
+
+            bool finiteUpper =
+                HasFiniteUpperLimit(
+                    Rotor.UpperLimitRad);
+
+            if (!finiteLower &&
+                !finiteUpper)
+            {
+                return rawCommandDelta;
+            }
+
+            double currentAngle =
+                Rotor.Angle;
+
+            double bestDelta =
+                double.NaN;
+
+            double bestMagnitude =
+                double.MaxValue;
+
+            for (int turn = -2;
+                turn <= 2;
+                turn++)
+            {
+                double candidateDelta =
+                    rawCommandDelta +
+                    turn *
+                    MathHelper.TwoPi;
+
+                double candidateAngle =
+                    currentAngle +
+                    candidateDelta;
+
+                if (finiteLower &&
+                    candidateAngle <
+                        Rotor.LowerLimitRad -
+                        AngleEpsilon)
+                {
+                    continue;
+                }
+
+                if (finiteUpper &&
+                    candidateAngle >
+                        Rotor.UpperLimitRad +
+                        AngleEpsilon)
+                {
+                    continue;
+                }
+
+                double magnitude =
+                    Math.Abs(
+                        candidateDelta);
+
+                if (magnitude <
+                    bestMagnitude)
+                {
+                    bestMagnitude =
+                        magnitude;
+
+                    bestDelta =
+                        candidateDelta;
+                }
+            }
+
+            if (!double.IsNaN(
+                    bestDelta))
+            {
+                return bestDelta;
+            }
+
+            double requestedAngle =
+                currentAngle +
+                rawCommandDelta;
+
+            if (finiteLower)
+            {
+                requestedAngle =
+                    Math.Max(
+                        requestedAngle,
+                        Rotor.LowerLimitRad);
+            }
+
+            if (finiteUpper)
+            {
+                requestedAngle =
+                    Math.Min(
+                        requestedAngle,
+                        Rotor.UpperLimitRad);
+            }
+
+            return requestedAngle -
+                   currentAngle;
+        }
+
+        static bool HasFiniteLowerLimit(
+            double value)
+        {
+            return !double.IsNaN(
+                       value) &&
+                   !double.IsInfinity(
+                       value) &&
+                   value > -1e20;
+        }
+
+        static bool HasFiniteUpperLimit(
+            double value)
+        {
+            return !double.IsNaN(
+                       value) &&
+                   !double.IsInfinity(
+                       value) &&
+                   value < 1e20;
+        }
+    }
+
     readonly List<ConnectorEdge> connectorEdges =
         new List<ConnectorEdge>();
 
@@ -6550,9 +11376,16 @@ partial class Program
     readonly Dictionary<long, bool> observedLandingGearLocks =
         new Dictionary<long, bool>();
 
+    readonly List<RemoteNacelleCapacityModel> remoteNacelles =
+        new List<RemoteNacelleCapacityModel>();
+
+    readonly List<Thruster> remoteFixedReduxThrusters =
+        new List<Thruster>();
+
     void RequestRescan()
     {
-        rescanRequested = true;
+        rescanRequested =
+            true;
     }
 
     void ContinueRescan()
@@ -6564,1815 +11397,112 @@ partial class Program
                 return;
             }
 
-            rescanRequested = false;
-            scanStateMachine = ScanConstruct().GetEnumerator();
+            rescanRequested =
+                false;
+
+            scanStateMachine =
+                ScanConstruct()
+                    .GetEnumerator();
         }
 
-        int maximumInstructions = Runtime.MaxInstructionCount;
+        int maximumInstructions =
+            Runtime.MaxInstructionCount;
+
         int instructionBudget =
-            Math.Max(1000, maximumInstructions * 3 / 4);
+            Math.Max(
+                1000,
+                maximumInstructions *
+                3 /
+                4);
 
         int steps = 0;
 
-        while (scanStateMachine != null &&
-               Runtime.CurrentInstructionCount <
+        while (scanStateMachine !=
+                   null &&
+               Runtime
+                   .CurrentInstructionCount <
                    instructionBudget &&
                steps < 512)
         {
             steps++;
 
-            if (scanStateMachine.MoveNext())
+            if (scanStateMachine
+                .MoveNext())
             {
                 continue;
             }
 
             scanStateMachine.Dispose();
-            scanStateMachine = null;
+
+            scanStateMachine =
+                null;
 
             if (rescanRequested)
             {
-                rescanRequested = false;
+                rescanRequested =
+                    false;
+
                 scanStateMachine =
-                    ScanConstruct().GetEnumerator();
+                    ScanConstruct()
+                        .GetEnumerator();
             }
         }
     }
 
-    IEnumerable<int> ScanConstruct()
+    static double GetRemoteFixedProjectedCapacity(
+        List<Thruster> remoteFixedThrusters,
+        Vector3D targetDirection)
     {
-        ScanSnapshot snapshot = new ScanSnapshot();
-
-        // ===== Collect blocks =====
-
-        GridTerminalSystem.GetBlocks(snapshot.Blocks);
-
-        List<IMyBlockGroup> groups =
-            new List<IMyBlockGroup>();
-
-        GridTerminalSystem.GetBlockGroups(groups);
-
-        List<IMyTerminalBlock> groupBlocks =
-            new List<IMyTerminalBlock>();
-
-        for (int i = 0; i < groups.Count; i++)
-        {
-            IMyBlockGroup group = groups[i];
-
-            BlockTags groupTags =
-                GetTagsFromText(group.Name);
-
-            if (groupTags == BlockTags.None)
-            {
-                continue;
-            }
-
-            groupBlocks.Clear();
-            group.GetBlocks(groupBlocks);
-
-            for (int j = 0;
-                j < groupBlocks.Count;
-                j++)
-            {
-                MergeTags(
-                    snapshot.Tags,
-                    groupBlocks[j].EntityId,
-                    groupTags);
-            }
-
-            yield return 1;
-        }
-
-        for (int i = 0;
-            i < snapshot.Blocks.Count;
-            i++)
-        {
-            IMyTerminalBlock block =
-                snapshot.Blocks[i];
-
-            BlockTags directTags =
-                GetTagsFromText(block.CustomName) |
-                GetTagsFromText(block.CustomData);
-
-            MergeTags(
-                snapshot.Tags,
-                block.EntityId,
-                directTags);
-
-            GetOrCreateNode(
-                snapshot.GridNodes,
-                block.CubeGrid);
-
-            IMyShipController controller =
-                block as IMyShipController;
-
-            if (controller != null)
-            {
-                snapshot.Controllers.Add(controller);
-            }
-
-            IMyThrust thrust =
-                block as IMyThrust;
-
-            if (thrust != null)
-            {
-                snapshot.RawThrusters.Add(thrust);
-            }
-
-            IMyMotorStator rotor =
-                block as IMyMotorStator;
-
-            if (rotor != null)
-            {
-                snapshot.RawRotors.Add(rotor);
-            }
-
-            IMyPistonBase piston =
-                block as IMyPistonBase;
-
-            if (piston != null)
-            {
-                snapshot.RawPistons.Add(piston);
-            }
-
-            IMyGyro gyro =
-                block as IMyGyro;
-
-            if (gyro != null)
-            {
-                snapshot.RawGyros.Add(gyro);
-            }
-
-            IMyShipConnector connector =
-                block as IMyShipConnector;
-
-            if (connector != null)
-            {
-                snapshot.RawConnectors.Add(connector);
-            }
-
-            IMyLandingGear landingGear =
-                block as IMyLandingGear;
-
-            if (landingGear != null)
-            {
-                snapshot.RawLandingGears.Add(
-                    landingGear);
-            }
-
-            IMyTimerBlock timer =
-                block as IMyTimerBlock;
-
-            if (timer != null)
-            {
-                snapshot.RawTimers.Add(timer);
-            }
-
-            IMyProgrammableBlock programmableBlock =
-                block as IMyProgrammableBlock;
-
-            if (programmableBlock != null)
-            {
-                snapshot.RawProgrammableBlocks.Add(
-                    programmableBlock);
-            }
-
-            yield return 1;
-        }
-
-        GridNode rootNode =
-            GetOrCreateNode(
-                snapshot.GridNodes,
-                Me.CubeGrid);
-
-        // ===== Mechanical graph =====
-
-        for (int i = 0;
-            i < snapshot.RawRotors.Count;
-            i++)
-        {
-            IMyMotorStator rotor =
-                snapshot.RawRotors[i];
-
-            if (rotor.TopGrid == null)
-            {
-                continue;
-            }
-
-            AddMechanicalEdge(
-                snapshot.GridNodes,
-                rotor.CubeGrid,
-                rotor.TopGrid,
-                rotor);
-
-            yield return 1;
-        }
-
-        for (int i = 0;
-            i < snapshot.RawPistons.Count;
-            i++)
-        {
-            IMyPistonBase piston =
-                snapshot.RawPistons[i];
-
-            if (piston.TopGrid == null)
-            {
-                continue;
-            }
-
-            AddMechanicalEdge(
-                snapshot.GridNodes,
-                piston.CubeGrid,
-                piston.TopGrid,
-                piston);
-
-            yield return 1;
-        }
-
-        // Connector counterpart grids may not otherwise contain a block
-        // visible during the first pass.
-        for (int i = 0;
-            i < snapshot.RawConnectors.Count;
-            i++)
-        {
-            IMyShipConnector other =
-                snapshot.RawConnectors[i]
-                    .OtherConnector;
-
-            if (other != null)
-            {
-                GetOrCreateNode(
-                    snapshot.GridNodes,
-                    other.CubeGrid);
-            }
-
-            yield return 1;
-        }
-
-        BuildMechanicalComponents(snapshot);
-
-        // ===== Component metadata =====
-
-        for (int i = 0;
-            i < snapshot.Controllers.Count;
-            i++)
-        {
-            IMyShipController controller =
-                snapshot.Controllers[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    controller.CubeGrid.EntityId,
-                    out node))
-            {
-                continue;
-            }
-
-            node.Component.Controllers.Add(controller);
-
-            if (controller.CubeGrid == Me.CubeGrid)
-            {
-                snapshot.LocalControllers.Add(
-                    controller);
-            }
-
-            yield return 1;
-        }
-
-        for (int i = 0;
-            i < snapshot.RawProgrammableBlocks.Count;
-            i++)
-        {
-            IMyProgrammableBlock programmableBlock =
-                snapshot.RawProgrammableBlocks[i];
-
-            if (!IsReduxProgrammableBlock(
-                    programmableBlock))
-            {
-                continue;
-            }
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    programmableBlock
-                        .CubeGrid.EntityId,
-                    out node))
-            {
-                continue;
-            }
-
-            node.Component
-                .ReduxProgrammableBlocks
-                .Add(programmableBlock);
-
-            if (ReadReduxCanSlave(
-                    programmableBlock))
-            {
-                node.Component
-                    .HasSlaveCapableRedux = true;
-            }
-
-            yield return 1;
-        }
-
-        // ===== Connector graph =====
-
-        HashSet<long> connectorPairs =
-            new HashSet<long>();
-
-        for (int i = 0;
-            i < snapshot.RawConnectors.Count;
-            i++)
-        {
-            IMyShipConnector connector =
-                snapshot.RawConnectors[i];
-
-            IMyShipConnector other =
-                connector.OtherConnector;
-
-            if (other == null)
-            {
-                continue;
-            }
-
-            long smaller = Math.Min(
-                connector.EntityId,
-                other.EntityId);
-
-            long larger = Math.Max(
-                connector.EntityId,
-                other.EntityId);
-
-            // Entity IDs are positive in normal game operation. This hash
-            // is only for de-duplicating both ends of the same connector
-            // pair during one scan.
-            long pairKey =
-                unchecked(smaller * 397L ^ larger);
-
-            if (!connectorPairs.Add(pairKey))
-            {
-                continue;
-            }
-
-            GridNode nodeA;
-            GridNode nodeB;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    connector.CubeGrid.EntityId,
-                    out nodeA) ||
-                !snapshot.GridNodes.TryGetValue(
-                    other.CubeGrid.EntityId,
-                    out nodeB))
-            {
-                continue;
-            }
-
-            snapshot.ConnectorEdges.Add(
-                new ConnectorEdge
-                {
-                    A = connector,
-                    B = other,
-                    NodeA = nodeA,
-                    NodeB = nodeB
-                });
-
-            yield return 1;
-        }
-
-        snapshot.RootComponent =
-            rootNode.Component;
-
-        MarkConnectedReachability(snapshot);
-        IncludeControlledComponents(
-            snapshot,
-            rootNode);
-
-        // ===== Remote heartbeat controllers =====
-
-        for (int i = 0;
-            i < snapshot.Components.Count;
-            i++)
-        {
-            GridComponent component =
-                snapshot.Components[i];
-
-            if (!component
-                    .ReachableThroughConnection ||
-                component.IncludedForControl ||
-                component
-                    .ReduxProgrammableBlocks.Count == 0)
-            {
-                continue;
-            }
-
-            for (int j = 0;
-                j < component.Controllers.Count;
-                j++)
-            {
-                snapshot.RemoteControllers.Add(
-                    component.Controllers[j]);
-            }
-
-            yield return 1;
-        }
-
-        // ===== Rotor wrappers =====
-
-        Dictionary<long, Rotor> rotorByEntityId =
-            new Dictionary<long, Rotor>();
-
-        for (int i = 0;
-            i < snapshot.RawRotors.Count;
-            i++)
-        {
-            IMyMotorStator block =
-                snapshot.RawRotors[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    block.CubeGrid.EntityId,
-                    out node) ||
-                !node.IncludedForControl)
-            {
-                continue;
-            }
-
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    block.EntityId);
-
-            bool controlled =
-                CanControlGeneralBlock(tags);
-
-            Rotor rotor = new Rotor(
-                block,
-                this,
-                tags,
-                controlled);
-
-            rotorByEntityId.Add(
-                block.EntityId,
-                rotor);
-
-            if (controlled)
-            {
-                snapshot.ControlledRotors.Add(
-                    rotor);
-            }
-
-            yield return 1;
-        }
-
-        Dictionary<long, VectorThrust> nacelleByRotor =
-            new Dictionary<long, VectorThrust>();
-
-        // ===== Thruster authority and nacelles =====
-
-        for (int i = 0;
-            i < snapshot.RawThrusters.Count;
-            i++)
-        {
-            IMyThrust block =
-                snapshot.RawThrusters[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    block.CubeGrid.EntityId,
-                    out node))
-            {
-                continue;
-            }
-
-            bool physicallyRelevant =
-                node.IncludedForControl ||
-                node.Component
-                    .ReachableThroughConnection;
-
-            if (!physicallyRelevant)
-            {
-                continue;
-            }
-
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    block.EntityId);
-
-            Rotor nearestMovableRotor =
-                FindNearestMovableRotor(
-                    node,
-                    rotorByEntityId);
-
-            bool onMechanicalSubgrid =
-                node.IncludedForControl &&
-                node.Depth > 0;
-
-            bool controlled =
-                CanControlThruster(
-                    tags,
-                    node.IncludedForControl,
-                    onMechanicalSubgrid,
-                    nearestMovableRotor);
-
-            Thruster thruster = new Thruster(
-                block,
-                this,
-                tags,
-                controlled);
-
-            snapshot.Thrusters.Add(thruster);
-
-            if (!controlled)
-            {
-                snapshot
-                    .ObservedReadOnlyThrusters
-                    .Add(thruster);
-
-                yield return 1;
-                continue;
-            }
-
-            snapshot.ControlledThrusters.Add(
-                thruster);
-
-            if (nearestMovableRotor == null ||
-                !nearestMovableRotor.Controlled)
-            {
-                snapshot
-                    .FixedControlledThrusters
-                    .Add(thruster);
-
-                yield return 1;
-                continue;
-            }
-
-            VectorThrust nacelle;
-
-            if (!nacelleByRotor.TryGetValue(
-                    nearestMovableRotor.EntityId,
-                    out nacelle))
-            {
-                nacelle = new VectorThrust(
-                    nearestMovableRotor,
-                    this);
-
-                nacelleByRotor.Add(
-                    nearestMovableRotor.EntityId,
-                    nacelle);
-
-                snapshot.VectorThrusters.Add(
-                    nacelle);
-            }
-
-            thruster.Nacelle = nacelle;
-            nacelle.Thrusters.Add(thruster);
-
-            AddNacelleBranchGrids(
-                nacelle,
-                node,
-                nearestMovableRotor);
-
-            yield return 1;
-        }
-
-        // A Redux-owned rotor without an assigned nacelle must not retain
-        // a velocity left behind by an earlier topology.
-        for (int i = 0;
-            i < snapshot.ControlledRotors.Count;
-            i++)
-        {
-            Rotor rotor =
-                snapshot.ControlledRotors[i];
-
-            if (rotor.Nacelle == null &&
-                Math.Abs(
-                    rotor.TheBlock
-                        .TargetVelocityRad) >
-                    JointWriteDeadbandRad)
-            {
-                rotor.TheBlock
-                    .TargetVelocityRad = 0;
-            }
-
-            yield return 1;
-        }
-
-        for (int i = 0;
-            i < snapshot.VectorThrusters.Count;
-            i++)
-        {
-            snapshot.VectorThrusters[i]
-                .RefreshPrimaryDirection();
-
-            AddNacelleToGroup(
-                snapshot.Groups,
-                snapshot.VectorThrusters[i]);
-
-            yield return 1;
-        }
-
-        // ===== Gyro authority =====
-
-        for (int i = 0;
-            i < snapshot.RawGyros.Count;
-            i++)
-        {
-            IMyGyro block =
-                snapshot.RawGyros[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    block.CubeGrid.EntityId,
-                    out node) ||
-                !node.IncludedForControl ||
-                !IsSupportedGyro(block))
-            {
-                continue;
-            }
-
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    block.EntityId);
-
-            bool controlled =
-                CanControlGyro(
-                    tags,
-                    node.Depth > 0);
-
-            if (!controlled)
-            {
-                continue;
-            }
-
-            snapshot.ControlledGyros.Add(
-                new Gyro(
-                    block,
-                    this,
-                    tags,
-                    true));
-
-            yield return 1;
-        }
-
-        // ===== Parking blocks =====
-
-        for (int i = 0;
-            i < snapshot.RawConnectors.Count;
-            i++)
-        {
-            IMyShipConnector block =
-                snapshot.RawConnectors[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    block.CubeGrid.EntityId,
-                    out node) ||
-                !node.IncludedForControl)
-            {
-                continue;
-            }
-
-            snapshot.TopologyConnectors.Add(
-                block);
-
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    block.EntityId);
-
-            if (!CanReadParkingBlock(tags))
-            {
-                continue;
-            }
-
-            snapshot.ParkConnectors.Add(
-                new ParkConnector
-                {
-                    Block = block,
-                    Edge = FindConnectorEdge(
-                        snapshot.ConnectorEdges,
-                        block)
-                });
-
-            yield return 1;
-        }
-
-        for (int i = 0;
-            i < snapshot.RawLandingGears.Count;
-            i++)
-        {
-            IMyLandingGear block =
-                snapshot.RawLandingGears[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    block.CubeGrid.EntityId,
-                    out node) ||
-                !node.IncludedForControl)
-            {
-                continue;
-            }
-
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    block.EntityId);
-
-            if (!CanReadParkingBlock(tags))
-            {
-                continue;
-            }
-
-            snapshot.ParkLandingGears.Add(
-                new ParkLandingGear
-                {
-                    Block = block
-                });
-
-            yield return 1;
-        }
-
-        // ===== Local timer hooks =====
-
-        for (int i = 0;
-            i < snapshot.RawTimers.Count;
-            i++)
-        {
-            IMyTimerBlock timer =
-                snapshot.RawTimers[i];
-
-            // Requiring the PB grid prevents two docked ships with the
-            // same timer tags from setting each other's machinery off.
-            if (timer.CubeGrid != Me.CubeGrid)
-            {
-                continue;
-            }
-
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    timer.EntityId);
-
-            if ((tags & BlockTags.ParkTimer) != 0)
-            {
-                snapshot.ParkTimers.Add(timer);
-            }
-
-            if ((tags & BlockTags.UnparkTimer) != 0)
-            {
-                snapshot.UnparkTimers.Add(timer);
-            }
-
-            yield return 1;
-        }
-
-        DiscoverStatusSurfaces(snapshot);
-
-        CommitScanSnapshot(snapshot);
-
-        yield return 1;
-    }
-
-    void BuildMechanicalComponents(
-        ScanSnapshot snapshot)
-    {
-        List<GridNode> queue =
-            new List<GridNode>();
-
-        foreach (KeyValuePair<long, GridNode> pair
-            in snapshot.GridNodes)
-        {
-            GridNode seed = pair.Value;
-
-            if (seed.Component != null)
-            {
-                continue;
-            }
-
-            GridComponent component =
-                new GridComponent();
-
-            snapshot.Components.Add(component);
-
-            queue.Clear();
-            queue.Add(seed);
-            seed.Component = component;
-
-            for (int index = 0;
-                index < queue.Count;
-                index++)
-            {
-                GridNode node = queue[index];
-
-                component.Nodes.Add(node);
-
-                if (node.Grid.IsStatic)
-                {
-                    component.HasStaticGrid = true;
-                }
-
-                for (int edgeIndex = 0;
-                    edgeIndex <
-                        node.MechanicalEdges.Count;
-                    edgeIndex++)
-                {
-                    GridNode neighbor =
-                        node.MechanicalEdges[
-                            edgeIndex]
-                        .Other(node);
-
-                    if (neighbor.Component != null)
-                    {
-                        continue;
-                    }
-
-                    neighbor.Component = component;
-                    queue.Add(neighbor);
-                }
-            }
-        }
-    }
-
-    void MarkConnectedReachability(
-        ScanSnapshot snapshot)
-    {
-        GridComponent root =
-            snapshot.RootComponent;
-
-        if (root == null)
-        {
-            return;
-        }
-
-        List<GridComponent> queue =
-            new List<GridComponent>();
-
-        root.ReachableThroughConnection = true;
-        queue.Add(root);
-
-        for (int index = 0;
-            index < queue.Count;
-            index++)
-        {
-            GridComponent component =
-                queue[index];
-
-            for (int i = 0;
-                i < snapshot
-                    .ConnectorEdges.Count;
-                i++)
-            {
-                ConnectorEdge edge =
-                    snapshot.ConnectorEdges[i];
-
-                GridComponent other = null;
-
-                if (edge.NodeA.Component ==
-                    component)
-                {
-                    other = edge.NodeB.Component;
-                }
-                else if (edge.NodeB.Component ==
-                         component)
-                {
-                    other = edge.NodeA.Component;
-                }
-
-                if (other == null ||
-                    other
-                        .ReachableThroughConnection)
-                {
-                    continue;
-                }
-
-                other.ReachableThroughConnection =
-                    true;
-
-                queue.Add(other);
-            }
-        }
-    }
-
-    void IncludeControlledComponents(
-        ScanSnapshot snapshot,
-        GridNode rootNode)
-    {
-        GridComponent root =
-            snapshot.RootComponent;
-
-        if (root == null)
-        {
-            return;
-        }
-
-        root.IncludedForControl = true;
-
-        AssignComponentDepth(
-            root,
-            rootNode,
-            0);
-
-        bool addedComponent;
-
-        do
-        {
-            addedComponent = false;
-
-            for (int i = 0;
-                i < snapshot
-                    .ConnectorEdges.Count;
-                i++)
-            {
-                ConnectorEdge edge =
-                    snapshot.ConnectorEdges[i];
-
-                bool aIncluded =
-                    edge.NodeA.Component
-                        .IncludedForControl;
-
-                bool bIncluded =
-                    edge.NodeB.Component
-                        .IncludedForControl;
-
-                if (aIncluded == bIncluded)
-                {
-                    continue;
-                }
-
-                GridNode source =
-                    aIncluded
-                        ? edge.NodeA
-                        : edge.NodeB;
-
-                GridNode target =
-                    aIncluded
-                        ? edge.NodeB
-                        : edge.NodeA;
-
-                GridComponent targetComponent =
-                    target.Component;
-
-                // Another running Redux instance owns its mechanical
-                // component, whether or not it accepts slave commands.
-                if (targetComponent
-                        .ReduxProgrammableBlocks
-                        .Count > 0)
-                {
-                    continue;
-                }
-
-                if (!settings.CanMaster)
-                {
-                    continue;
-                }
-
-                targetComponent
-                    .IncludedForControl = true;
-
-                int sourceDepth =
-                    source.Depth == int.MaxValue
-                        ? 0
-                        : source.Depth;
-
-                // Connector-attached cargo without its own Redux is treated
-                // at the attachment grid's depth, not as a fictitious extra
-                // mechanical joint.
-                AssignComponentDepth(
-                    targetComponent,
-                    target,
-                    sourceDepth);
-
-                addedComponent = true;
-            }
-        }
-        while (addedComponent);
-
-        foreach (KeyValuePair<long, GridNode> pair
-            in snapshot.GridNodes)
-        {
-            pair.Value.IncludedForControl =
-                pair.Value.Component
-                    .IncludedForControl;
-        }
-    }
-
-    void AssignComponentDepth(
-        GridComponent component,
-        GridNode start,
-        int baseDepth)
-    {
-        List<GridNode> queue =
-            new List<GridNode>();
-
-        if (start.Depth > baseDepth)
-        {
-            start.Depth = baseDepth;
-            start.Parent = null;
-            start.ParentEdge = null;
-        }
-
-        queue.Add(start);
-
-        for (int index = 0;
-            index < queue.Count;
-            index++)
-        {
-            GridNode node = queue[index];
-
-            for (int i = 0;
-                i < node.MechanicalEdges.Count;
-                i++)
-            {
-                GridEdge edge =
-                    node.MechanicalEdges[i];
-
-                GridNode neighbor =
-                    edge.Other(node);
-
-                if (neighbor.Component !=
-                    component)
-                {
-                    continue;
-                }
-
-                int proposedDepth =
-                    node.Depth + 1;
-
-                if (proposedDepth >=
-                    neighbor.Depth)
-                {
-                    continue;
-                }
-
-                neighbor.Depth = proposedDepth;
-                neighbor.Parent = node;
-                neighbor.ParentEdge = edge;
-
-                queue.Add(neighbor);
-            }
-        }
-    }
-
-    Rotor FindNearestMovableRotor(
-        GridNode node,
-        Dictionary<long, Rotor> rotorByEntityId)
-    {
-        GridNode current = node;
-
-        while (current != null &&
-               current.Parent != null)
-        {
-            GridEdge edge =
-                current.ParentEdge;
-
-            IMyMotorStator stator =
-                edge != null
-                    ? edge.Mechanism
-                        as IMyMotorStator
-                    : null;
-
-            if (stator != null &&
-                stator.TopGrid ==
-                    current.Grid)
-            {
-                Rotor rotor;
-
-                if (rotorByEntityId.TryGetValue(
-                        stator.EntityId,
-                        out rotor) &&
-                    rotor.IsPhysicallyMovable)
-                {
-                    // The nearest physically movable joint defines the
-                    // one-axis nacelle. If it is ignored/unowned, Redux
-                    // treats everything beyond it as a dynamic static
-                    // source rather than reaching through it to another
-                    // joint and fighting the player.
-                    return rotor.Controlled
-                        ? rotor
-                        : null;
-                }
-            }
-
-            current = current.Parent;
-        }
-
-        return null;
-    }
-
-    void AddNacelleBranchGrids(
-        VectorThrust nacelle,
-        GridNode thrusterNode,
-        Rotor rotor)
-    {
-        GridNode current = thrusterNode;
-
-        while (current != null)
-        {
-            AddUniqueGrid(
-                nacelle.BranchGrids,
-                current.Grid);
-
-            if (current.ParentEdge != null &&
-                current.ParentEdge.Mechanism
-                    .EntityId ==
-                rotor.EntityId)
-            {
-                break;
-            }
-
-            current = current.Parent;
-        }
-    }
-
-    void AddNacelleToGroup(
-        List<VectorThrustGroup> groups,
-        VectorThrust nacelle)
-    {
-        Vector3D axis =
+        targetDirection =
             VectorMath.SafeNormalize(
-                nacelle.AxisWorld);
+                targetDirection);
+
+        if (targetDirection
+                .LengthSquared() <=
+            VectorEpsilon)
+        {
+            return 0;
+        }
+
+        double capacity = 0;
 
         for (int i = 0;
-            i < groups.Count;
+            i <
+                remoteFixedThrusters.Count;
             i++)
         {
-            Vector3D existingAxis =
-                groups[i].AxisWorld;
+            Thruster thruster =
+                remoteFixedThrusters[i];
 
-            if (Math.Abs(
-                    Vector3D.Dot(
-                        axis,
-                        existingAxis)) <
-                ParallelAxisCosine)
+            if (thruster == null ||
+                thruster.IsIgnored ||
+                thruster.TheBlock == null ||
+                thruster.TheBlock.Closed ||
+                !thruster
+                    .TheBlock
+                    .IsFunctional)
             {
                 continue;
             }
 
-            groups[i].Nacelles.Add(nacelle);
-            return;
-        }
+            double alignment =
+                Vector3D.Dot(
+                    thruster
+                        .ForceDirectionWorld,
+                    targetDirection);
 
-        VectorThrustGroup group =
-            new VectorThrustGroup();
-
-        group.Nacelles.Add(nacelle);
-        groups.Add(group);
-    }
-
-    void DiscoverStatusSurfaces(
-        ScanSnapshot snapshot)
-    {
-        HashSet<string> addedSurfaces =
-            new HashSet<string>(
-                StringComparer.Ordinal);
-
-        List<int> selectedIndices =
-            new List<int>();
-
-        for (int i = 0;
-            i < snapshot.Blocks.Count;
-            i++)
-        {
-            IMyTerminalBlock block =
-                snapshot.Blocks[i];
-
-            GridNode node;
-
-            if (!snapshot.GridNodes.TryGetValue(
-                    block.CubeGrid.EntityId,
-                    out node) ||
-                node.Component !=
-                    snapshot.RootComponent)
+            if (alignment <= 0)
             {
                 continue;
             }
 
-            BlockTags tags =
-                GetTags(
-                    snapshot.Tags,
-                    block.EntityId);
-
-            IMyTextPanel panel =
-                block as IMyTextPanel;
-
-            if (panel != null &&
-                (tags & BlockTags.Status) != 0)
-            {
-                AddStatusSurface(
-                    snapshot.StatusSurfaces,
-                    addedSurfaces,
-                    block,
-                    panel,
-                    0);
-            }
-
-            IMyTextSurfaceProvider provider =
-                block as IMyTextSurfaceProvider;
-
-            if (provider == null ||
-                provider.SurfaceCount <= 0)
-            {
-                continue;
-            }
-
-            selectedIndices.Clear();
-
-            GetSelectedSurfaceIndices(
-                block.CustomData,
-                provider.SurfaceCount,
-                selectedIndices);
-
-            if ((tags & BlockTags.Status) != 0 &&
-                selectedIndices.Count == 0)
-            {
-                selectedIndices.Add(0);
-            }
-
-            for (int index = 0;
-                index < selectedIndices.Count;
-                index++)
-            {
-                int surfaceIndex =
-                    selectedIndices[index];
-
-                AddStatusSurface(
-                    snapshot.StatusSurfaces,
-                    addedSurfaces,
-                    block,
-                    provider.GetSurface(
-                        surfaceIndex),
-                    surfaceIndex);
-            }
-        }
-    }
-
-    void CommitScanSnapshot(
-        ScanSnapshot snapshot)
-    {
-        HashSet<long> newThrusterIds =
-            new HashSet<long>();
-
-        HashSet<long> newRotorIds =
-            new HashSet<long>();
-
-        HashSet<long> newGyroIds =
-            new HashSet<long>();
-
-        for (int i = 0;
-            i < snapshot
-                .ControlledThrusters.Count;
-            i++)
-        {
-            newThrusterIds.Add(
-                snapshot.ControlledThrusters[i]
-                    .EntityId);
+            capacity +=
+                alignment *
+                thruster
+                    .MaximumEffectiveThrust;
         }
 
-        for (int i = 0;
-            i < snapshot
-                .ControlledRotors.Count;
-            i++)
-        {
-            newRotorIds.Add(
-                snapshot.ControlledRotors[i]
-                    .EntityId);
-        }
-
-        for (int i = 0;
-            i < snapshot
-                .ControlledGyros.Count;
-            i++)
-        {
-            newGyroIds.Add(
-                snapshot.ControlledGyros[i]
-                    .TheBlock.EntityId);
-        }
-
-        for (int i = 0;
-            i < controlledThrusters.Count;
-            i++)
-        {
-            Thruster oldThruster =
-                controlledThrusters[i];
-
-            if (!newThrusterIds.Contains(
-                    oldThruster.EntityId))
-            {
-                oldThruster.Release();
-                RestoreParkedThruster(
-                    oldThruster.EntityId,
-                    oldThruster.TheBlock);
-            }
-        }
-
-        for (int i = 0;
-            i < controlledRotors.Count;
-            i++)
-        {
-            Rotor oldRotor =
-                controlledRotors[i];
-
-            if (!newRotorIds.Contains(
-                    oldRotor.EntityId))
-            {
-                oldRotor.Release();
-            }
-        }
-
-        for (int i = 0;
-            i < controlledGyros.Count;
-            i++)
-        {
-            Gyro oldGyro =
-                controlledGyros[i];
-
-            if (!newGyroIds.Contains(
-                    oldGyro.TheBlock.EntityId))
-            {
-                oldGyro.Release();
-            }
-        }
-
-        ReplaceContents(
-            localControllers,
-            snapshot.LocalControllers);
-
-        ReplaceContents(
-            remotelyReachableControllers,
-            snapshot.RemoteControllers);
-
-        ReplaceContents(
-            thrusters,
-            snapshot.Thrusters);
-
-        ReplaceContents(
-            controlledThrusters,
-            snapshot.ControlledThrusters);
-
-        ReplaceContents(
-            fixedControlledThrusters,
-            snapshot.FixedControlledThrusters);
-
-        ReplaceContents(
-            observedReadOnlyThrusters,
-            snapshot.ObservedReadOnlyThrusters);
-
-        ReplaceContents(
-            controlledRotors,
-            snapshot.ControlledRotors);
-
-        ReplaceContents(
-            vectorThrusters,
-            snapshot.VectorThrusters);
-
-        ReplaceContents(
-            vectorThrustGroups,
-            snapshot.Groups);
-
-        ReplaceContents(
-            controlledGyros,
-            snapshot.ControlledGyros);
-
-        ReplaceContents(
-            parkConnectors,
-            snapshot.ParkConnectors);
-
-        ReplaceContents(
-            parkLandingGears,
-            snapshot.ParkLandingGears);
-
-        ReplaceContents(
-            connectorEdges,
-            snapshot.ConnectorEdges);
-
-        ReplaceContents(
-            topologyConnectors,
-            snapshot.TopologyConnectors);
-
-        ReplaceContents(
-            parkTimers,
-            snapshot.ParkTimers);
-
-        ReplaceContents(
-            unparkTimers,
-            snapshot.UnparkTimers);
-
-        ReplaceContents(
-            statusSurfaces,
-            snapshot.StatusSurfaces);
-
-        gridNodes.Clear();
-
-        foreach (KeyValuePair<long, GridNode> pair
-            in snapshot.GridNodes)
-        {
-            gridNodes.Add(pair.Key, pair.Value);
-        }
-
-        SelectReferenceController();
-
-        if (mode == OperatingMode.Parked)
-        {
-            EnsureNewCacheIsParked();
-        }
-
-        forceStatusRefresh = true;
-    }
-
-    BlockTags GetTagsFromText(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return BlockTags.None;
-        }
-
-        BlockTags result = BlockTags.None;
-
-        if (ContainsTag(
-                text,
-                settings.UseTag))
-        {
-            result |= BlockTags.Use;
-        }
-
-        if (ContainsTag(
-                text,
-                settings.IgnoreTag))
-        {
-            result |= BlockTags.Ignore;
-        }
-
-        if (ContainsTag(
-                text,
-                settings.StatusTag))
-        {
-            result |= BlockTags.Status;
-        }
-
-        if (ContainsTag(
-                text,
-                settings.ParkTimerTag))
-        {
-            result |= BlockTags.ParkTimer;
-        }
-
-        if (ContainsTag(
-                text,
-                settings.UnparkTimerTag))
-        {
-            result |= BlockTags.UnparkTimer;
-        }
-
-        return result;
-    }
-
-    bool CanControlGeneralBlock(
-        BlockTags tags)
-    {
-        if ((tags & BlockTags.Ignore) != 0)
-        {
-            return false;
-        }
-
-        return settings.Greedy ||
-               (tags & BlockTags.Use) != 0;
-    }
-
-    bool CanControlThruster(
-        BlockTags tags,
-        bool includedForControl,
-        bool onMechanicalSubgrid,
-        Rotor nearestMovableRotor)
-    {
-        if (!includedForControl ||
-            (tags & BlockTags.Ignore) != 0)
-        {
-            return false;
-        }
-
-        bool explicitlyUsed =
-            (tags & BlockTags.Use) != 0;
-
-        if (!settings.Greedy)
-        {
-            return explicitlyUsed;
-        }
-
-        // Main-grid normal thrusters stay with the player unless they are
-        // explicitly handed to Redux. Subgrid thrusters normally cannot
-        // be controlled by the cockpit and are therefore script-owned.
-        return explicitlyUsed ||
-               onMechanicalSubgrid ||
-               nearestMovableRotor != null;
-    }
-
-    bool CanControlGyro(
-        BlockTags tags,
-        bool onMechanicalSubgrid)
-    {
-        if ((tags & BlockTags.Ignore) != 0)
-        {
-            return false;
-        }
-
-        bool explicitlyUsed =
-            (tags & BlockTags.Use) != 0;
-
-        if (!settings.Greedy)
-        {
-            return explicitlyUsed;
-        }
-
-        // Main-grid gyros remain available to vanilla player control.
-        return explicitlyUsed ||
-               onMechanicalSubgrid;
-    }
-
-    bool CanReadParkingBlock(
-        BlockTags tags)
-    {
-        if ((tags & BlockTags.Ignore) != 0)
-        {
-            return false;
-        }
-
-        return settings.Greedy ||
-               (tags & BlockTags.Use) != 0;
-    }
-
-    bool IsSupportedGyro(IMyGyro gyro)
-    {
-        string subtype =
-            gyro.BlockDefinition.SubtypeId;
-
-        if (subtype.Equals(
-                "SmallBlockGyro",
-                StringComparison.OrdinalIgnoreCase) ||
-            subtype.Equals(
-                "LargeBlockGyro",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        // Keen has used both Gyro and Gyroscope suffixes in definition
-        // naming across content branches. Why, just why?
-        return subtype.Equals(
-                   "SmallPrototechGyro",
-                   StringComparison.OrdinalIgnoreCase) ||
-               subtype.Equals(
-                   "LargePrototechGyro",
-                   StringComparison.OrdinalIgnoreCase) ||
-               subtype.Equals(
-                   "SmallPrototechGyroscope",
-                   StringComparison.OrdinalIgnoreCase) ||
-               subtype.Equals(
-                   "LargePrototechGyroscope",
-                   StringComparison.OrdinalIgnoreCase);
-    }
-
-    bool IsReduxProgrammableBlock(
-        IMyProgrammableBlock programmableBlock)
-    {
-        if (programmableBlock == null)
-        {
-            return false;
-        }
-
-        return FindSectionStart(
-                   programmableBlock.CustomData,
-                   ConfigSection) >= 0;
-    }
-
-    bool ReadReduxCanSlave(
-        IMyProgrammableBlock programmableBlock)
-    {
-        string serialized;
-
-        if (!TryReadSectionValue(
-                programmableBlock.CustomData,
-                ConfigSection,
-                "CanSlave",
-                out serialized))
-        {
-            return true;
-        }
-
-        bool value;
-
-        return bool.TryParse(
-                   serialized,
-                   out value)
-            ? value
-            : true;
-    }
-
-    void GetSelectedSurfaceIndices(
-        string customData,
-        int surfaceCount,
-        List<int> output)
-    {
-        if (string.IsNullOrEmpty(customData))
-        {
-            return;
-        }
-
-        string[] lines = customData.Replace(
-                "\r",
-                string.Empty)
-            .Split('\n');
-
-        for (int i = 0;
-            i < lines.Length;
-            i++)
-        {
-            string line = lines[i].Trim();
-
-            if (!line.StartsWith(
-                    SurfaceSelector,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            string serializedIndex =
-                line.Substring(
-                    SurfaceSelector.Length)
-                .Trim();
-
-            int index;
-
-            if (!int.TryParse(
-                    serializedIndex,
-                    out index) ||
-                index < 0 ||
-                index >= surfaceCount ||
-                output.Contains(index))
-            {
-                continue;
-            }
-
-            output.Add(index);
-        }
-    }
-
-    static void AddStatusSurface(
-        List<StatusSurface> output,
-        HashSet<string> added,
-        IMyTerminalBlock owner,
-        IMyTextSurface surface,
-        int surfaceIndex)
-    {
-        string key =
-            owner.EntityId +
-            ":" +
-            surfaceIndex;
-
-        if (!added.Add(key))
-        {
-            return;
-        }
-
-        output.Add(
-            new StatusSurface(
-                owner,
-                surface,
-                surfaceIndex));
-    }
-
-    static void AddUniqueGrid(
-        List<IMyCubeGrid> grids,
-        IMyCubeGrid grid)
-    {
-        for (int i = 0;
-            i < grids.Count;
-            i++)
-        {
-            if (grids[i].EntityId ==
-                grid.EntityId)
-            {
-                return;
-            }
-        }
-
-        grids.Add(grid);
-    }
-
-    static ConnectorEdge FindConnectorEdge(
-        List<ConnectorEdge> edges,
-        IMyShipConnector connector)
-    {
-        for (int i = 0;
-            i < edges.Count;
-            i++)
-        {
-            if (edges[i].A.EntityId ==
-                    connector.EntityId ||
-                edges[i].B.EntityId ==
-                    connector.EntityId)
-            {
-                return edges[i];
-            }
-        }
-
-        return null;
-    }
-
-    static GridNode GetOrCreateNode(
-        Dictionary<long, GridNode> nodes,
-        IMyCubeGrid grid)
-    {
-        GridNode node;
-
-        if (!nodes.TryGetValue(
-                grid.EntityId,
-                out node))
-        {
-            node = new GridNode(grid);
-            nodes.Add(grid.EntityId, node);
-        }
-
-        return node;
-    }
-
-    static void AddMechanicalEdge(
-        Dictionary<long, GridNode> nodes,
-        IMyCubeGrid gridA,
-        IMyCubeGrid gridB,
-        IMyTerminalBlock mechanism)
-    {
-        GridNode a =
-            GetOrCreateNode(nodes, gridA);
-
-        GridNode b =
-            GetOrCreateNode(nodes, gridB);
-
-        GridEdge edge =
-            new GridEdge(a, b, mechanism);
-
-        a.MechanicalEdges.Add(edge);
-        b.MechanicalEdges.Add(edge);
-    }
-
-    static void MergeTags(
-        Dictionary<long, BlockTags> tags,
-        long entityId,
-        BlockTags additionalTags)
-    {
-        if (additionalTags ==
-            BlockTags.None)
-        {
-            return;
-        }
-
-        BlockTags existing;
-
-        tags.TryGetValue(
-            entityId,
-            out existing);
-
-        tags[entityId] =
-            existing | additionalTags;
-    }
-
-    static BlockTags GetTags(
-        Dictionary<long, BlockTags> tags,
-        long entityId)
-    {
-        BlockTags result;
-
-        return tags.TryGetValue(
-                   entityId,
-                   out result)
-            ? result
-            : BlockTags.None;
-    }
-
-    static bool ContainsTag(
-        string text,
-        string tag)
-    {
-        return !string.IsNullOrEmpty(text) &&
-               !string.IsNullOrEmpty(tag) &&
-               text.IndexOf(
-                   tag,
-                   StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    static void ReplaceContents<T>(
-        List<T> target,
-        List<T> source)
-    {
-        target.Clear();
-        target.AddRange(source);
+        return capacity;
     }
 }
 partial class Program
@@ -8744,7 +11874,7 @@ partial class Program
              ThrusterDisableReason.Park) != 0)
         {
             // Compatibility bridge for old parking code until that code
-            // is replaced in the parking tranche.
+            // is replaced.
             parkThrusterEnabledState[
                 block.EntityId] =
                 state.OriginalEnabled;
@@ -9138,6 +12268,8 @@ partial class Program
                     thruster);
             }
         }
+
+        RefreshCruiseAuthorityWarning();
     }
 
     void RefreshMainGridThrusterState()
@@ -9167,6 +12299,9 @@ partial class Program
 
     void RefreshCruiseAuthorityWarning()
     {
+        cruiseAuthorityWarning =
+            string.Empty;
+
         if (!EffectiveCruise ||
             mainGridReverseThrusters.Count ==
                 0)
@@ -9197,13 +12332,11 @@ partial class Program
 
             if (allIgnored)
             {
-                SetCommandResult(
-                    "WARNING: Cruise cannot control " +
-                    "main-grid reverse thrusters; " +
-                    "all are " +
+                cruiseAuthorityWarning =
+                    "Cruise cannot control main-grid " +
+                    "reverse thrusters; all are " +
                     settings.IgnoreTag +
-                    ".",
-                    true);
+                    ".";
             }
 
             return;
@@ -9233,13 +12366,11 @@ partial class Program
 
         if (!hasExplicitlyUsed)
         {
-            SetCommandResult(
-                "WARNING: Cruise cannot control " +
-                "main-grid reverse thrusters; " +
-                "add " +
+            cruiseAuthorityWarning =
+                "Cruise cannot control main-grid " +
+                "reverse thrusters; add " +
                 settings.UseTag +
-                ".",
-                true);
+                ".";
         }
     }
 
@@ -9274,5 +12405,1153 @@ partial class Program
         }
 
         RefreshTemporaryControlRoles();
+    }
+}
+partial class Program
+{
+    // ===== Status =====
+
+    void WriteStatus(
+        bool force)
+    {
+        echoBuilder.Clear();
+
+        echoBuilder
+            .AppendLine(
+                ScriptName)
+            .Append("v")
+            .AppendLine(
+                ScriptVersion)
+            .AppendLine();
+
+        echoBuilder
+            .Append("Mode: ")
+            .AppendLine(
+                GetModeText(
+                    mode));
+
+        echoBuilder
+            .Append("Controller: ")
+            .AppendLine(
+                referenceController !=
+                        null
+                    ? referenceController
+                        .CustomName
+                    : "NONE");
+
+        AppendMovementStateStatus(
+            echoBuilder);
+
+        echoBuilder
+            .Append("Nacelles: ")
+            .AppendLine(
+                vectorThrusters
+                    .Count
+                    .ToString());
+
+        echoBuilder
+            .Append(
+                "Controlled thrust: ")
+            .Append(
+                (availableControlledThrust /
+                 1000.0)
+                .ToString("0.##"))
+            .AppendLine(" kN");
+
+        echoBuilder
+            .Append(
+                "Capacity F/B: ")
+            .Append(
+                (localDirectionalCapacity
+                     .Forward /
+                 1000.0)
+                .ToString("0.##"))
+            .Append("/")
+            .Append(
+                (localDirectionalCapacity
+                     .Backward /
+                 1000.0)
+                .ToString("0.##"))
+            .AppendLine(" kN");
+
+        echoBuilder
+            .Append("Residual: ")
+            .Append(
+                (residualForceWorld
+                     .Length() /
+                 1000.0)
+                .ToString("0.##"))
+            .AppendLine(" kN");
+
+        echoBuilder
+            .Append("Gyros: ")
+            .AppendLine(
+                controlledGyros
+                    .Count
+                    .ToString());
+
+        if (mode ==
+            OperatingMode.Slave)
+        {
+            echoBuilder
+                .Append(
+                    "Heartbeat age: ")
+                .Append(
+                    slaveHeartbeatAgeUpdate10)
+                .AppendLine("/2");
+        }
+
+        if (!string.IsNullOrEmpty(
+                cruiseAuthorityWarning))
+        {
+            echoBuilder
+                .AppendLine()
+                .Append("WARNING: ")
+                .AppendLine(
+                    cruiseAuthorityWarning);
+        }
+
+        if (!string.IsNullOrEmpty(
+                lastCommandResult))
+        {
+            echoBuilder
+                .AppendLine()
+                .Append(
+                    lastCommandWasWarning
+                        ? "WARNING: "
+                        : "Command: ")
+                .AppendLine(
+                    lastCommandResult);
+        }
+
+        echoBuilder
+            .Append("Runtime: ")
+            .Append(
+                Runtime
+                    .LastRunTimeMs
+                    .ToString("0.###"))
+            .Append(" ms | avg ")
+            .Append(
+                runtimeTracker
+                    .AverageRuntime
+                    .ToString("0.###"))
+            .Append(" | max ")
+            .AppendLine(
+                runtimeTracker
+                    .MaximumRuntime
+                    .ToString("0.###"));
+
+        echoBuilder
+            .Append("Instructions: ")
+            .Append(
+                Runtime
+                    .CurrentInstructionCount)
+            .Append("/")
+            .AppendLine(
+                Runtime
+                    .MaxInstructionCount
+                    .ToString());
+
+        Echo(
+            echoBuilder.ToString());
+
+        if (!force &&
+            statusSurfaces.Count == 0)
+        {
+            return;
+        }
+
+        statusBuilder.Clear();
+
+        statusBuilder
+            .AppendLine(
+                "VECTOR THRUST REDUX")
+            .Append("MODE  ")
+            .AppendLine(
+                GetModeText(mode)
+                    .ToUpperInvariant());
+
+        AppendCompactMovementStateStatus(
+            statusBuilder);
+
+        statusBuilder
+            .Append("VECTORS ")
+            .AppendLine(
+                vectorThrusters
+                    .Count
+                    .ToString())
+            .Append("THRUST ")
+            .Append(
+                (availableControlledThrust /
+                 1000.0)
+                .ToString("0.0"))
+            .AppendLine(" kN")
+            .Append("ERROR ")
+            .Append(
+                (residualForceWorld
+                     .Length() /
+                 1000.0)
+                .ToString("0.0"))
+            .AppendLine(" kN");
+
+        if (!string.IsNullOrEmpty(
+                cruiseAuthorityWarning))
+        {
+            statusBuilder
+                .Append("WARN ")
+                .AppendLine(
+                    cruiseAuthorityWarning);
+        }
+            
+        if (!string.IsNullOrEmpty(
+                lastCommandResult))
+        {
+            statusBuilder
+                .Append(
+                    lastCommandWasWarning
+                        ? "WARN "
+                        : "CMD  ")
+                .AppendLine(
+                    lastCommandResult);
+        }
+
+        string status =
+            statusBuilder.ToString();
+
+        for (int i = 0;
+            i < statusSurfaces.Count;
+            i++)
+        {
+            statusSurfaces[i]
+                .Write(status);
+        }
+    }
+
+    void AppendMovementStateStatus(
+        StringBuilder builder)
+    {
+        if (mode !=
+            OperatingMode.Slave)
+        {
+            builder
+                .Append("Dampeners: ")
+                .AppendLine(
+                    scriptDampeners
+                        ? "ON"
+                        : "OFF");
+
+            builder
+                .Append("Cruise: ")
+                .Append(
+                    cruise
+                        ? "ON"
+                        : "OFF");
+
+            if (cruiseTargetInitialized)
+            {
+                builder
+                    .Append(" @ ")
+                    .Append(
+                        cruiseTargetSpeed
+                            .ToString(
+                                "0.###"))
+                    .Append(" m/s");
+            }
+
+            builder.AppendLine();
+
+            AppendLocalGearStatus(
+                builder);
+
+            return;
+        }
+
+        builder
+            .Append("Dampeners: local ")
+            .Append(
+                scriptDampeners
+                    ? "ON"
+                    : "OFF")
+            .Append(" | master ")
+            .Append(
+                activeSlaveCommand
+                    .Dampeners
+                    ? "ON"
+                    : "OFF")
+            .Append(" | effective ")
+            .AppendLine(
+                EffectiveDampeners
+                    ? "ON"
+                    : "OFF");
+
+        builder
+            .Append("Cruise: local ")
+            .Append(
+                cruise
+                    ? "ON"
+                    : "OFF");
+
+        if (cruiseTargetInitialized)
+        {
+            builder
+                .Append(" @ ")
+                .Append(
+                    cruiseTargetSpeed
+                        .ToString("0.###"));
+        }
+
+        builder
+            .Append(" | master ")
+            .Append(
+                activeSlaveCommand
+                    .Cruise
+                    ? "ON"
+                    : "OFF")
+            .Append(" @ ")
+            .Append(
+                activeSlaveCommand
+                    .CruiseTargetSpeed
+                    .ToString("0.###"))
+            .AppendLine(" m/s");
+
+        builder
+            .Append("Gear: local ")
+            .Append(
+                selectedGear + 1)
+            .Append("/")
+            .Append(
+                settings
+                    .GearFractions
+                    .Count)
+            .Append(" | master ")
+            .Append(
+                activeSlaveCommand
+                    .GearIndex +
+                1)
+            .Append("/")
+            .Append(
+                activeSlaveCommand
+                    .GearCount)
+            .Append(" (")
+            .Append(
+                (activeSlaveCommand
+                     .GearFraction *
+                 100)
+                .ToString("0.##"))
+            .AppendLine("%)");
+    }
+
+    void AppendCompactMovementStateStatus(
+        StringBuilder builder)
+    {
+        if (mode !=
+            OperatingMode.Slave)
+        {
+            builder
+                .Append("DAMP  ")
+                .AppendLine(
+                    scriptDampeners
+                        ? "ON"
+                        : "OFF")
+                .Append("CRUISE ")
+                .Append(
+                    cruise
+                        ? "ON"
+                        : "OFF");
+
+            if (cruiseTargetInitialized)
+            {
+                builder
+                    .Append(" ")
+                    .Append(
+                        cruiseTargetSpeed
+                            .ToString("0.##"))
+                    .Append("m/s");
+            }
+
+            builder
+                .AppendLine()
+                .Append("GEAR  ")
+                .Append(
+                    selectedGear + 1)
+                .Append("/")
+                .AppendLine(
+                    settings
+                        .GearFractions
+                        .Count
+                        .ToString());
+
+            return;
+        }
+
+        builder
+            .Append("DAMP  L:")
+            .Append(
+                scriptDampeners
+                    ? "ON"
+                    : "OFF")
+            .Append(" M:")
+            .AppendLine(
+                activeSlaveCommand
+                        .Dampeners
+                    ? "ON"
+                    : "OFF")
+            .Append("CRUISE L:")
+            .Append(
+                cruise
+                    ? "ON"
+                    : "OFF")
+            .Append(" M:")
+            .Append(
+                activeSlaveCommand
+                        .Cruise
+                    ? "ON"
+                    : "OFF")
+            .Append(" ")
+            .Append(
+                activeSlaveCommand
+                    .CruiseTargetSpeed
+                    .ToString("0.##"))
+            .AppendLine("m/s")
+            .Append("GEAR  L:")
+            .Append(
+                selectedGear + 1)
+            .Append("/")
+            .Append(
+                settings
+                    .GearFractions
+                    .Count)
+            .Append(" M:")
+            .Append(
+                activeSlaveCommand
+                    .GearIndex +
+                1)
+            .Append("/")
+            .AppendLine(
+                activeSlaveCommand
+                    .GearCount
+                    .ToString());
+    }
+
+    void AppendLocalGearStatus(
+        StringBuilder builder)
+    {
+        int gearCount =
+            settings
+                .GearFractions
+                .Count;
+
+        int clampedGear =
+            gearCount > 0
+                ? MathHelper.Clamp(
+                    selectedGear,
+                    0,
+                    gearCount - 1)
+                : 0;
+
+        double percentage =
+            gearCount > 0
+                ? settings
+                    .GearFractions[
+                        clampedGear] *
+                  100
+                : 0;
+
+        builder
+            .Append("Gear: ")
+            .Append(
+                clampedGear + 1)
+            .Append("/")
+            .Append(
+                gearCount)
+            .Append(" (")
+            .Append(
+                percentage
+                    .ToString("0.##"))
+            .AppendLine("%)");
+    }
+}
+partial class Program
+{
+    readonly List<IMyTerminalBlock> topologyFingerprintBlocks =
+        new List<IMyTerminalBlock>();
+
+    readonly List<IMyBlockGroup> topologyFingerprintGroups =
+        new List<IMyBlockGroup>();
+
+    readonly List<IMyTerminalBlock> topologyFingerprintGroupBlocks =
+        new List<IMyTerminalBlock>();
+
+    // ===== Lightweight topology fingerprint =====
+
+    void CheckTopologyFingerprint()
+    {
+        TopologyFingerprint fingerprint =
+            CalculateTopologyFingerprint();
+
+        if (!topologyFingerprintInitialized)
+        {
+            lastTopologyFingerprint =
+                fingerprint;
+
+            topologyFingerprintInitialized =
+                true;
+
+            // Startup already requests a deep scan. Do not immediately
+            // request the same scan twice.
+            return;
+        }
+
+        if (fingerprint ==
+            lastTopologyFingerprint)
+        {
+            return;
+        }
+
+        lastTopologyFingerprint =
+            fingerprint;
+
+        RequestRescan();
+    }
+
+    TopologyFingerprint CalculateTopologyFingerprint()
+    {
+        TopologyFingerprint fingerprint =
+            new TopologyFingerprint();
+
+        topologyFingerprintBlocks.Clear();
+
+        GridTerminalSystem.GetBlocks(
+            topologyFingerprintBlocks);
+
+        for (int i = 0;
+            i <
+                topologyFingerprintBlocks
+                    .Count;
+            i++)
+        {
+            IMyTerminalBlock block =
+                topologyFingerprintBlocks[i];
+
+            int type =
+                GetTopologyTypeDiscriminator(
+                    block);
+
+            if (type == 0)
+            {
+                continue;
+            }
+
+            ulong entryHash =
+                TopologyHashOffset;
+
+            entryHash =
+                MixTopologyHash(
+                    entryHash,
+                    unchecked(
+                        (ulong)
+                            block.EntityId));
+
+            entryHash =
+                MixTopologyHash(
+                    entryHash,
+                    unchecked(
+                        (ulong)
+                            block
+                                .CubeGrid
+                                .EntityId));
+
+            entryHash =
+                MixTopologyHash(
+                    entryHash,
+                    unchecked(
+                        (ulong)type));
+
+            entryHash =
+                MixTopologyHash(
+                    entryHash,
+                    block
+                        .CubeGrid
+                        .IsStatic
+                        ? 1UL
+                        : 0UL);
+
+            BlockTags tags =
+                GetTagsFromText(
+                    block.CustomName) |
+                GetTagsFromText(
+                    block.CustomData);
+
+            entryHash =
+                MixTopologyHash(
+                    entryHash,
+                    unchecked(
+                        (ulong)(int)tags));
+
+            IMyMotorStator rotor =
+                block as
+                    IMyMotorStator;
+
+            if (rotor != null)
+            {
+                entryHash =
+                    MixTopologyHash(
+                        entryHash,
+                        rotor.TopGrid !=
+                                null
+                            ? unchecked(
+                                (ulong)
+                                    rotor
+                                        .TopGrid
+                                        .EntityId)
+                            : 0UL);
+
+                entryHash =
+                    MixTopologyHash(
+                        entryHash,
+                        GetStableDoubleHash(
+                            rotor
+                                .LowerLimitRad));
+
+                entryHash =
+                    MixTopologyHash(
+                        entryHash,
+                        GetStableDoubleHash(
+                            rotor
+                                .UpperLimitRad));
+            }
+
+            IMyPistonBase piston =
+                block as
+                    IMyPistonBase;
+
+            if (piston != null)
+            {
+                entryHash =
+                    MixTopologyHash(
+                        entryHash,
+                        piston.TopGrid !=
+                                null
+                            ? unchecked(
+                                (ulong)
+                                    piston
+                                        .TopGrid
+                                        .EntityId)
+                            : 0UL);
+            }
+
+            IMyShipConnector connector =
+                block as
+                    IMyShipConnector;
+
+            if (connector != null)
+            {
+                entryHash =
+                    MixTopologyHash(
+                        entryHash,
+                        connector
+                                .OtherConnector !=
+                            null
+                            ? unchecked(
+                                (ulong)
+                                    connector
+                                        .OtherConnector
+                                        .EntityId)
+                            : 0UL);
+            }
+
+            IMyProgrammableBlock programmableBlock =
+                block as
+                    IMyProgrammableBlock;
+
+            if (programmableBlock !=
+                null)
+            {
+                bool redux =
+                    IsReduxProgrammableBlock(
+                        programmableBlock);
+
+                entryHash =
+                    MixTopologyHash(
+                        entryHash,
+                        redux
+                            ? 1UL
+                            : 0UL);
+
+                if (redux)
+                {
+                    entryHash =
+                        MixTopologyHash(
+                            entryHash,
+                            ReadReduxCanSlave(
+                                programmableBlock)
+                                ? 1UL
+                                : 0UL);
+
+                    entryHash =
+                        MixTopologyHash(
+                            entryHash,
+                            ReadReduxGreedy(
+                                programmableBlock)
+                                ? 1UL
+                                : 0UL);
+                }
+            }
+
+            AddTopologyEntry(
+                ref fingerprint,
+                entryHash,
+                block.EntityId);
+        }
+
+        AddGroupTopologyFingerprint(
+            ref fingerprint);
+
+        return fingerprint;
+    }
+
+    void AddGroupTopologyFingerprint(
+        ref TopologyFingerprint fingerprint)
+    {
+        topologyFingerprintGroups.Clear();
+
+        GridTerminalSystem.GetBlockGroups(
+            topologyFingerprintGroups);
+
+        for (int i = 0;
+            i <
+                topologyFingerprintGroups
+                    .Count;
+            i++)
+        {
+            IMyBlockGroup group =
+                topologyFingerprintGroups[i];
+
+            BlockTags groupTags =
+                GetTagsFromText(
+                    group.Name);
+
+            // Untagged groups cannot alter Redux discovery authority.
+            if (groupTags ==
+                BlockTags.None)
+            {
+                continue;
+            }
+
+            topologyFingerprintGroupBlocks.Clear();
+
+            group.GetBlocks(
+                topologyFingerprintGroupBlocks);
+
+            ulong groupHash =
+                TopologyHashOffset;
+
+            groupHash =
+                MixTopologyHash(
+                    groupHash,
+                    HashStableText(
+                        group.Name));
+
+            groupHash =
+                MixTopologyHash(
+                    groupHash,
+                    unchecked(
+                        (ulong)
+                            (int)groupTags));
+
+            ulong memberXor = 0;
+            ulong memberSum = 0;
+
+            for (int j = 0;
+                j <
+                    topologyFingerprintGroupBlocks
+                        .Count;
+                j++)
+            {
+                ulong member =
+                    MixTopologyHash(
+                        TopologyHashOffset,
+                        unchecked(
+                            (ulong)
+                                topologyFingerprintGroupBlocks[j]
+                                    .EntityId));
+
+                memberXor ^=
+                    RotateLeft(
+                        member,
+                        (int)(
+                            topologyFingerprintGroupBlocks[j]
+                                .EntityId &
+                            63));
+
+                memberSum +=
+                    member *
+                    TopologyHashPrime;
+            }
+
+            groupHash =
+                MixTopologyHash(
+                    groupHash,
+                    memberXor);
+
+            groupHash =
+                MixTopologyHash(
+                    groupHash,
+                    memberSum);
+
+            long stableGroupIdentity =
+                unchecked(
+                    (long)
+                        HashStableText(
+                            group.Name));
+
+            AddTopologyEntry(
+                ref fingerprint,
+                groupHash,
+                stableGroupIdentity);
+        }
+    }
+
+    static void AddTopologyEntry(
+        ref TopologyFingerprint fingerprint,
+        ulong entryHash,
+        long identity)
+    {
+        fingerprint.Count++;
+
+        fingerprint.Xor ^=
+            RotateLeft(
+                entryHash,
+                (int)(identity & 63));
+
+        fingerprint.Sum +=
+            entryHash *
+            TopologyHashPrime;
+    }
+
+    static int GetTopologyTypeDiscriminator(
+        IMyTerminalBlock block)
+    {
+        if (block is
+            IMyMotorStator)
+        {
+            return 1;
+        }
+
+        if (block is
+            IMyPistonBase)
+        {
+            return 2;
+        }
+
+        if (block is
+            IMyThrust)
+        {
+            return 3;
+        }
+
+        if (block is
+            IMyGyro)
+        {
+            return 4;
+        }
+
+        if (block is
+            IMyShipController)
+        {
+            return 5;
+        }
+
+        if (block is
+            IMyShipConnector)
+        {
+            return 6;
+        }
+
+        if (block is
+            IMyLandingGear)
+        {
+            return 7;
+        }
+
+        if (block is
+            IMyProgrammableBlock)
+        {
+            return 8;
+        }
+
+        if (block is
+            IMyTimerBlock)
+        {
+            return 9;
+        }
+
+        if (block is
+                IMyTextPanel ||
+            block is
+                IMyTextSurfaceProvider)
+        {
+            return 10;
+        }
+
+        return 0;
+    }
+
+    static ulong GetStableDoubleHash(
+        double value)
+    {
+        if (double.IsNaN(value))
+        {
+            return ulong.MaxValue;
+        }
+
+        if (double.IsPositiveInfinity(
+                value))
+        {
+            return ulong.MaxValue -
+                1;
+        }
+
+        if (double.IsNegativeInfinity(
+                value))
+        {
+            return ulong.MaxValue -
+                2;
+        }
+
+        return unchecked(
+            (ulong)(uint)
+                value.GetHashCode());
+    }
+
+    static ulong HashStableText(
+        string text)
+    {
+        ulong hash =
+            TopologyHashOffset;
+
+        if (string.IsNullOrEmpty(
+                text))
+        {
+            return hash;
+        }
+
+        for (int i = 0;
+            i < text.Length;
+            i++)
+        {
+            char character =
+                char.ToUpperInvariant(
+                    text[i]);
+
+            hash ^=
+                character;
+
+            hash *=
+                TopologyHashPrime;
+        }
+
+        return hash;
+    }
+
+    static ulong MixTopologyHash(
+        ulong hash,
+        ulong value)
+    {
+        hash ^=
+            value;
+
+        hash *=
+            TopologyHashPrime;
+
+        hash ^=
+            value >> 32;
+
+        hash *=
+            TopologyHashPrime;
+
+        return hash;
+    }
+
+    static ulong RotateLeft(
+        ulong value,
+        int count)
+    {
+        count &=
+            63;
+
+        if (count == 0)
+        {
+            return value;
+        }
+
+        return value << count |
+               value >>
+               (64 - count);
+    }
+
+    const ulong TopologyHashOffset =
+        14695981039346656037UL;
+
+    const ulong TopologyHashPrime =
+        1099511628211UL;
+
+    // ===== Fast known-topology checks =====
+
+    void DetectTopologyChanges()
+    {
+        HashSet<long> seenConnectors =
+            new HashSet<long>();
+
+        for (int i = 0;
+            i < topologyConnectors.Count;
+            i++)
+        {
+            IMyShipConnector connector =
+                topologyConnectors[i];
+
+            if (connector == null ||
+                connector.Closed)
+            {
+                continue;
+            }
+
+            long targetId =
+                connector
+                        .OtherConnector !=
+                    null
+                    ? connector
+                        .OtherConnector
+                        .EntityId
+                    : 0;
+
+            long previousTarget;
+
+            if (!observedConnectorTargets
+                    .TryGetValue(
+                        connector.EntityId,
+                        out previousTarget) ||
+                previousTarget !=
+                    targetId)
+            {
+                observedConnectorTargets[
+                    connector.EntityId] =
+                    targetId;
+
+                RequestRescan();
+            }
+
+            seenConnectors.Add(
+                connector.EntityId);
+        }
+
+        RemoveUnseenConnectorObservations(
+            seenConnectors);
+
+        HashSet<long> seenLandingGears =
+            new HashSet<long>();
+
+        for (int i = 0;
+            i < parkLandingGears.Count;
+            i++)
+        {
+            IMyLandingGear gear =
+                parkLandingGears[i]
+                    .Block;
+
+            if (gear == null ||
+                gear.Closed)
+            {
+                continue;
+            }
+
+            bool previous;
+
+            if (!observedLandingGearLocks
+                    .TryGetValue(
+                        gear.EntityId,
+                        out previous) ||
+                previous !=
+                    gear.IsLocked)
+            {
+                observedLandingGearLocks[
+                    gear.EntityId] =
+                    gear.IsLocked;
+
+                RequestRescan();
+            }
+
+            seenLandingGears.Add(
+                gear.EntityId);
+        }
+
+        RemoveUnseenLandingGearObservations(
+            seenLandingGears);
+    }
+
+    void RemoveUnseenConnectorObservations(
+        HashSet<long> seen)
+    {
+        if (observedConnectorTargets.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> removed =
+            new List<long>();
+
+        foreach (
+            KeyValuePair<long, long> pair
+            in observedConnectorTargets)
+        {
+            if (!seen.Contains(
+                    pair.Key))
+            {
+                removed.Add(
+                    pair.Key);
+            }
+        }
+
+        for (int i = 0;
+            i < removed.Count;
+            i++)
+        {
+            observedConnectorTargets.Remove(
+                removed[i]);
+        }
+    }
+
+    void RemoveUnseenLandingGearObservations(
+        HashSet<long> seen)
+    {
+        if (observedLandingGearLocks.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> removed =
+            new List<long>();
+
+        foreach (
+            KeyValuePair<long, bool> pair
+            in observedLandingGearLocks)
+        {
+            if (!seen.Contains(
+                    pair.Key))
+            {
+                removed.Add(
+                    pair.Key);
+            }
+        }
+
+        for (int i = 0;
+            i < removed.Count;
+            i++)
+        {
+            observedLandingGearLocks.Remove(
+                removed[i]);
+        }
     }
 }

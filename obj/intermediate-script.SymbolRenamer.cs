@@ -1473,7 +1473,8 @@ class Program : MyGridProgram
                 g İ =
                     ĥ[Į];
 
-                if (!İ.c)
+                if (!İ.P ||
+                    !İ.c)
                 {
                     continue;
                 }
@@ -2675,40 +2676,75 @@ class Program : MyGridProgram
         }
     }
 
-    sealed class Ʈ
+    struct Ƥ :
+        IEquatable<Ƥ>
     {
-        public long Ƥ,ƥ,Ʀ;
+        public readonly long ƥ,Ʀ;
 
-        public Vector3D Ƨ;
+        public Ƥ(
+            long Ƨ,
+            long ƨ)
+        {
+            ƥ = Math.Min(
+                Ƨ,
+                ƨ);
 
-        public bool ƨ,Ɖ,Ʃ;
-        public double ƪ,ƫ;
+            Ʀ = Math.Max(
+                Ƨ,
+                ƨ);
+        }
 
-        public int Ƭ,ƭ;
+        public bool Equals(
+            Ƥ Ɨ)
+        {
+            return ƥ == Ɨ.ƥ &&
+                   Ʀ == Ɨ.Ʀ;
+        }
+
+        public override bool Equals(
+            object Ơ)
+        {
+            return Ơ is
+                       Ƥ &&
+                   Equals(
+                       (Ƥ)
+                           Ơ);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int Ʃ =
+                    (int)ƥ ^
+                    (int)(ƥ >> 32);
+
+                int ƪ =
+                    (int)Ʀ ^
+                    (int)(Ʀ >> 32);
+
+                return Ʃ * 397 ^
+                       ƪ;
+            }
+        }
+    }
+
+    sealed class Ƶ
+    {
+        public long ƫ,Ƭ,ƭ;
+
+        public Vector3D Ʈ;
+
+        public bool Ư,Ɖ,ư;
+        public double Ʊ,Ʋ;
+
+        public int Ƴ,ƴ;
 
         public void ƙ(
-            Ʈ Ɨ)
+            Ƶ Ɨ)
         {
-            Ƥ =
-                Ɨ.Ƥ;
-
-            ƥ =
-                Ɨ.ƥ;
-
-            Ʀ =
-                Ɨ.Ʀ;
-
-            Ƨ =
-                Ɨ.Ƨ;
-
-            ƨ =
-                Ɨ.ƨ;
-
-            Ɖ =
-                Ɨ.Ɖ;
-
-            ƪ =
-                Ɨ.ƪ;
+            ƫ =
+                Ɨ.ƫ;
 
             Ƭ =
                 Ɨ.Ƭ;
@@ -2716,114 +2752,132 @@ class Program : MyGridProgram
             ƭ =
                 Ɨ.ƭ;
 
-            ƫ =
-                Ɨ.ƫ;
+            Ʈ =
+                Ɨ.Ʈ;
 
-            Ʃ =
-                Ɨ.Ʃ;
+            Ư =
+                Ɨ.Ư;
+
+            Ɖ =
+                Ɨ.Ɖ;
+
+            Ʊ =
+                Ɨ.Ʊ;
+
+            Ƴ =
+                Ɨ.Ƴ;
+
+            ƴ =
+                Ɨ.ƴ;
+
+            Ʋ =
+                Ɨ.Ʋ;
+
+            ư =
+                Ɨ.ư;
         }
 
         public void ĺ()
         {
-            Ƥ = 0;
-            ƥ = 0;
-            Ʀ = 0;
-
-            Ƨ =
-                Vector3D.Zero;
-
-            ƨ = true;
-            Ɖ = false;
-            ƪ = 0;
-
+            ƫ = 0;
             Ƭ = 0;
             ƭ = 0;
-            ƫ = 0;
 
-            Ʃ = false;
+            Ʈ =
+                Vector3D.Zero;
+
+            Ư = true;
+            Ɖ = false;
+            Ʊ = 0;
+
+            Ƴ = 0;
+            ƴ = 0;
+            Ʋ = 0;
+
+            ư = false;
         }
     }
 
-    sealed class ƶ
+    sealed class ƽ
     {
         readonly Program A;
 
-        double Ư;
-        double ư,Ʊ;
-        int Ʋ;
+        double ƶ;
+        double Ʒ,Ƹ;
+        int ƹ;
 
-        public double Ƴ
+        public double ƺ
         {
             get
             {
-                return Ư;
+                return ƶ;
             }
         }
 
-        public double ƴ
+        public double ƻ
         {
             get
             {
-                return ư;
+                return Ʒ;
             }
         }
 
-        public double Ƶ
+        public double Ƽ
         {
             get
             {
-                return Ʊ;
+                return Ƹ;
             }
         }
 
-        public ƶ(
+        public ƽ(
             Program A)
         {
             this.A = A;
         }
 
-        public void Ʒ()
+        public void ƾ()
         {
-            Ʊ =
+            Ƹ =
                 A.Runtime
                     .LastRunTimeMs;
         }
 
-        public void ƹ()
+        public void ǀ()
         {
-            double Ƹ =
+            double ƿ =
                 A.Runtime
                     .LastRunTimeMs;
 
-            Ʋ++;
+            ƹ++;
 
-            if (Ʋ == 1)
+            if (ƹ == 1)
             {
-                Ư =
-                    Ƹ;
+                ƶ =
+                    ƿ;
 
-                ư =
-                    Ƹ;
+                Ʒ =
+                    ƿ;
 
                 return;
             }
 
-            Ư +=
-                (Ƹ -
-                 Ư) *
+            ƶ +=
+                (ƿ -
+                 ƶ) *
                 0.05;
 
-            if (Ƹ >
-                ư)
+            if (ƿ >
+                Ʒ)
             {
-                ư =
-                    Ƹ;
+                Ʒ =
+                    ƿ;
             }
-            else if (Ʋ %
+            else if (ƹ %
                      600 == 0)
             {
-                ư =
-                    Ư;
+                Ʒ =
+                    ƶ;
             }
         }
     }
@@ -2832,242 +2886,242 @@ class Program : MyGridProgram
     {
 
 public static Vector3D o(
-            Vector3D ƺ)
+            Vector3D ǁ)
         {
             if (Vector3D.IsZero(
-                    ƺ))
+                    ǁ))
             {
                 return Vector3D.Zero;
             }
 
             if (Vector3D.IsUnit(
-                    ref ƺ))
+                    ref ǁ))
             {
-                return ƺ;
+                return ǁ;
             }
 
             return Vector3D.Normalize(
-                ƺ);
+                ǁ);
         }
 
 public static Vector3D ą(
-            Vector3D ƻ,
-            Vector3D Ƽ)
+            Vector3D ǂ,
+            Vector3D ǃ)
         {
-            double ƽ =
-                Ƽ.LengthSquared();
+            double Ǆ =
+                ǃ.LengthSquared();
 
-            if (ƻ.LengthSquared() <=
+            if (ǂ.LengthSquared() <=
                     p ||
-                ƽ <=
+                Ǆ <=
                     p)
             {
                 return Vector3D.Zero;
             }
 
-            return ƻ -
-                   Vector3D.Dot(ƻ, Ƽ) /
-                   ƽ *
-                   Ƽ;
+            return ǂ -
+                   Vector3D.Dot(ǂ, ǃ) /
+                   Ǆ *
+                   ǃ;
         }
 
-public static Vector3D ƾ(
-            Vector3D ƻ,
-            Vector3D Ƽ)
+public static Vector3D ǅ(
+            Vector3D ǂ,
+            Vector3D ǃ)
         {
-            double ƽ =
-                Ƽ.LengthSquared();
+            double Ǆ =
+                ǃ.LengthSquared();
 
-            if (ƻ.LengthSquared() <=
+            if (ǂ.LengthSquared() <=
                     p ||
-                ƽ <=
+                Ǆ <=
                     p)
             {
                 return Vector3D.Zero;
             }
 
-            return Vector3D.Dot(ƻ, Ƽ) /
-                   ƽ *
-                   Ƽ;
+            return Vector3D.Dot(ǂ, ǃ) /
+                   Ǆ *
+                   ǃ;
         }
 
         public static double í(
-            Vector3D ƻ,
-            Vector3D Ƽ)
+            Vector3D ǂ,
+            Vector3D ǃ)
         {
-            double ƽ =
+            double Ǆ =
                 Math.Sqrt(
-                    ƻ.LengthSquared() *
-                    Ƽ.LengthSquared());
+                    ǂ.LengthSquared() *
+                    ǃ.LengthSquared());
 
-            if (ƽ <=
+            if (Ǆ <=
                 p)
             {
                 return 0;
             }
 
             return MathHelper.Clamp(
-                Vector3D.Dot(ƻ, Ƽ) /
-                ƽ,
+                Vector3D.Dot(ǂ, ǃ) /
+                Ǆ,
                 -1,
                 1);
         }
 
         public static Vector3D Ŭ(
-            Vector3D ƺ,
-            double ƿ)
+            Vector3D ǁ,
+            double ǆ)
         {
-            if (ƿ <= 0)
+            if (ǆ <= 0)
             {
                 return Vector3D.Zero;
             }
 
-            double ǀ =
-                ƺ.LengthSquared();
+            double Ǉ =
+                ǁ.LengthSquared();
 
-            double ǁ =
-                ƿ *
-                ƿ;
+            double ǈ =
+                ǆ *
+                ǆ;
 
-            if (ǀ <=
-                ǁ)
+            if (Ǉ <=
+                ǈ)
             {
-                return ƺ;
+                return ǁ;
             }
 
-            if (ǀ <=
+            if (Ǉ <=
                 p)
             {
                 return Vector3D.Zero;
             }
 
-            return ƺ *
-                   (ƿ /
+            return ǁ *
+                   (ǆ /
                     Math.Sqrt(
-                        ǀ));
+                        Ǉ));
         }
 
         public static double Ø(
-            double ǂ)
+            double ǉ)
         {
-            while (ǂ >
+            while (ǉ >
                    Math.PI)
             {
-                ǂ -=
+                ǉ -=
                     MathHelper.TwoPi;
             }
 
-            while (ǂ <
+            while (ǉ <
                    -Math.PI)
             {
-                ǂ +=
+                ǉ +=
                     MathHelper.TwoPi;
             }
 
-            return ǂ;
+            return ǉ;
         }
 
         public static Vector3D ë(
-            Vector3D ƺ,
-            Vector3D ǃ,
-            double ǂ)
+            Vector3D ǁ,
+            Vector3D Ǌ,
+            double ǉ)
         {
-            ǃ =
-                o(ǃ);
+            Ǌ =
+                o(Ǌ);
 
-            if (ǃ.LengthSquared() <=
+            if (Ǌ.LengthSquared() <=
                 p)
             {
-                return ƺ;
+                return ǁ;
             }
 
-            double Ǆ =
-                Math.Cos(ǂ);
+            double ǋ =
+                Math.Cos(ǉ);
 
-            double ǅ =
-                Math.Sin(ǂ);
+            double ǌ =
+                Math.Sin(ǉ);
 
-            return ƺ * Ǆ +
+            return ǁ * ǋ +
                    Vector3D.Cross(
-                       ǃ,
-                       ƺ) *
-                   ǅ +
-                   ǃ *
+                       Ǌ,
+                       ǁ) *
+                   ǌ +
+                   Ǌ *
                    Vector3D.Dot(
-                       ǃ,
-                       ƺ) *
-                   (1.0 - Ǆ);
+                       Ǌ,
+                       ǁ) *
+                   (1.0 - ǋ);
         }
 
 public static double Ē(
             Vector3D m,
             Vector3D đ,
-            Vector3D ǆ)
+            Vector3D Ǎ)
         {
-            Vector3D Ǉ =
+            Vector3D ǎ =
                 ą(
                     m,
-                    ǆ);
+                    Ǎ);
 
-            Vector3D ǈ =
+            Vector3D Ǐ =
                 ą(
                     đ,
-                    ǆ);
+                    Ǎ);
 
-            if (Ǉ
+            if (ǎ
                     .LengthSquared() <=
                     p ||
-                ǈ
+                Ǐ
                     .LengthSquared() <=
                     p)
             {
                 return 0;
             }
 
-            Ǉ =
+            ǎ =
                 o(
-                    Ǉ);
+                    ǎ);
 
-            ǈ =
+            Ǐ =
                 o(
-                    ǈ);
+                    Ǐ);
 
-            ǆ =
+            Ǎ =
                 o(
-                    ǆ);
+                    Ǎ);
 
             return Math.Atan2(
                 Vector3D.Dot(
-                    ǆ,
+                    Ǎ,
                     Vector3D.Cross(
-                        Ǉ,
-                        ǈ)),
+                        ǎ,
+                        Ǐ)),
                 Vector3D.Dot(
-                    Ǉ,
-                    ǈ));
+                    ǎ,
+                    Ǐ));
         }
 
         public static Vector3D Ĳ(
-            Vector3D ǉ,
-            MatrixD Ǌ)
+            Vector3D ǐ,
+            MatrixD Ǒ)
         {
             return Vector3D.TransformNormal(
-                ǉ,
+                ǐ,
                 MatrixD.Transpose(
-                    Ǌ));
+                    Ǒ));
         }
 
         public static Vector3D Ĭ(
             Vector3D ƚ,
-            MatrixD Ǌ)
+            MatrixD Ǒ)
         {
             return Vector3D.TransformNormal(
                 ƚ,
-                Ǌ);
+                Ǒ);
         }
     }
 
-    static string ǋ(
+    static string ǒ(
         ƅ ğ)
     {
         switch (ğ)
@@ -3092,2096 +3146,3397 @@ public static double Ē(
         }
     }
 
-    sealed class Ǒ
+    sealed class ǘ
     {
-        public readonly IMyCubeGrid ǌ;
+        public readonly IMyCubeGrid Ǔ;
 
-        public readonly List<Ǎ> ǎ =
-            new List<Ǎ>();
+        public readonly List<ǔ> Ǖ =
+            new List<ǔ>();
 
-        public Ǐ ǐ;
-        public Ǒ ǒ;
-        public Ǎ Ǔ;
+        public ǖ Ǘ;
+        public ǘ Ǚ;
+        public ǔ ǚ;
 
-        public int ǔ =
+        public int Ǜ =
             int.MaxValue;
 
-        public bool Ǖ;
+        public bool ǜ;
 
-        public Ǒ(
+        public ǘ(
             IMyCubeGrid Ŗ)
         {
-            ǌ = Ŗ;
+            Ǔ = Ŗ;
         }
     }
 
-    sealed class Ǎ
+    sealed class ǔ
     {
-        public readonly Ǒ ǖ,Ǘ;
+        public readonly ǘ ƥ,Ʀ;
 
-        public readonly IMyTerminalBlock ǘ;
+        public readonly IMyTerminalBlock ǝ;
 
-        public Ǎ(
-            Ǒ ƻ,
-            Ǒ Ƽ,
-            IMyTerminalBlock Ǚ)
+        public ǔ(
+            ǘ ǂ,
+            ǘ ǃ,
+            IMyTerminalBlock Ǟ)
         {
-            ǖ = ƻ;
-            Ǘ = Ƽ;
-            ǘ = Ǚ;
+            ƥ = ǂ;
+            Ʀ = ǃ;
+            ǝ = Ǟ;
         }
 
-        public Ǒ Ǜ(
-            Ǒ ǚ)
+        public ǘ Ǡ(
+            ǘ ǟ)
         {
-            return ǚ == ǖ
-                ? Ǘ
-                : ǖ;
+            return ǟ == ƥ
+                ? Ʀ
+                : ƥ;
         }
     }
 
-    sealed class Ǐ
+    sealed class ǖ
     {
-        public readonly List<Ǒ> ǜ =
-            new List<Ǒ>();
+        public readonly List<ǘ> ǡ =
+            new List<ǘ>();
 
-        public readonly List<IMyShipController> ǝ =
+        public readonly List<IMyShipController> Ǣ =
             new List<IMyShipController>();
 
-        public readonly List<IMyProgrammableBlock> Ǟ =
+        public readonly List<IMyProgrammableBlock> ǣ =
             new List<IMyProgrammableBlock>();
 
-        public bool Ǖ,ǟ,Ǡ,ǡ,Ǣ = true,ǣ = true;
+        public bool ǜ,Ǥ,ǥ,Ǧ,ǧ = true,Ǩ = true;
 
-        public IMyProgrammableBlock Ǥ;
+        public IMyProgrammableBlock ǩ;
     }
 
-    sealed class ǧ
+    sealed class Ǭ
     {
-        public IMyShipConnector ǖ,Ǘ;
+        public IMyShipConnector ƥ,Ʀ;
 
-        public Ǒ ǥ,Ǧ;
+        public ǘ Ǫ,ǫ;
     }
 
-    sealed class Ǫ
+    sealed class ǯ
     {
-        public IMyShipConnector Ǩ;
-        public ǧ ǩ;
+        public IMyShipConnector ǭ;
+        public Ǭ Ǯ;
     }
 
-    sealed class ǫ
+    sealed class ǰ
     {
-        public IMyLandingGear Ǩ;
+        public IMyLandingGear ǭ;
     }
-    sealed class Ǻ
+
+    void Ǿ(
+        string Ǳ)
     {
-        public bool Ǭ = true,ǭ = true,Ǯ = true,ǯ,ǰ = true;
-        public readonly List<double> Ǳ = new List<double>
+        if (string.IsNullOrWhiteSpace(
+                Ǳ))
+        {
+            return;
+        }
+
+        string[] ǲ =
+            Ǳ.Split(
+                new[]
+                {
+                    ';',
+                    '\n',
+                    '\r'
+                },
+                StringSplitOptions
+                    .RemoveEmptyEntries);
+
+        bool ǳ =
+            false;
+
+        bool Ǵ =
+            false;
+
+        StringBuilder ǵ =
+            new StringBuilder();
+
+        for (int Į = 0;
+            Į < ǲ.Length;
+            Į++)
+        {
+            string Ƿ =
+                Ƕ(
+                    ǲ[Į]);
+
+            if (Ƿ.Length == 0)
+            {
+                continue;
+            }
+
+            ǳ =
+                true;
+
+            string Ǹ;
+            bool ǹ;
+
+            if (!Ǻ(
+                    Ƿ,
+                    out Ǹ,
+                    out ǹ))
+            {
+                Ǹ =
+"Unknown command: \""+
+                    Ƿ +
+"\"";
+
+                ǹ =
+                    true;
+            }
+
+            if (ǻ &&
+                !string.IsNullOrEmpty(
+                    Ǽ))
+            {
+                if (Ǹ.Length > 0)
+                {
+                    Ǹ +=
+"\n";
+                }
+
+                Ǹ +=
+                    Ǽ;
+
+                ǹ =
+                    true;
+            }
+
+            if (ǵ.Length > 0)
+            {
+                ǵ.AppendLine();
+            }
+
+            ǵ.Append(Ǹ);
+
+            Ǵ |=
+                ǹ;
+        }
+
+        if (!ǳ)
+        {
+            return;
+        }
+
+        ǽ(
+            ǵ.ToString(),
+            Ǵ);
+
+        Save();
+    }
+
+    bool Ǻ(
+        string Ƿ,
+        out string Ǹ,
+        out bool ǹ)
+    {
+        Ǹ =
+            string.Empty;
+
+        ǹ =
+            false;
+
+        string[] ǿ =
+            Ƿ.Split(
+                new[] { ' ' },
+                StringSplitOptions
+                    .RemoveEmptyEntries);
+
+        if (ǿ.Length == 0)
+        {
+            return false;
+        }
+
+        int Ȁ;
+
+        if (ȁ(
+                ǿ,
+                out Ȁ))
+        {
+            return Ȃ(
+                ǿ,
+                Ȁ,
+                out Ǹ,
+                out ǹ);
+        }
+
+        if (ȃ(
+                ǿ,
+                out Ȁ))
+        {
+            return Ȅ(
+                ǿ,
+                Ȁ,
+                out Ǹ,
+                out ǹ);
+        }
+
+        if (ȅ(
+                ǿ,
+                out Ȁ))
+        {
+            return Ȇ(
+                ǿ,
+                Ȁ,
+                out Ǹ,
+                out ǹ);
+        }
+
+        if (ǿ[0] ==
+"unpark"||
+            ǿ[0] ==
+"undock")
+        {
+            ȇ =
+                false;
+
+            Ȉ =
+                false;
+
+            Ǹ =
+"Parking: OFF";
+
+            return true;
+        }
+
+        if (ǿ[0] ==
+"gear")
+        {
+            return ȉ(
+                ǿ,
+                1,
+                out Ǹ,
+                out ǹ);
+        }
+
+        if (ǿ[0] ==
+"rescan"||
+            ǿ[0] ==
+"scan"||
+            ǿ[0] ==
+"refresh")
+        {
+            if (ǿ.Length != 1)
+            {
+                Ǹ =
+"Invalid rescan command: \""+
+                    Ƿ +
+"\"";
+
+                ǹ =
+                    true;
+
+                return true;
+            }
+
+            Ȋ();
+
+            Ǹ =
+"Deep rescan requested.";
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool Ȃ(
+        string[] ǿ,
+        int Ȁ,
+        out string Ǹ,
+        out bool ǹ)
+    {
+        Ǹ =
+            string.Empty;
+
+        ǹ =
+            false;
+
+        bool i;
+
+        if (!ȋ(
+                ǿ,
+                Ȁ,
+                Ȍ,
+                out i))
+        {
+            Ǹ =
+"Expected dampeners "+
+"on, off, or toggle.";
+
+            ǹ =
+                true;
+
+            return true;
+        }
+
+        ȍ(
+            i);
+
+        Ǹ =
+"Local dampeners: "+
+            (Ȍ
+                ? "ON"                : "OFF");
+
+        if (Ȏ ==
+            ƅ.ƃ)
+        {
+            Ǹ +=
+" (master remains effective while slaved)";
+        }
+
+        return true;
+    }
+
+    bool Ȅ(
+        string[] ǿ,
+        int Ȁ,
+        out string Ǹ,
+        out bool ǹ)
+    {
+        Ǹ =
+            string.Empty;
+
+        ǹ =
+            false;
+
+        if (Ȁ >=
+            ǿ.Length)
+        {
+            ȏ();
+
+            Ǹ =
+                Ȑ();
+
+            return true;
+        }
+
+        string ȑ =
+            ǿ[Ȁ];
+
+        bool Ȓ;
+
+        if (ȓ(
+                ȑ,
+                Ȕ,
+                out Ȓ))
+        {
+            if (Ȁ + 1 !=
+                ǿ.Length)
+            {
+                Ǹ =
+"Unexpected text after "+
+"Cruise state.";
+
+                ǹ =
+                    true;
+
+                return true;
+            }
+
+            ȕ(
+                Ȓ);
+
+            Ǹ =
+                Ȑ();
+
+            return true;
+        }
+
+        double Ȗ;
+
+        if (ȗ(
+                ǿ,
+                Ȁ,
+                out Ȗ))
+        {
+            Ș(
+                Ȗ);
+
+            Ǹ =
+                Ȑ();
+
+            return true;
+        }
+
+        bool ș =
+            ȑ ==
+"increase"||
+            ȑ ==
+"increment"||
+            ȑ ==
+"up"||
+            ȑ ==
+"add"||
+            ȑ ==
+"faster";
+
+        bool Ț =
+            ȑ ==
+"decrease"||
+            ȑ ==
+"decrement"||
+            ȑ ==
+"down"||
+            ȑ ==
+"subtract"||
+            ȑ ==
+"slower";
+
+        if (ș ||
+            Ț)
+        {
+            if (Ȁ + 2 !=
+                ǿ.Length)
+            {
+                Ǹ =
+"Cruise adjustment requires "+
+"one speed value.";
+
+                ǹ =
+                    true;
+
+                return true;
+            }
+
+            double ț;
+
+            if (!double.TryParse(
+                    ǿ[
+                        Ȁ + 1],
+                    out ț))
+            {
+                Ǹ =
+"Invalid Cruise speed: \""+
+                    ǿ[
+                        Ȁ + 1] +
+"\"";
+
+                ǹ =
+                    true;
+
+                return true;
+            }
+
+            ț =
+                Math.Abs(ț);
+
+            Ș(
+                ș
+                    ? ț
+                    : -ț);
+
+            Ǹ =
+                Ȑ();
+
+            return true;
+        }
+
+        if (ȑ ==
+"target"||
+            ȑ ==
+"speed"||
+            ȑ ==
+"set")
+        {
+            if (Ȁ + 2 !=
+                ǿ.Length)
+            {
+                Ǹ =
+"Cruise target requires "+
+"one speed value.";
+
+                ǹ =
+                    true;
+
+                return true;
+            }
+
+            double Ȝ;
+
+            if (!double.TryParse(
+                    ǿ[
+                        Ȁ + 1],
+                    out Ȝ))
+            {
+                Ǹ =
+"Invalid Cruise target: \""+
+                    ǿ[
+                        Ȁ + 1] +
+"\"";
+
+                ǹ =
+                    true;
+
+                return true;
+            }
+
+            ȝ =
+                Ȝ;
+
+            Ȟ =
+                true;
+
+            Ǹ =
+                Ȑ();
+
+            return true;
+        }
+
+        Ǹ =
+"Expected Cruise on, off, toggle, "+
+"+value, -value, increase value, "+
+"decrease value, or target value.";
+
+        ǹ =
+            true;
+
+        return true;
+    }
+
+    bool Ȇ(
+        string[] ǿ,
+        int Ȁ,
+        out string Ǹ,
+        out bool ǹ)
+    {
+        Ǹ =
+            string.Empty;
+
+        ǹ =
+            false;
+
+        bool i;
+
+        if (!ȋ(
+                ǿ,
+                Ȁ,
+                ȇ,
+                out i))
+        {
+            Ǹ =
+"Expected parking "+
+"on, off, or toggle.";
+
+            ǹ =
+                true;
+
+            return true;
+        }
+
+        ȇ =
+            i;
+
+        Ȉ =
+            false;
+
+        Ǹ =
+"Parking: "+
+            (ȇ
+                ? "ON"                : "OFF");
+
+        return true;
+    }
+
+    bool ȉ(
+        string[] ǿ,
+        int Ȁ,
+        out string Ǹ,
+        out bool ǹ)
+    {
+        Ǹ =
+            string.Empty;
+
+        ǹ =
+            false;
+
+        int ȡ =
+            ȟ
+                .Ƞ.Count;
+
+        if (ȡ <= 0)
+        {
+            Ǹ =
+"No gears are configured.";
+
+            ǹ =
+                true;
+
+            return true;
+        }
+
+        if (Ȁ >=
+            ǿ.Length)
+        {
+            Ȣ =
+                (Ȣ + 1) %
+                ȡ;
+
+            Ǹ =
+                ȣ();
+
+            return true;
+        }
+
+        if (Ȁ + 1 !=
+            ǿ.Length)
+        {
+            Ǹ =
+"Gear accepts one argument.";
+
+            ǹ =
+                true;
+
+            return true;
+        }
+
+        string ȑ =
+            ǿ[Ȁ];
+
+        if (ȑ ==
+"next"||
+            ȑ ==
+"up"||
+            ȑ ==
+"increase"||
+            ȑ ==
+"increment")
+        {
+            Ȣ =
+                (Ȣ + 1) %
+                ȡ;
+
+            Ǹ =
+                ȣ();
+
+            return true;
+        }
+
+        if (ȑ ==
+"previous"||
+            ȑ ==
+"prev"||
+            ȑ ==
+"down"||
+            ȑ ==
+"decrease"||
+            ȑ ==
+"decrement")
+        {
+            Ȣ--;
+
+            if (Ȣ < 0)
+            {
+                Ȣ =
+                    ȡ - 1;
+            }
+
+            Ǹ =
+                ȣ();
+
+            return true;
+        }
+
+        int Ȥ;
+
+        if (!int.TryParse(
+                ȑ,
+                out Ȥ))
+        {
+            Ǹ =
+"Invalid gear: \""+
+                ȑ +
+"\"";
+
+            ǹ =
+                true;
+
+            return true;
+        }
+
+        if (Ȥ < 1 ||
+            Ȥ > ȡ)
+        {
+            Ǹ =
+"Gear must be between 1 and "+
+                ȡ +
+".";
+
+            ǹ =
+                true;
+
+            return true;
+        }
+
+        Ȣ =
+            Ȥ - 1;
+
+        Ǹ =
+            ȣ();
+
+        return true;
+    }
+
+    static bool ȁ(
+        string[] ǿ,
+        out int Ȁ)
+    {
+        Ȁ = 1;
+
+        if (ǿ[0] ==
+"dampeners"||
+            ǿ[0] ==
+"dampener"||
+            ǿ[0] ==
+"dampers"||
+            ǿ[0] ==
+"damper"||
+            ǿ[0] ==
+"damping"||
+            ǿ[0] ==
+"dampening")
+        {
+            return true;
+        }
+
+        if (ǿ.Length >= 2 &&
+            ǿ[0] ==
+"inertia"&&
+            (ǿ[1] ==
+"dampeners"||
+             ǿ[1] ==
+"dampener"||
+             ǿ[1] ==
+"damping"))
+        {
+            Ȁ = 2;
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool ȃ(
+        string[] ǿ,
+        out int Ȁ)
+    {
+        Ȁ = 1;
+
+        if (ǿ.Length >= 2 &&
+            ǿ[0] ==
+"cruise"&&
+            ǿ[1] ==
+"control")
+        {
+            Ȁ = 2;
+            return true;
+        }
+
+        return ǿ[0] ==
+"cruise"||
+            ǿ[0] ==
+"cruisecontrol";
+    }
+
+    static bool ȅ(
+        string[] ǿ,
+        out int Ȁ)
+    {
+        Ȁ = 1;
+
+        return ǿ[0] ==
+"park"||
+               ǿ[0] ==
+"parking";
+    }
+
+    static bool ȋ(
+        string[] ǿ,
+        int Ȁ,
+        bool ȥ,
+        out bool Ǹ)
+    {
+        if (Ȁ >=
+            ǿ.Length)
+        {
+            Ǹ =
+                !ȥ;
+
+            return true;
+        }
+
+        if (Ȁ + 1 !=
+            ǿ.Length)
+        {
+            Ǹ =
+                ȥ;
+
+            return false;
+        }
+
+        return ȓ(
+            ǿ[Ȁ],
+            ȥ,
+            out Ǹ);
+    }
+
+    static bool ȓ(
+        string ȑ,
+        bool ȥ,
+        out bool Ǹ)
+    {
+        if (ȑ ==
+"on"||
+            ȑ ==
+"enable"||
+            ȑ ==
+"enabled"||
+            ȑ ==
+"start")
+        {
+            Ǹ = true;
+            return true;
+        }
+
+        if (ȑ ==
+"off"||
+            ȑ ==
+"disable"||
+            ȑ ==
+"disabled"||
+            ȑ ==
+"stop")
+        {
+            Ǹ = false;
+            return true;
+        }
+
+        if (ȑ ==
+"toggle"||
+            ȑ ==
+"switch")
+        {
+            Ǹ =
+                !ȥ;
+
+            return true;
+        }
+
+        Ǹ =
+            ȥ;
+
+        return false;
+    }
+
+    static bool ȗ(
+        string[] ǿ,
+        int Ȁ,
+        out double Ö)
+    {
+        Ö = 0;
+
+        if (Ȁ >=
+            ǿ.Length)
+        {
+            return false;
+        }
+
+        if (Ȁ + 1 ==
+            ǿ.Length)
+        {
+            string Ȧ =
+                ǿ[Ȁ];
+
+            if (Ȧ.Length < 2 ||
+                Ȧ[0] != '+' &&
+                Ȧ[0] != '-')
+            {
+                return false;
+            }
+
+            return double.TryParse(
+                Ȧ,
+                out Ö);
+        }
+
+        if (Ȁ + 2 ==
+                ǿ.Length &&
+            (ǿ[Ȁ] ==
+"+"||
+             ǿ[Ȁ] ==
+"-"))
+        {
+            double ț;
+
+            if (!double.TryParse(
+                    ǿ[
+                        Ȁ + 1],
+                    out ț))
+            {
+                return false;
+            }
+
+            Ö =
+                ǿ[Ȁ] ==
+"+"                    ? Math.Abs(ț)
+                    : -Math.Abs(ț);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    string Ȑ()
+    {
+        string Ǹ =
+"Local Cruise: "+
+            (Ȕ
+                ? "ON"                : "OFF");
+
+        if (Ȟ)
+        {
+            Ǹ +=
+" @ "+
+                ȝ
+                    .ToString("0.###") +
+" m/s";
+        }
+
+        if (Ȏ ==
+            ƅ.ƃ)
+        {
+            Ǹ +=
+" (master remains effective while slaved)";
+        }
+
+        return Ǹ;
+    }
+
+    string ȣ()
+    {
+        int ȡ =
+            ȟ
+                .Ƞ.Count;
+
+        double ȧ =
+            ȡ > 0
+                ? ȟ
+                    .Ƞ[
+                        MathHelper.Clamp(
+                            Ȣ,
+                            0,
+                            ȡ - 1)] *
+                  100
+                : 0;
+
+        string Ǹ =
+"Local gear: "+
+            (Ȣ + 1) +
+"/"+
+            ȡ +
+" ("+
+            ȧ
+                .ToString("0.##") +
+"%)";
+
+        if (Ȏ ==
+            ƅ.ƃ)
+        {
+            Ǹ +=
+" (master remains effective while slaved)";
+        }
+
+        return Ǹ;
+    }
+
+    static string Ƕ(
+        string Ƿ)
+    {
+        if (string.IsNullOrWhiteSpace(
+                Ƿ))
+        {
+            return string.Empty;
+        }
+
+        Ƿ =
+            Ƿ
+                .Trim()
+                .ToLowerInvariant();
+
+        StringBuilder Ȩ =
+            new StringBuilder(
+                Ƿ.Length);
+
+        bool ȩ =
+            false;
+
+        for (int Į = 0;
+            Į < Ƿ.Length;
+            Į++)
+        {
+            char Ȫ =
+                Ƿ[Į];
+
+            bool ȫ =
+                char.IsWhiteSpace(
+                    Ȫ);
+
+            if (ȫ)
+            {
+                if (!ȩ &&
+                    Ȩ.Length > 0)
+                {
+                    Ȩ.Append(' ');
+                }
+
+                ȩ =
+                    true;
+
+                continue;
+            }
+
+            Ȩ.Append(
+                Ȫ);
+
+            ȩ =
+                false;
+        }
+
+        if (Ȩ.Length > 0 &&
+            Ȩ[
+                Ȩ.Length - 1] ==
+            ' ')
+        {
+            Ȩ.Length--;
+        }
+
+        return Ȩ.ToString();
+    }
+    sealed class ȹ
+    {
+        public bool Ȭ = true,ȭ = true,Ȯ = true,ȯ,Ȱ = true;
+        public readonly List<double> Ƞ = new List<double>
         {
             0.15,
             0.50,
             1.00
         };
 
-        public string ǲ = "[VT-use]",ǳ = "[VT-ignore]",Ǵ = "[VT-status]",ǵ = "[VT-park]",Ƕ = "[VT-unpark]";
+        public string ȱ = "[VT-use]",Ȳ = "[VT-ignore]",ȳ = "[VT-status]",ȴ = "[VT-park]",ȵ = "[VT-unpark]";
 
-        public int Ƿ,Ǹ,ǹ;
+        public int ȶ,ȷ,ȸ;
     }
 
-    readonly MyIni ǻ = new MyIni();
+    readonly MyIni Ⱥ = new MyIni();
 
-    bool Ȓ(bool Ǽ)
+    bool Ɏ(bool Ȼ)
     {
-        string ǽ = Me.CustomData ?? string.Empty;
+        string ȼ = Me.CustomData ?? string.Empty;
 
-        if (!Ǽ && ǽ == Ǿ)
+        if (!Ȼ && ȼ == Ƚ)
         {
             return false;
         }
 
-        ǻ.Clear();
+        Ⱥ.Clear();
 
-        MyIniParseResult ǿ;
+        MyIniParseResult Ⱦ;
 
-        if (!ǻ.TryParse(ǽ, out ǿ))
+        if (!Ⱥ.TryParse(ȼ, out Ⱦ))
         {
             Echo(
-                Ȁ +
+                ȿ +
 "\n\nCustom Data could not be parsed as INI:\n"+
-                ǿ);
+                Ⱦ);
 
-            Ǿ = ǽ;
+            Ƚ = ȼ;
             return false;
         }
 
-        bool Ȃ = ȁ.Ǭ;
-        bool ȃ = ȁ.ǭ;
-        bool Ȅ = ȁ.Ǯ;
+        bool ɀ = ȟ.Ȭ;
+        bool Ɂ = ȟ.ȭ;
+        bool ɂ = ȟ.Ȯ;
 
-        string ȅ = ȁ.ǲ;
-        string Ȇ = ȁ.ǳ;
-        string ȇ = ȁ.Ǵ;
-        string Ȉ = ȁ.ǵ;
-        string ȉ = ȁ.Ƕ;
-
-
-        ȁ.Ǭ = ǻ
-            .Get(Ȋ, "Greedy")
-            .ToBoolean(ȁ.Ǭ);
-
-        ȁ.ǭ = ǻ
-            .Get(Ȋ, "CanMaster")
-            .ToBoolean(ȁ.ǭ);
-
-        ȁ.Ǯ = ǻ
-            .Get(Ȋ, "CanSlave")
-            .ToBoolean(ȁ.Ǯ);
+        string Ƀ = ȟ.ȱ;
+        string Ʉ = ȟ.Ȳ;
+        string Ʌ = ȟ.ȳ;
+        string Ɇ = ȟ.ȴ;
+        string ɇ = ȟ.ȵ;
 
 
-        ȁ.ǯ = ǻ
+        ȟ.Ȭ = Ⱥ
+            .Get(Ɉ, "Greedy")
+            .ToBoolean(ȟ.Ȭ);
+
+        ȟ.ȭ = Ⱥ
+            .Get(Ɉ, "CanMaster")
+            .ToBoolean(ȟ.ȭ);
+
+        ȟ.Ȯ = Ⱥ
+            .Get(Ɉ, "CanSlave")
+            .ToBoolean(ȟ.Ȯ);
+
+
+        ȟ.ȯ = Ⱥ
             .Get("Parking", "ParkOnlyByCommand")
-            .ToBoolean(ȁ.ǯ);
+            .ToBoolean(ȟ.ȯ);
 
 
-        ȁ.ǰ = ǻ
+        ȟ.Ȱ = Ⱥ
             .Get("Flight", "CruiseLevelsWithGravity")
-            .ToBoolean(ȁ.ǰ);
+            .ToBoolean(ȟ.Ȱ);
 
-        ȋ(
-            ǻ.Get("Flight", "GearPercentages")
+        ɉ(
+            Ⱥ.Get("Flight", "GearPercentages")
                 .ToString("15; 50; 100"));
 
-        if (Ȍ >= ȁ.Ǳ.Count)
+        if (Ȣ >= ȟ.Ƞ.Count)
         {
-            Ȍ = ȁ.Ǳ.Count - 1;
+            Ȣ = ȟ.Ƞ.Count - 1;
         }
 
 
-        ȁ.ǲ = ȍ(
+        ȟ.ȱ = Ɋ(
 "Tags",
 "Use",
-            ȁ.ǲ);
+            ȟ.ȱ);
 
-        ȁ.ǳ = ȍ(
+        ȟ.Ȳ = Ɋ(
 "Tags",
 "Ignore",
-            ȁ.ǳ);
+            ȟ.Ȳ);
 
-        ȁ.Ǵ = ȍ(
+        ȟ.ȳ = Ɋ(
 "Tags",
 "Status",
-            ȁ.Ǵ);
+            ȟ.ȳ);
 
-        ȁ.ǵ = ȍ(
+        ȟ.ȴ = Ɋ(
 "Tags",
 "ParkTimer",
-            ȁ.ǵ);
+            ȟ.ȴ);
 
-        ȁ.Ƕ = ȍ(
+        ȟ.ȵ = Ɋ(
 "Tags",
 "UnparkTimer",
-            ȁ.Ƕ);
+            ȟ.ȵ);
 
 
-        ȁ.Ƿ = Math.Max(
+        ȟ.ȶ = Math.Max(
             0,
-            ǻ
+            Ⱥ
                 .Get("Performance", "Update1Skip")
-                .ToInt32(ȁ.Ƿ));
+                .ToInt32(ȟ.ȶ));
 
-        ȁ.Ǹ = Math.Max(
+        ȟ.ȷ = Math.Max(
             0,
-            ǻ
+            Ⱥ
                 .Get("Performance", "Update10Skip")
-                .ToInt32(ȁ.Ǹ));
+                .ToInt32(ȟ.ȷ));
 
-        ȁ.ǹ = Math.Max(
+        ȟ.ȸ = Math.Max(
             0,
-            ǻ
+            Ⱥ
                 .Get("Performance", "Update100Skip")
-                .ToInt32(ȁ.ǹ));
+                .ToInt32(ȟ.ȸ));
 
-        Ȏ();
+        ɋ();
 
-        string ȏ = ǻ.ToString();
+        string Ɍ = Ⱥ.ToString();
 
-        if (ȏ != Me.CustomData)
+        if (Ɍ != Me.CustomData)
         {
-            Me.CustomData = ȏ;
+            Me.CustomData = Ɍ;
         }
 
-        Ǿ = Me.CustomData;
+        Ƚ = Me.CustomData;
 
-        bool Ȑ =
-            Ȃ != ȁ.Ǭ ||
-            ȃ != ȁ.ǭ ||
-            Ȅ != ȁ.Ǯ ||
-            !ȅ.Equals(ȁ.ǲ, StringComparison.OrdinalIgnoreCase) ||
-            !Ȇ.Equals(ȁ.ǳ, StringComparison.OrdinalIgnoreCase) ||
-            !ȇ.Equals(ȁ.Ǵ, StringComparison.OrdinalIgnoreCase) ||
-            !Ȉ.Equals(ȁ.ǵ, StringComparison.OrdinalIgnoreCase) ||
-            !ȉ.Equals(ȁ.Ƕ, StringComparison.OrdinalIgnoreCase);
+        bool ɍ =
+            ɀ != ȟ.Ȭ ||
+            Ɂ != ȟ.ȭ ||
+            ɂ != ȟ.Ȯ ||
+            !Ƀ.Equals(ȟ.ȱ, StringComparison.OrdinalIgnoreCase) ||
+            !Ʉ.Equals(ȟ.Ȳ, StringComparison.OrdinalIgnoreCase) ||
+            !Ʌ.Equals(ȟ.ȳ, StringComparison.OrdinalIgnoreCase) ||
+            !Ɇ.Equals(ȟ.ȴ, StringComparison.OrdinalIgnoreCase) ||
+            !ɇ.Equals(ȟ.ȵ, StringComparison.OrdinalIgnoreCase);
 
-        if (!Ǽ && Ȑ)
+        if (!Ȼ && ɍ)
         {
-            ȑ();
+            Ȋ();
         }
 
         return true;
     }
 
-    string ȍ(
-        string ȓ,
-        string Ȕ,
-        string ȕ)
+    string Ɋ(
+        string ɏ,
+        string ɐ,
+        string ɑ)
     {
-        string ğ = ǻ
-            .Get(ȓ, Ȕ)
-            .ToString(ȕ)
+        string ğ = Ⱥ
+            .Get(ɏ, ɐ)
+            .ToString(ɑ)
             .Trim();
 
-        return ğ.Length == 0 ? ȕ : ğ;
+        return ğ.Length == 0 ? ɑ : ğ;
     }
 
-    void ȋ(string Ȗ)
+    void ɉ(
+        string ɒ)
     {
-        string[] ȗ = Ȗ.Split(
-            new[] { ';', ',' },
-            StringSplitOptions.RemoveEmptyEntries);
+        string[] ɓ =
+            ɒ.Split(
+                new[] { ';' },
+                StringSplitOptions
+                    .RemoveEmptyEntries);
 
-        List<double> Ș = new List<double>();
+        List<double> ɔ =
+            new List<double>();
 
-        for (int Į = 0; Į < ȗ.Length; Į++)
+        for (int Į = 0;
+            Į < ɓ.Length;
+            Į++)
         {
-            double ș;
+            double ȧ;
 
             if (!double.TryParse(
-                ȗ[Į].Trim(),
-                out ș))
+                    ɓ[Į].Trim(),
+                    out ȧ))
             {
                 continue;
             }
 
-            if (ș > 0)
+            if (ȧ > 0)
             {
-                Ș.Add(ș / 100.0);
+                ɔ.Add(
+                    ȧ /
+                    100.0);
             }
         }
 
-        if (Ș.Count == 0)
+        if (ɔ.Count == 0)
         {
             return;
         }
 
-        ȁ.Ǳ.Clear();
-        ȁ.Ǳ.AddRange(Ș);
+        ȟ.Ƞ.Clear();
+
+        ȟ.Ƞ.AddRange(
+            ɔ);
     }
 
-    void Ȏ()
+    void ɋ()
     {
-        ǻ.Set(Ȋ, "Greedy", ȁ.Ǭ);
-        ǻ.Set(Ȋ, "CanMaster", ȁ.ǭ);
-        ǻ.Set(Ȋ, "CanSlave", ȁ.Ǯ);
+        Ⱥ.Set(Ɉ, "Greedy", ȟ.Ȭ);
+        Ⱥ.Set(Ɉ, "CanMaster", ȟ.ȭ);
+        Ⱥ.Set(Ɉ, "CanSlave", ȟ.Ȯ);
 
-        ǻ.SetSectionComment(
-            Ȋ,
+        Ⱥ.SetSectionComment(
+            Ɉ,
 " Vector Thrust Redux ownership and coordination.\n"+
 " Greedy controls eligible mechanical-subgrid blocks unless ignored.\n"+
 " Main-grid player thrusters and gyros remain read-only unless explicitly tagged.");
 
-        ǻ.Set(
+        Ⱥ.Set(
 "Parking",
 "ParkOnlyByCommand",
-            ȁ.ǯ);
+            ȟ.ȯ);
 
-        ǻ.Set(
+        Ⱥ.Set(
 "Flight",
 "CruiseLevelsWithGravity",
-            ȁ.ǰ);
+            ȟ.Ȱ);
 
-        ǻ.Set(
+        Ⱥ.Set(
 "Flight",
 "GearPercentages",
-            Ț());
+            ɕ());
 
-        ǻ.Set("Tags", "Use", ȁ.ǲ);
-        ǻ.Set("Tags", "Ignore", ȁ.ǳ);
-        ǻ.Set("Tags", "Status", ȁ.Ǵ);
-        ǻ.Set("Tags", "ParkTimer", ȁ.ǵ);
-        ǻ.Set("Tags", "UnparkTimer", ȁ.Ƕ);
+        Ⱥ.Set("Tags", "Use", ȟ.ȱ);
+        Ⱥ.Set("Tags", "Ignore", ȟ.Ȳ);
+        Ⱥ.Set("Tags", "Status", ȟ.ȳ);
+        Ⱥ.Set("Tags", "ParkTimer", ȟ.ȴ);
+        Ⱥ.Set("Tags", "UnparkTimer", ȟ.ȵ);
 
-        ǻ.SetComment(
+        Ⱥ.SetComment(
 "Tags",
 "Use",
 " Tag may appear in a block name, group name, or block Custom Data.");
 
-        ǻ.SetComment(
+        Ⱥ.SetComment(
 "Tags",
 "Ignore",
 " Ignore always prevents Redux from modifying the block.");
 
-        ǻ.Set(
+        Ⱥ.Set(
 "Performance",
 "Update1Skip",
-            ȁ.Ƿ);
+            ȟ.ȶ);
 
-        ǻ.Set(
+        Ⱥ.Set(
 "Performance",
 "Update10Skip",
-            ȁ.Ǹ);
+            ȟ.ȷ);
 
-        ǻ.Set(
+        Ⱥ.Set(
 "Performance",
 "Update100Skip",
-            ȁ.ǹ);
+            ȟ.ȸ);
 
-        ǻ.SetSectionComment(
+        Ⱥ.SetSectionComment(
 "Performance",
 " Number of matching update intervals skipped between executions.\n"+
 " Heartbeat publication is never skipped.");
     }
 
-    string Ț()
+    string ɕ()
     {
-        StringBuilder ț = new StringBuilder();
+        StringBuilder ɖ = new StringBuilder();
 
-        for (int Į = 0; Į < ȁ.Ǳ.Count; Į++)
+        for (int Į = 0; Į < ȟ.Ƞ.Count; Į++)
         {
             if (Į > 0)
             {
-                ț.Append("; ");
+                ɖ.Append("; ");
             }
 
-            ț.Append(
-                (ȁ.Ǳ[Į] * 100.0)
+            ɖ.Append(
+                (ȟ.Ƞ[Į] * 100.0)
                     .ToString("0.########"));
         }
 
-        return ț.ToString();
+        return ɖ.ToString();
     }
-    readonly List<ŝ> Ȝ =
-        new List<ŝ>();
-
-    readonly HashSet<H> ȝ =
+    readonly HashSet<H> ɗ =
+        new HashSet<H>(),ɘ =
         new HashSet<H>();
 
-    IMyShipController Ȟ;
 
-
-    void ȟ()
+    void ɚ()
     {
-        Ȓ(false);
-        ȑ();
+        Ɏ(false);
+
+        ə();
     }
 
-    void Ȱ()
+    void ɫ()
     {
-        Ƞ();
-        ȡ();
-        Ȣ();
+        ɛ();
+        ɜ();
 
-        ȣ =
-            ȁ.ǭ &&
-            Ȥ != null &&
-            Ȥ.IsUnderControl;
+        ɝ();
+        ɞ();
+        ɟ();
 
-        ȥ();
+        ɠ =
+            ȟ.ȭ &&
+            ɡ != null &&
+            ɡ
+                .IsUnderControl;
 
-        if (ȁ.Ǯ &&
-            !ȣ &&
-            !Ȧ)
+        ɢ();
+
+        if (ȟ.Ȯ &&
+            !ɠ &&
+            !ȇ)
         {
-            ȧ();
+            ɣ();
         }
 
-        if (Ȩ)
+        if (ɤ)
         {
-            ȩ = 0;
+            ɥ = 0;
         }
-        else if (Ȫ !=
+        else if (ɦ !=
                  long.MinValue)
         {
-            ȩ++;
+            ɥ++;
         }
 
-        ȫ =
-            Ȫ !=
+        ɧ =
+            ɦ !=
                 long.MinValue &&
-            ȩ < 2;
+            ɥ < 2;
 
-        Ȩ = false;
+        ɤ =
+            false;
 
-        Ȭ();
+        ɨ();
 
-        if (ȭ == ƅ.Ƅ)
+        if (Ȏ ==
+            ƅ.Ƅ)
         {
-            Ȯ();
+            ɩ();
         }
 
-        ȯ(false);
+        ɪ(false);
     }
 
-    void ɂ(double Ô)
+    void ʁ(
+        double Ô)
     {
-        Ƞ();
+        ɛ();
 
-        if (ȭ == ƅ.Ƅ ||
-            ȭ == ƅ.ƀ ||
-            Ȥ == null)
+        if (Ȏ ==
+                ƅ.Ƅ ||
+            Ȏ ==
+                ƅ.ƀ ||
+            ɡ == null)
         {
-            ȱ();
-            Ȳ();
+            ɬ();
+            ɭ();
             return;
         }
 
-        ȳ();
-        ȴ();
+        ɮ();
+        ɝ();
+        ɞ();
+        ɟ();
 
-        Vector3D ȵ =
-            Ȥ.CenterOfMass;
+        Vector3D ɯ =
+            ɡ.CenterOfMass;
 
-        Vector3D ȶ;
+        Vector3D ɰ;
 
-        if (ȭ == ƅ.ƃ)
+        if (Ȏ ==
+            ƅ.ƃ)
         {
-            ȶ =
-                ȷ
-                    .Ƨ *
-                ȸ;
+            Vector3D ɲ =
+                n.Ŭ(
+                    ɱ
+                        .Ʈ,
+                    1);
 
-            ȶ -= ȹ();
+            Vector3D t =
+                n.o(
+                    ɲ);
+
+            double Ý =
+                ɲ.Length();
+
+            double ɴ =
+                ɳ(
+                    t);
+
+            ɰ =
+                t *
+                Ý *
+                ɴ;
         }
         else
         {
-            ȶ = Ⱥ(
-                Ô);
+            Vector3D ɶ =
+                ɵ(
+                    Ô);
 
-            if (ȸ >
-                U)
+            ɶ -=
+                ɷ();
+
+            if (Ȏ ==
+                ƅ.Ƃ)
             {
-                Ȼ =
-                    n.Ŭ(
-                        ȶ /
-                        ȸ,
-                        1.0);
+                Vector3D t =
+                    n.o(
+                        ɶ);
+
+                double ɴ =
+                    ɳ(
+                        t);
+
+                double ɹ =
+                    ɸ(
+                        t);
+
+                double ɺ =
+                    ɴ +
+                    ɹ;
+
+                double Ý =
+                    ɺ >
+                            U
+                        ? MathHelper.Clamp(
+                            ɶ
+                                .Length() /
+                            ɺ,
+                            0,
+                            1)
+                        : 0;
+
+                ɻ =
+                    t *
+                    Ý;
+
+                ɰ =
+                    t *
+                    Ý *
+                    ɴ;
             }
             else
             {
-                Ȼ =
+                ɻ =
                     Vector3D.Zero;
+
+                ɰ =
+                    ɶ;
             }
         }
 
-        ȼ = ȶ;
+        ɼ =
+            ɰ;
 
-        Ƚ(
-            ȶ,
-            ȵ);
+        ɽ(
+            ɰ,
+            ɯ,
+            Ô);
 
-        bool ȿ =
-            ȭ == ƅ.ƃ
-                ? ȷ
-                    .Ʃ
-                : Ⱦ &&
-                  ȁ
-                      .ǰ;
+        bool ɾ =
+            Ȏ ==
+                    ƅ.ƃ
+                ? ɱ
+                    .ư
+                : ǻ &&
+                  ȟ
+                      .Ȱ;
 
-        ɀ(
-            Ɂ,
-            ȿ);
+        ɿ(
+            ʀ,
+            ɾ);
     }
 
-    void Ȣ()
+    void ɟ()
     {
         for (int Į = 0;
-            Į < Ƀ.Count;
+            Į < ʂ.Count;
             Į++)
         {
-            Ƀ[Į]
+            ʂ[Į]
                 .ĸ();
         }
 
-        ȴ();
+        ʃ();
+        ʄ();
     }
 
-    void ȴ()
+    void ʃ()
     {
-        ȸ = 0;
+        ʅ = 0;
 
         for (int Į = 0;
-            Į < Ʉ.Count;
+            Į < ʆ.Count;
             Į++)
         {
             g İ =
-                Ʉ[Į];
+                ʆ[Į];
 
-            if (!İ.c)
+            if (!İ.P ||
+                !İ.c)
             {
                 continue;
             }
 
-            ȸ +=
-                İ.V;
+            ʅ +=
+                İ
+                    .V;
         }
     }
 
+    void ʄ()
+    {
+        ʇ.ĺ();
+        ʈ.ĺ();
+        ʉ.ĺ();
 
-    Vector3D Ⱥ(
+        if (ɡ ==
+            null)
+        {
+            return;
+        }
+
+        MatrixD ʊ =
+            ɡ
+                .WorldMatrix;
+
+        ʇ.Ɛ =
+            ɳ(
+                ʊ.Forward);
+
+        ʇ.Ƒ =
+            ɳ(
+                ʊ.Backward);
+
+        ʇ.ƒ =
+            ɳ(
+                ʊ.Left);
+
+        ʇ.Ɠ =
+            ɳ(
+                ʊ.Right);
+
+        ʇ.Ɣ =
+            ɳ(
+                ʊ.Up);
+
+        ʇ.ƕ =
+            ɳ(
+                ʊ.Down);
+
+        ʈ.Ɛ =
+            ɸ(
+                ʊ.Forward);
+
+        ʈ.Ƒ =
+            ɸ(
+                ʊ.Backward);
+
+        ʈ.ƒ =
+            ɸ(
+                ʊ.Left);
+
+        ʈ.Ɠ =
+            ɸ(
+                ʊ.Right);
+
+        ʈ.Ɣ =
+            ɸ(
+                ʊ.Up);
+
+        ʈ.ƕ =
+            ɸ(
+                ʊ.Down);
+
+        ʉ.ƙ(
+            ʇ);
+
+        ʉ.Ƙ(
+            ʈ);
+    }
+
+    double ɳ(
+        Vector3D m)
+    {
+        m =
+            n.o(
+                m);
+
+        if (m
+                .LengthSquared() <=
+            p)
+        {
+            return 0;
+        }
+
+        double ł = 0;
+
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            g İ =
+                ʆ[Į];
+
+            if (!İ.P ||
+                !İ.c)
+            {
+                continue;
+            }
+
+            if (İ.I != null &&
+                İ.I
+                    .Ò
+                    .P)
+            {
+                continue;
+            }
+
+            ł +=
+                İ
+                    .r(
+                        m);
+        }
+
+        for (int Į = 0;
+            Į < ʂ.Count;
+            Į++)
+        {
+            H ʋ =
+                ʂ[Į];
+
+            if (!ʋ
+                    .Ò
+                    .P)
+            {
+                continue;
+            }
+
+            ł +=
+                ʋ
+                    .ŉ(
+                        m);
+        }
+
+        return ł;
+    }
+
+    double ʌ(
+        Vector3D m)
+    {
+        double ł =
+            ɳ(
+                m);
+
+        if (Ȏ ==
+            ƅ.Ƃ)
+        {
+            ł +=
+                ɸ(
+                    m);
+        }
+
+        return ł;
+    }
+
+    double ɸ(
+        Vector3D m)
+    {
+        m =
+            n.o(
+                m);
+
+        if (m
+                .LengthSquared() <=
+            p)
+        {
+            return 0;
+        }
+
+        double ł =
+            ʍ(
+                ʎ,
+                m);
+
+        for (int Į = 0;
+            Į < ʏ.Count;
+            Į++)
+        {
+            ł +=
+                ʏ[Į]
+                    .ŉ(
+                        m);
+        }
+
+        return ł;
+    }
+
+
+    Vector3D ɵ(
         double Ô)
     {
-        MyShipMass Ʌ =
-            Ȥ
+        MyShipMass ʐ =
+            ɡ
                 .CalculateShipMass();
 
-        double Ɇ =
-            Ʌ.PhysicalMass;
+        double ʑ =
+            ʐ.PhysicalMass;
 
-        if (Ɇ <= U)
+        if (ʑ <=
+            U)
         {
             return Vector3D.Zero;
         }
 
-        MyShipVelocities ɇ =
-            Ȥ
+        MyShipVelocities ʒ =
+            ɡ
                 .GetShipVelocities();
 
-        Vector3D Ɉ =
-            ɇ.LinearVelocity;
+        Vector3D ʓ =
+            ʒ.LinearVelocity;
 
-        Vector3D ɉ =
-            Ȥ
+        Vector3D ʔ =
+            ɡ
                 .GetNaturalGravity();
 
-        Vector3D Ɋ =
+        Vector3 ʕ =
+            ɡ
+                .MoveIndicator;
+
+        Vector3D ʖ;
+
+        if (ǻ)
+        {
+            ʖ =
+                ʗ(
+                    ʕ,
+                    ʓ,
+                    ʑ,
+                    Ô);
+        }
+        else
+        {
+            ʖ =
+                ʘ(
+                    ʕ,
+                    ʓ,
+                    ʑ,
+                    Ô);
+        }
+
+        return ʑ *
+               (ʖ -
+                ʔ);
+    }
+
+    Vector3D ʘ(
+        Vector3 ʕ,
+        Vector3D ʓ,
+        double ʑ,
+        double Ô)
+    {
+        Vector3D ʙ =
             Vector3D.TransformNormal(
-                Ȥ
-                    .MoveIndicator,
-                Ȥ
+                ʕ,
+                ɡ
                     .WorldMatrix);
 
-        bool ɋ =
-            Ɋ.LengthSquared() >
+        Vector3D ʚ =
+            n.o(
+                ʙ);
+
+        bool ʛ =
+            ʚ
+                .LengthSquared() >
             p;
 
-        Vector3D Ɍ =
-            n.o(
-                Ɋ);
+        Vector3D ʖ =
+            Vector3D.Zero;
 
-        double ɍ =
-            ȸ /
-            Ɇ;
-
-        double Ɏ =
-            ȁ.Ǳ[
-                MathHelper.Clamp(
-                    Ȍ,
-                    0,
-                    ȁ
-                        .Ǳ.Count - 1)];
-
-        Vector3D ɏ =
-            Ɍ *
-            ɍ *
-            Ɏ;
-
-        ɐ =
-            Ȥ
-                .DampenersOverride;
-
-        if (ɐ)
+        if (ʛ)
         {
-            Vector3D ɑ =
-                Ɉ;
+            double ʜ =
+                ʌ(
+                    ʚ);
 
-            if (ɋ)
+            double ʞ =
+                ʜ /
+                ʑ *
+                ʝ;
+
+            ʖ =
+                ʚ *
+                ʞ;
+        }
+
+        if (!ʟ)
+        {
+            return ʠ(
+                ʖ,
+                ʑ);
+        }
+
+        Vector3D ʡ =
+            ʓ;
+
+        if (ʡ.Length() <=
+            ʢ)
+        {
+            ʡ =
+                Vector3D.Zero;
+        }
+
+        if (ʛ)
+        {
+            double ʣ =
+                Vector3D.Dot(
+                    ʡ,
+                    ʚ);
+
+            if (ʣ > 0)
             {
-                double ɒ =
-                    Vector3D.Dot(
-                        Ɉ,
-                        Ɍ);
-
-                if (ɒ > 0)
-                {
-                    ɑ -=
-                        Ɍ *
-                        ɒ;
-                }
+                ʡ -=
+                    ʚ *
+                    ʣ;
             }
+        }
 
-            if (Ⱦ)
-            {
-                Vector3D ɓ =
-                    Ȥ
-                        .WorldMatrix.Forward;
-
-                double ɔ =
-                    Vector3D.Dot(
-                        ɑ,
-                        ɓ);
-
-                if (ɔ > 0)
-                {
-                    ɑ -=
-                        ɓ *
-                        ɔ;
-                }
-            }
-
-            Vector3D ɕ =
-                -ɑ /
+        if (ʡ
+                .LengthSquared() >
+            p)
+        {
+            ʖ +=
+                -ʡ /
                 Math.Max(
                     Ô,
                     è);
-
-            ɕ =
-                n.Ŭ(
-                    ɕ,
-                    ɍ);
-
-            ɏ +=
-                ɕ;
         }
 
-        ɏ =
-            n.Ŭ(
-                ɏ,
-                ɍ);
-
-        Vector3D ɖ =
-            Ɇ *
-            (ɏ - ɉ);
-
-        return ɖ -
-               ȹ();
+        return ʠ(
+            ʖ,
+            ʑ);
     }
 
-    Vector3D ȹ()
+    Vector3D ʗ(
+        Vector3 ʕ,
+        Vector3D ʓ,
+        double ʑ,
+        double Ô)
     {
-        Vector3D Ő = Vector3D.Zero;
+        if (Ȏ !=
+            ƅ.ƃ)
+        {
+            ʤ();
+
+            double ʥ =
+                -ʕ.Z;
+
+            if (Math.Abs(
+                    ʥ) >
+                p)
+            {
+                Vector3D ʦ =
+                    ʥ >= 0
+                        ? ɡ
+                            .WorldMatrix
+                            .Forward
+                        : ɡ
+                            .WorldMatrix
+                            .Backward;
+
+                double ł =
+                    ʌ(
+                        ʦ);
+
+                double ʧ =
+                    ł /
+                    ʑ *
+                    ʝ;
+
+                ȝ +=
+                    ʥ *
+                    ʧ *
+                    Ô;
+            }
+        }
+
+        Vector3 ʨ =
+            ʕ;
+
+        ʨ.Z = 0;
+
+        Vector3D ʩ =
+            Vector3D.TransformNormal(
+                ʨ,
+                ɡ
+                    .WorldMatrix);
+
+        Vector3D ʪ =
+            n.o(
+                ʩ);
+
+        Vector3D ʖ =
+            Vector3D.Zero;
+
+        if (ʪ
+                .LengthSquared() >
+            p)
+        {
+            double ʫ =
+                ʌ(
+                    ʪ);
+
+            ʖ +=
+                ʪ *
+                (ʫ /
+                 ʑ *
+                 ʝ);
+        }
+
+        Vector3D ʬ =
+            ɡ
+                .WorldMatrix
+                .Forward;
+
+        Vector3D ʮ =
+            ʬ *
+            ʭ;
+
+        Vector3D ʯ =
+            ʮ -
+            ʓ;
+
+        if (!ʟ)
+        {
+            ʯ =
+                n.ǅ(
+                    ʯ,
+                    ʬ);
+        }
+
+        if (ʯ.Length() <=
+            ʢ)
+        {
+            ʯ =
+                Vector3D.Zero;
+        }
+
+        if (ʯ
+                .LengthSquared() >
+            p)
+        {
+            ʖ +=
+                ʯ /
+                Math.Max(
+                    Ô,
+                    è);
+        }
+
+        return ʠ(
+            ʖ,
+            ʑ);
+    }
+
+    Vector3D ʠ(
+        Vector3D ʞ,
+        double ʑ)
+    {
+        double ʰ =
+            ʞ.Length();
+
+        if (ʰ <=
+                p ||
+            ʑ <=
+                U)
+        {
+            return Vector3D.Zero;
+        }
+
+        Vector3D t =
+            ʞ /
+            ʰ;
+
+        double ʱ =
+            ʌ(
+                t) /
+            ʑ;
+
+        return n.Ŭ(
+            ʞ,
+            ʱ);
+    }
+
+    Vector3D ɷ()
+    {
+        Vector3D Ő =
+            Vector3D.Zero;
 
         for (int Į = 0;
-            Į <
-                ɗ.Count;
+            Į < ʲ.Count;
             Į++)
         {
-            Ő +=
-                ɗ[Į]
-                    .W;
+            g İ =
+                ʲ[Į];
+
+            if (!İ.P)
+            {
+                Ő +=
+                    İ.W;
+            }
+        }
+
+        if (Ȏ ==
+            ƅ.Ƃ)
+        {
+            for (int Į = 0;
+                Į < ʳ.Count;
+                Į++)
+            {
+                g İ =
+                    ʳ[Į];
+
+                if (!İ.P)
+                {
+                    Ő +=
+                        İ.W;
+                }
+            }
         }
 
         return Ő;
     }
 
-
-    void Ƚ(
-        Vector3D ȶ,
-        Vector3D ȵ)
+    Vector3D ʴ()
     {
-        ɘ = ȶ;
-        Ɂ = Vector3D.Zero;
+        return ɷ();
+    }
+
+
+    void ɽ(
+        Vector3D ɰ,
+        Vector3D ɯ,
+        double Ô)
+    {
+        ʵ =
+            ɰ;
+
+        ʀ =
+            Vector3D.Zero;
 
         for (int Į = 0;
-            Į < Ʉ.Count;
+            Į < ʆ.Count;
             Į++)
         {
-            Ʉ[Į]
-                .l();
-        }
-
-        ȝ.Clear();
-
-        for (int Į = 0;
-            Į <
-                ə.Count;
-            Į++)
-        {
-            ɚ(
-                ə[Į],
-                ref ɘ,
-                ȵ,
-                ref Ɂ);
-        }
-
-        for (int Į = 0;
-            Į < Ƀ.Count;
-            Į++)
-        {
-            Ƀ[Į]
-                .œ(
-                    ref ɘ,
-                    ȵ,
-                    ref Ɂ);
-        }
-
-        Ȝ.Clear();
-
-        for (int Į = 0;
-            Į < ɛ.Count;
-            Į++)
-        {
-            Ȝ.Add(
-                ɛ[Į]);
-        }
-
-        while (Ȝ.Count > 0 &&
-               ɘ
-                   .LengthSquared() >
-               U * U)
-        {
-            int ɜ = -1;
-            double ɝ = U;
-
-            for (int Į = 0;
-                Į <
-                    Ȝ.Count;
-                Į++)
+            if (ʆ[Į].P)
             {
-                double ɞ =
-                    Ȝ[Į]
-                        .Ŝ(
-                            ɘ);
-
-                if (ɞ <= ɝ)
-                {
-                    continue;
-                }
-
-                ɝ = ɞ;
-                ɜ = Į;
+                ʆ[Į]
+                    .l();
             }
+        }
 
-            if (ɜ < 0)
-            {
-                break;
-            }
+        ɗ.Clear();
+        ɘ.Clear();
 
-            ŝ ɟ =
-                Ȝ[
-                    ɜ];
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            g İ =
+                ʆ[Į];
 
-            Ȝ.RemoveAt(
-                ɜ);
-
-            Vector3D ɠ =
-                ɟ.Ś(
-                    ɘ);
-
-            if (ɠ
-                    .LengthSquared() <=
-                p)
+            if (!İ.P ||
+                İ.I != null &&
+                İ.I
+                    .Ò
+                    .P)
             {
                 continue;
             }
 
-            for (int Į = 0;
-                Į < ɟ.Ř.Count;
-                Į++)
-            {
-                H ɡ =
-                    ɟ.Ř[Į];
-
-                ɡ.Ŋ(ɠ);
-                ȝ.Add(ɡ);
-            }
-
-            for (int Į = 0;
-                Į < ɟ.Ř.Count;
-                Į++)
-            {
-                ɟ.Ř[Į]
-                    .Œ(
-                        ref ɘ,
-                        ȵ,
-                        ref Ɂ);
-            }
+            ʶ(
+                İ,
+                ref ʵ,
+                ɯ,
+                ref ʀ);
         }
 
         for (int Į = 0;
-            Į < Ƀ.Count;
+            Į < ʂ.Count;
             Į++)
         {
-            H ɡ =
-                Ƀ[Į];
+            H ʋ =
+                ʂ[Į];
 
-            if (!ȝ.Contains(
-                    ɡ))
+            if (!ʋ
+                    .Ò
+                    .P)
             {
-                ɡ.Ŋ(
-                    Vector3D.Zero);
+                continue;
             }
+
+            ʋ.œ(
+                ref ʵ,
+                ɯ,
+                ref ʀ);
+
+            ɘ.Add(
+                ʋ);
+        }
+
+        while (ɘ.Count >
+                   0 &&
+               ʵ
+                   .LengthSquared() >
+               U *
+               U)
+        {
+            Vector3D m =
+                n.o(
+                    ʵ);
+
+            H ʷ =
+                null;
+
+            î ʸ =
+                null;
+
+            foreach (
+                H ʋ
+                in ɘ)
+            {
+                î ï =
+                    new î();
+
+                if (!ʋ.ň(
+                        m,
+                        ï))
+                {
+                    continue;
+                }
+
+                bool ʹ =
+                    ʸ == null ||
+                    ï
+                        .ń >
+                    ʸ
+                        .ń +
+                    U;
+
+                bool ʺ =
+                    ʸ != null &&
+                    Math.Abs(
+                        ï
+                            .ń -
+                        ʸ
+                            .ń) <=
+                    U;
+
+                bool ʻ =
+                    ʺ &&
+                    ʷ != null &&
+                    ʋ
+                        .Ò
+                        .Q <
+                    ʷ
+                        .Ò
+                        .Q;
+
+                if (ʹ ||
+                    ʻ)
+                {
+                    ʷ =
+                        ʋ;
+
+                    ʸ =
+                        ï;
+                }
+            }
+
+            if (ʷ == null)
+            {
+                break;
+            }
+
+            ɘ.Remove(
+                ʷ);
+
+            double ʼ =
+                Vector3D.Dot(
+                    ʵ,
+                    m);
+
+            ʷ.Ŋ(
+                ʸ,
+                ʼ,
+                Ô);
+
+            ɗ.Add(
+                ʷ);
+
+            ʷ.Œ(
+                ref ʵ,
+                ɯ,
+                ref ʀ);
         }
 
         for (int Į = 0;
-            Į < Ʉ.Count;
+            Į < ʂ.Count;
             Į++)
         {
-            Ʉ[Į]
-                .º();
+            H ʋ =
+                ʂ[Į];
+
+            if (!ʋ
+                    .Ò
+                    .P)
+            {
+                continue;
+            }
+
+            if (!ɗ.Contains(
+                    ʋ))
+            {
+                ʋ.Ò.Ó();
+            }
+        }
+
+        ʽ();
+
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            if (ʆ[Į].P)
+            {
+                ʆ[Į]
+                    .º();
+            }
         }
     }
 
-    void ɚ(
+    void ʶ(
         g İ,
         ref Vector3D s,
-        Vector3D ȵ,
+        Vector3D ɯ,
         ref Vector3D ō)
     {
         double ŏ =
-            İ.x(
-                ref s);
+            İ
+                .x(
+                    ref s);
 
-        if (ŏ <= U)
+        if (ŏ <=
+            U)
         {
             return;
         }
 
         Vector3D Ő =
-            İ.R *
+            İ
+                .R *
             ŏ;
 
         Vector3D ő =
-            İ.E.GetPosition() -
-            ȵ;
+            İ
+                .E
+                .GetPosition() -
+            ɯ;
 
         ō +=
-            Vector3D.Cross(ő, Ő);
+            Vector3D.Cross(
+                ő,
+                Ő);
+    }
+
+    void ʽ()
+    {
+        if (!ǻ)
+        {
+            ʾ(
+                ƌ.Ɖ);
+
+            return;
+        }
+
+        for (int Į = 0;
+            Į <
+                ʿ.Count;
+            Į++)
+        {
+            g İ =
+                ʿ[Į];
+
+            if (!İ.P)
+            {
+                continue;
+            }
+
+            if (İ
+                    .K >
+                U)
+            {
+                ʾ(
+                    İ,
+                    ƌ.Ɖ);
+
+                y(
+                    İ);
+
+                continue;
+            }
+
+            ˀ(
+                İ,
+                ƌ.Ɖ);
+        }
     }
 
 
-    void ɀ(
+    void ɿ(
         Vector3D ō,
-        bool ȿ)
+        bool ɾ)
     {
-        if (ɢ.Count == 0 ||
-            Ȥ == null)
+        if (ˁ.Count == 0 ||
+            ɡ == null)
         {
             return;
         }
 
-        double ɣ = 0;
+        double ˆ = 0;
 
         for (int Į = 0;
-            Į < ɢ.Count;
+            Į < ˁ.Count;
             Į++)
         {
-            ɣ +=
-                ɢ[Į]
+            ˆ +=
+                ˁ[Į]
                     .ř;
         }
 
-        if (ɣ <=
+        if (ˆ <=
             p)
         {
-            Ȳ();
+            ɭ();
             return;
         }
 
-        Vector3D ɤ =
+        Vector3D ˇ =
             -ō /
-            ɣ *
+            ˆ *
             ŭ;
 
-        if (ȿ)
+        if (ɾ)
         {
-            Vector3D ɉ =
-                Ȥ
+            Vector3D ʔ =
+                ɡ
                     .GetNaturalGravity();
 
-            if (ɉ.LengthSquared() >
+            if (ʔ.LengthSquared() >
                 p)
             {
-                Vector3D ɥ =
+                Vector3D ˈ =
                     -n.o(
-                        ɉ);
+                        ʔ);
 
-                Vector3D ɦ =
-                    Ȥ
-                        .WorldMatrix.Up;
+                Vector3D ˉ =
+                    ɡ
+                        .WorldMatrix
+                        .Up;
 
-                Vector3D ɧ =
+                Vector3D ˊ =
                     Vector3D.Cross(
-                        ɦ,
-                        ɥ);
+                        ˉ,
+                        ˈ);
 
                 double q =
                     MathHelper.Clamp(
                         Vector3D.Dot(
-                            ɦ,
-                            ɥ),
+                            ˉ,
+                            ˈ),
                         -1,
                         1);
 
-                double ɨ =
+                double ˋ =
                     Math.Atan2(
-                        ɧ.Length(),
+                        ˊ.Length(),
                         q);
 
-                if (ɧ
+                if (ˊ
                         .LengthSquared() >
                     p)
                 {
-                    ɧ =
+                    ˊ =
                         n.o(
-                            ɧ);
+                            ˊ);
 
-                    ɤ +=
-                        ɧ *
-                        ɨ *
-                        ɩ;
+                    ˇ +=
+                        ˊ *
+                        ˋ *
+                        ˌ;
                 }
 
-                Vector3D ɪ =
-                    Ȥ
+                Vector3D ˍ =
+                    ɡ
                         .GetShipVelocities()
                         .AngularVelocity;
 
-                Vector3D ɫ =
+                Vector3D ˎ =
                     n.ą(
-                        ɪ,
-                        ɥ);
+                        ˍ,
+                        ˈ);
 
-                ɤ -=
-                    ɫ *
-                    ɬ;
+                ˇ -=
+                    ˎ *
+                    ˏ;
             }
         }
 
-        if (ɤ.LengthSquared() <=
+        if (ˇ
+                .LengthSquared() <=
             Ų *
             Ų)
         {
-            Ȳ();
+            ɭ();
             return;
         }
 
         for (int Į = 0;
-            Į < ɢ.Count;
+            Į < ˁ.Count;
             Į++)
         {
-            ɢ[Į]
+            ˁ[Į]
                 .Ŵ(
-                    ɤ);
+                    ˇ);
         }
     }
 
-    void Ȳ()
+    void ɭ()
     {
         for (int Į = 0;
-            Į < ɢ.Count;
+            Į < ˁ.Count;
             Į++)
         {
-            ɢ[Į]
+            ˁ[Į]
                 .Ū();
         }
     }
 
-
-    void Ƞ()
+    void ˮ()
     {
-        IMyShipController ɭ = null;
+        if (!ȟ.ȭ)
+        {
+            ː();
+            return;
+        }
+
+        if (Ȏ !=
+                ƅ.Ƃ ||
+            ɡ == null ||
+            !ɡ
+                .IsUnderControl)
+        {
+            ː();
+            return;
+        }
+
+        if (ˑ != null &&
+            ˑ.EntityId !=
+                ɡ.EntityId)
+        {
+            ˠ(
+                ˑ);
+        }
+
+        ˑ =
+            ɡ;
+
+        StringBuilder ɏ =
+            new StringBuilder();
+
+        ɏ
+            .Append('[')
+            .Append(ˡ)
+            .AppendLine("]");
+
+        ɏ
+            .Append("Version=")
+            .AppendLine(
+                ˢ);
+
+        ɏ
+            .Append(
+"MasterProgrammableBlockId=")
+            .AppendLine(
+                Me.EntityId.ToString());
+
+        ɏ
+            .Append("ControllerId=")
+            .AppendLine(
+                ɡ
+                    .EntityId
+                    .ToString());
+
+        ɏ
+            .Append("Sequence=")
+            .AppendLine(
+                ˣ
+                    .ToString());
+
+        ɏ
+            .Append("Demand=")
+            .AppendLine(
+                ˤ(
+                    ɻ));
+
+        ɏ
+            .Append("Dampeners=")
+            .AppendLine(
+                Ȍ
+                    .ToString());
+
+        ɏ
+            .Append("Cruise=")
+            .AppendLine(
+                Ȕ.ToString());
+
+        ɏ
+            .Append(
+"CruiseTargetSpeed=")
+            .AppendLine(
+                ȝ
+                    .ToString("R"));
+
+        ɏ
+            .Append("GearIndex=")
+            .AppendLine(
+                Ȣ
+                    .ToString());
+
+        ɏ
+            .Append("GearCount=")
+            .AppendLine(
+                ȟ
+                    .Ƞ
+                    .Count
+                    .ToString());
+
+        ɏ
+            .Append("GearFraction=")
+            .AppendLine(
+                ʝ
+                    .ToString("R"));
+
+        ɏ
+            .Append(
+"LevelWithGravity=")
+            .AppendLine(
+                (Ȕ &&
+                 ȟ
+                     .Ȱ)
+                .ToString());
+
+        ɡ.CustomData =
+            ˬ(
+                ɡ
+                    .CustomData,
+                ˡ,
+                ɏ.ToString());
+    }
+
+    void ː()
+    {
+        if (ˑ ==
+            null)
+        {
+            return;
+        }
+
+        ˠ(
+            ˑ);
+
+        ˑ =
+            null;
+    }
+
+    void ˠ(
+        IMyShipController Ͱ)
+    {
+        if (Ͱ == null ||
+            Ͱ.Closed)
+        {
+            return;
+        }
+
+        string ͱ;
+
+        if (!Ͳ(
+                Ͱ.CustomData,
+                ˡ,
+"MasterProgrammableBlockId",
+                out ͱ))
+        {
+            return;
+        }
+
+        long ͳ;
+
+        if (!long.TryParse(
+                ͱ,
+                out ͳ) ||
+            ͳ !=
+                Me.EntityId)
+        {
+            return;
+        }
+
+        Ͱ.CustomData =
+            ʹ(
+                Ͱ.CustomData,
+                ˡ);
+    }
+
+    void ͼ(
+        IMyShipController Ͷ)
+    {
+        long ͷ =
+            Ͷ !=
+                    null
+                ? Ͷ
+                    .EntityId
+                : 0;
 
         for (int Į = 0;
-            Į < ɮ.Count;
+            Į < ͺ.Count;
             Į++)
         {
-            IMyShipController ɯ =
-                ɮ[Į];
+            IMyShipController Ͱ =
+                ͺ[Į];
 
-            if (ɯ == null ||
-                ɯ.Closed ||
-                !ɯ.IsFunctional ||
-                !ɯ.CanControlShip)
+            if (Ͱ == null ||
+                Ͱ.EntityId ==
+                    ͷ)
             {
                 continue;
             }
 
-            if (ɯ.IsUnderControl)
-            {
-                ɭ = ɯ;
-                break;
-            }
-
-            if (ɭ == null ||
-                ɯ.IsMainCockpit)
-            {
-                ɭ = ɯ;
-            }
+            ˠ(
+                Ͱ);
         }
 
-        Ȥ = ɭ;
-        ɰ =
-            Ȥ == null;
+        for (int Į = 0;
+            Į <
+                ͻ
+                    .Count;
+            Į++)
+        {
+            IMyShipController Ͱ =
+                ͻ[Į];
 
-        ȣ =
-            ȁ.ǭ &&
-            Ȥ != null &&
-            Ȥ.IsUnderControl;
+            if (Ͱ == null ||
+                Ͱ.EntityId ==
+                    ͷ)
+            {
+                continue;
+            }
+
+            ˠ(
+                Ͱ);
+        }
     }
 
-    void Ȭ()
+    void Ά()
     {
-        Ƞ();
+        IMyShipController ͽ =
+            Ȏ ==
+                    ƅ.Ƃ &&
+                ɡ !=
+                    null &&
+                ɡ
+                    .IsUnderControl
+                ? ɡ
+                : null;
 
-        if (ȭ == ƅ.ƃ &&
-            !ȫ)
-        {
-            ɱ =
-                ɲ;
-        }
+        ͼ(
+            ͽ);
 
-        ƅ ɳ;
-
-        if (ɰ ||
-            Me.CubeGrid.IsStatic ||
-            Ȧ)
+        if (ͽ == null)
         {
-            ɳ =
-                ƅ.Ƅ;
-        }
-        else if (ȁ.Ǯ &&
-                 ȫ &&
-                 !ȣ)
-        {
-            ɳ =
-                ƅ.ƃ;
-        }
-        else if (ɴ ||
-                 ɱ)
-        {
-            ɳ =
-                ƅ.Ƅ;
-        }
-        else if (ȣ)
-        {
-            ɳ =
-                ƅ.Ƃ;
+            ˑ =
+                null;
         }
         else
         {
-            ɳ =
-                ƅ.Ɓ;
+            ˑ =
+                ͽ;
         }
-
-        if (ɳ == ȭ)
-        {
-            return;
-        }
-
-        ɵ(ɳ);
     }
 
-    void ɵ(
-        ƅ ɶ)
+
+    void ɣ()
     {
-        ƅ ɷ = ȭ;
-
-        if (ɷ ==
-                ƅ.Ƅ &&
-            ɶ !=
-                ƅ.Ƅ)
+        for (int Į = 0;
+            Į <
+                ͻ
+                    .Count;
+            Į++)
         {
-            ɸ();
+            IMyShipController Ͱ =
+                ͻ[Į];
+
+            if (Ͱ == null ||
+                Ͱ.Closed ||
+                !Ͱ.IsUnderControl)
+            {
+                continue;
+            }
+
+            Ƶ Ƿ;
+
+            if (!Έ(
+                    Ͱ,
+                    out Ƿ))
+            {
+                continue;
+            }
+
+            Ή(
+                Ƿ);
+
+            return;
+        }
+    }
+
+    void Ί()
+    {
+        for (int Į = 0;
+            Į <
+                ͻ
+                    .Count;
+            Į++)
+        {
+            IMyShipController Ͱ =
+                ͻ[Į];
+
+            if (Ͱ == null ||
+                Ͱ.Closed ||
+                !Ͱ.IsUnderControl)
+            {
+                continue;
+            }
+
+            if (ɱ
+                    .Ƭ != 0 &&
+                Ͱ.EntityId !=
+                    ɱ
+                        .Ƭ)
+            {
+                continue;
+            }
+
+            Ƶ Ƿ;
+
+            if (!Έ(
+                    Ͱ,
+                    out Ƿ))
+            {
+                continue;
+            }
+
+            if (ɱ
+                    .ƫ !=
+                    0 &&
+                Ƿ
+                    .ƫ !=
+                ɱ
+                    .ƫ)
+            {
+                continue;
+            }
+
+            Ή(
+                Ƿ);
+
+            return;
+        }
+    }
+
+    void Ή(
+        Ƶ Ƿ)
+    {
+        bool Ύ =
+            Ƿ.ƭ !=
+                ɦ ||
+            Ƿ
+                .ƫ !=
+                Ό ||
+            Ƿ.Ƭ !=
+                ɱ
+                    .Ƭ;
+
+        if (Ύ)
+        {
+            ɦ =
+                Ƿ.ƭ;
+
+            Ό =
+                Ƿ
+                    .ƫ;
+
+            ɥ = 0;
+
+            ɤ =
+                true;
+
+            ɧ =
+                true;
         }
 
-        if (ɷ ==
-                ƅ.ƃ &&
-            ɶ !=
-                ƅ.ƃ &&
-            !ȫ)
-        {
-            ɱ =
-                ɲ;
-        }
+        ɱ.ƙ(
+            Ƿ);
 
-        ȭ = ɶ;
-
-        if (ɶ ==
+        if (Ȏ ==
             ƅ.ƃ)
         {
-            ɲ =
-                ɷ ==
-                ƅ.Ƅ;
-
-            ɱ = false;
+            ɞ();
+            ɝ();
         }
-
-        if (ɶ ==
-                ƅ.Ƅ &&
-            ɷ !=
-                ƅ.Ƅ)
-        {
-            ɹ();
-            Ĉ();
-        }
-
-        ɺ = true;
     }
 
-
-    void ȥ()
+    bool Έ(
+        IMyShipController Ͱ,
+        out Ƶ Ƿ)
     {
-        if (ȁ.ǯ)
-        {
-            ɴ = false;
-            return;
-        }
+        Ƿ =
+            null;
 
-        bool ɻ = false;
-
-        for (int Į = 0;
-            Į < ɼ.Count;
-            Į++)
-        {
-            if (ɽ(
-                    ɼ[Į]))
-            {
-                ɻ = true;
-                break;
-            }
-        }
-
-        if (!ɻ)
-        {
-            for (int Į = 0;
-                Į < ɾ.Count;
-                Į++)
-            {
-                if (ɿ(
-                        ɾ[Į]))
-                {
-                    ɻ = true;
-                    break;
-                }
-            }
-        }
-
-        ɴ = ɻ;
-    }
-
-    bool ɽ(
-        Ǫ ʀ)
-    {
-        IMyShipConnector ʁ =
-            ʀ.Ǩ;
-
-        if (ʁ == null ||
-            ʁ.Closed ||
-            ʁ.Status !=
-                MyShipConnectorStatus.Connected)
+        if (Ͱ == null ||
+            Ͱ.Closed ||
+            !Ͱ.IsUnderControl)
         {
             return false;
         }
 
-        IMyShipConnector Ɨ =
-            ʁ.OtherConnector;
+        string Ώ;
 
-        if (Ɨ == null)
+        if (!Ͳ(
+                Ͱ.CustomData,
+                ˡ,
+"Version",
+                out Ώ) ||
+            string.IsNullOrWhiteSpace(Ώ))
         {
             return false;
         }
 
-        Ǒ ʂ;
-
-        if (!ʃ.TryGetValue(
-                Ɨ.CubeGrid.EntityId,
-                out ʂ))
-        {
-            return Ɨ.CubeGrid.IsStatic;
-        }
-
-        Ǐ ʄ =
-            ʂ.ǐ;
-
-        if (ʄ == null)
-        {
-            return Ɨ.CubeGrid.IsStatic;
-        }
-
-        if (ʄ.Ǡ)
-        {
-            return true;
-        }
-
-        if (ʄ.ǝ.Count == 0)
+        if (ΐ(Ώ) != ΐ(ˢ))
         {
             return false;
         }
-
-        if (ȣ &&
-            ʄ.ǡ)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    bool ɿ(
-        ǫ ʅ)
-    {
-        IMyLandingGear ʆ =
-            ʅ.Ǩ;
-
-        if (ʆ == null ||
-            ʆ.Closed ||
-            !ʆ.IsFunctional)
-        {
-            return false;
-        }
-
-        return ʆ.IsLocked;
-    }
-
-    void Ĉ()
-    {
-        ȱ();
-        Ȳ();
-
-        Vector3D ɉ =
-            Ȥ != null
-                ? Ȥ
-                    .GetNaturalGravity()
-                : Vector3D.Zero;
-
-        Vector3D û =
-            Me.CubeGrid.WorldAABB.Center;
-
-        for (int Į = 0;
-            Į < Ʉ.Count;
-            Į++)
-        {
-            g İ =
-                Ʉ[Į];
-
-            long ʇ =
-                İ.Q;
-
-            if (!ʈ
-                    .ContainsKey(ʇ))
-            {
-                ʈ.Add(
-                    ʇ,
-                    İ.E.Enabled);
-            }
-
-            İ.j();
-            İ.E.Enabled = false;
-        }
-
-        for (int Į = 0;
-            Į < ʉ.Count;
-            Į++)
-        {
-            ʉ[Į]
-                .Ĉ(
-                    ɉ,
-                    û);
-        }
-
-        ʊ(ʋ);
-    }
-
-    void ɸ()
-    {
-        ȳ();
-
-        for (int Į = 0;
-            Į < ʉ.Count;
-            Į++)
-        {
-            ʉ[Į]
-                .Þ();
-        }
-
-        ʊ(ʌ);
-    }
-
-    void ʍ()
-    {
-        for (int Į = 0;
-            Į < Ʉ.Count;
-            Į++)
-        {
-            g İ =
-                Ʉ[Į];
-
-            if (!ʈ
-                    .ContainsKey(
-                        İ.Q))
-            {
-                ʈ.Add(
-                    İ.Q,
-                    İ.E.Enabled);
-            }
-
-            İ.j();
-            İ.E.Enabled = false;
-        }
-
-        Ȳ();
-
-        for (int Į = 0;
-            Į < ʉ.Count;
-            Į++)
-        {
-            if (Math.Abs(
-                    ʉ[Į]
-                        .E
-                        .TargetVelocityRad) >
-                ď)
-            {
-                ʉ[Į]
-                    .E
-                    .TargetVelocityRad = 0;
-            }
-        }
-    }
-
-    void Ȯ()
-    {
-        for (int Į = 0;
-            Į < ʉ.Count;
-            Į++)
-        {
-            ʉ[Į]
-                .Đ();
-        }
-    }
-
-    void ȱ()
-    {
-        for (int Į = 0;
-            Į < Ʉ.Count;
-            Į++)
-        {
-            Ʉ[Į]
-                .j();
-        }
-    }
-
-    void ȳ()
-    {
-        if (ʈ.Count == 0)
-        {
-            return;
-        }
-
-        for (int Į = 0;
-            Į < Ʉ.Count;
-            Į++)
-        {
-            g İ =
-                Ʉ[Į];
-
-            bool ʎ;
-
-            if (!ʈ
-                    .TryGetValue(
-                        İ.Q,
-                        out ʎ))
-            {
-                continue;
-            }
-
-            İ.E.Enabled =
-                ʎ;
-        }
-
-        ʈ.Clear();
-    }
-
-    void ʏ(
-        long ʇ,
-        IMyThrust d)
-    {
-        bool ʎ;
-
-        if (!ʈ
-                .TryGetValue(
-                    ʇ,
-                    out ʎ))
-        {
-            return;
-        }
-
-        if (d != null &&
-            !d.Closed)
-        {
-            d.Enabled = ʎ;
-        }
-
-        ʈ.Remove(
-            ʇ);
-    }
-
-    bool ʐ(
-        long ʇ)
-    {
-        return ʈ
-            .ContainsKey(ʇ);
-    }
-
-    void ʊ(
-        List<IMyTimerBlock> ʑ)
-    {
-        for (int Į = 0;
-            Į < ʑ.Count;
-            Į++)
-        {
-            IMyTimerBlock ʒ =
-                ʑ[Į];
-
-            if (ʒ == null ||
-                ʒ.Closed ||
-                !ʒ.IsFunctional)
-            {
-                continue;
-            }
-
-            ʒ.Trigger();
-        }
-    }
-
-
-    void ʖ(string ʓ)
-    {
-        if (string.IsNullOrWhiteSpace(ʓ))
-        {
-            return;
-        }
-
-        string[] ʔ =
-            ʓ.ToLowerInvariant()
-                .Split(
-                    new[] { ';', '\n', '\r' },
-                    StringSplitOptions
-                        .RemoveEmptyEntries);
-
-        for (int Į = 0;
-            Į < ʔ.Length;
-            Į++)
-        {
-            string ʕ =
-                ʔ[Į].Trim();
-
-            if (ʕ == "park")
-            {
-                Ȧ =
-                    !Ȧ;
-
-                ɱ = false;
-            }
-            else if (ʕ == "park on")
-            {
-                Ȧ = true;
-                ɱ = false;
-            }
-            else if (ʕ == "park off"||
-                     ʕ == "unpark")
-            {
-                Ȧ = false;
-                ɱ = false;
-            }
-            else if (ʕ == "cruise")
-            {
-                Ⱦ = !Ⱦ;
-            }
-            else if (ʕ == "cruise on")
-            {
-                Ⱦ = true;
-            }
-            else if (ʕ == "cruise off")
-            {
-                Ⱦ = false;
-            }
-            else if (ʕ == "dampeners")
-            {
-                ɐ =
-                    !ɐ;
-
-                if (Ȥ != null)
-                {
-                    Ȥ
-                        .DampenersOverride =
-                        ɐ;
-                }
-            }
-            else if (ʕ == "gear")
-            {
-                Ȍ++;
-
-                if (Ȍ >=
-                    ȁ
-                        .Ǳ.Count)
-                {
-                    Ȍ = 0;
-                }
-            }
-            else if (ʕ == "rescan")
-            {
-                ȑ();
-            }
-        }
-
-        Save();
-    }
-
-
-    void ȡ()
-    {
-        HashSet<long> ʗ =
-            new HashSet<long>();
-
-        for (int Į = 0;
-            Į < ʘ.Count;
-            Į++)
-        {
-            IMyShipConnector ʁ =
-                ʘ[Į];
-
-            if (ʁ == null ||
-                ʁ.Closed)
-            {
-                continue;
-            }
-
-            long ʙ =
-                ʁ.OtherConnector != null
-                    ? ʁ
-                        .OtherConnector
-                        .EntityId
-                    : 0;
-
-            long ʚ;
-
-            if (!ʛ
-                    .TryGetValue(
-                        ʁ.EntityId,
-                        out ʚ) ||
-                ʚ != ʙ)
-            {
-                ʛ[
-                    ʁ.EntityId] =
-                    ʙ;
-
-                ȑ();
-            }
-
-            ʗ.Add(
-                ʁ.EntityId);
-        }
-
-        for (int Į = 0;
-            Į < ɾ.Count;
-            Į++)
-        {
-            IMyLandingGear ʜ =
-                ɾ[Į].Ǩ;
-
-            if (ʜ == null ||
-                ʜ.Closed)
-            {
-                continue;
-            }
-
-            bool ʝ;
-
-            if (!ʞ
-                    .TryGetValue(
-                        ʜ.EntityId,
-                        out ʝ) ||
-                ʝ != ʜ.IsLocked)
-            {
-                ʞ[
-                    ʜ.EntityId] =
-                    ʜ.IsLocked;
-
-                ȑ();
-            }
-        }
-    }
-
-
-    void ʥ()
-    {
-        if (ȭ != ƅ.Ƃ ||
-            Ȥ == null)
-        {
-            ɹ();
-            return;
-        }
-
-        if (Ȟ != null &&
-            Ȟ.EntityId !=
-                Ȥ.EntityId)
-        {
-            ʟ(
-                Ȟ);
-        }
-
-        Ȟ =
-            Ȥ;
-
-        StringBuilder ȓ =
-            new StringBuilder();
-
-        ȓ.Append('[')
-            .Append(ʠ)
-            .AppendLine("]");
-
-        ȓ.Append("Version=")
-            .AppendLine(ʡ);
-
-        ȓ.Append("MasterProgrammableBlockId=")
-            .AppendLine(Me.EntityId.ToString());
-
-        ȓ.Append("ControllerId=")
-            .AppendLine(
-                Ȥ.EntityId
-                    .ToString());
-
-        ȓ.Append("Sequence=")
-            .AppendLine(
-                ʢ.ToString());
-
-        ȓ.Append("Demand=")
-            .AppendLine(
-                ʣ(
-                    Ȼ));
-
-        ȓ.Append("Cruise=")
-            .AppendLine(
-                Ⱦ.ToString());
-
-        ȓ.Append("LevelWithGravity=")
-            .AppendLine(
-                (Ⱦ &&
-                ȁ
-                    .ǰ)
-                .ToString());
-
-        Ȥ.CustomData =
-            ʤ(
-                Ȥ.CustomData,
-                ʠ,
-                ȓ.ToString());
-    }
-
-    void ɹ()
-    {
-        if (Ȟ == null)
-        {
-            return;
-        }
-
-        ʟ(
-            Ȟ);
-
-        Ȟ = null;
-    }
-
-    void ʟ(
-        IMyShipController ɯ)
-    {
-        if (ɯ == null ||
-            ɯ.Closed)
-        {
-            return;
-        }
-
-        string ʦ;
-
-        if (!ʧ(
-                ɯ.CustomData,
-                ʠ,
+            
+        string Α;
+        string Β;
+        string Γ;
+        string Δ;
+
+        if (!Ͳ(
+                Ͱ.CustomData,
+                ˡ,
 "MasterProgrammableBlockId",
-                out ʦ))
-        {
-            return;
-        }
-
-        long ʨ;
-
-        if (!long.TryParse(
-                ʦ,
-                out ʨ) ||
-            ʨ != Me.EntityId)
-        {
-            return;
-        }
-
-        ɯ.CustomData =
-            ʩ(
-                ɯ.CustomData,
-                ʠ);
-    }
-
-    void ȧ()
-    {
-        for (int Į = 0;
-            Į <
-                ʪ.Count;
-            Į++)
-        {
-            Ʈ ʕ;
-
-            if (!ʫ(
-                    ʪ[Į],
-                    out ʕ))
-            {
-                continue;
-            }
-
-            ʬ(ʕ);
-            return;
-        }
-    }
-
-    void ʭ()
-    {
-        for (int Į = 0;
-            Į <
-                ʪ.Count;
-            Į++)
-        {
-            IMyShipController ɯ =
-                ʪ[Į];
-
-            if (ȷ
-                    .ƥ != 0 &&
-                ɯ.EntityId !=
-                    ȷ
-                        .ƥ)
-            {
-                continue;
-            }
-
-            Ʈ ʕ;
-
-            if (!ʫ(
-                    ɯ,
-                    out ʕ))
-            {
-                continue;
-            }
-
-            if (ȷ
-                    .Ƥ != 0 &&
-                ʕ
-                    .Ƥ !=
-                ȷ
-                    .Ƥ)
-            {
-                continue;
-            }
-
-            ʬ(ʕ);
-            return;
-        }
-    }
-
-    void ʬ(
-        Ʈ ʕ)
-    {
-        if (ʕ.Ʀ !=
-                Ȫ ||
-            ʕ
-                .Ƥ !=
-            ʮ)
-        {
-            Ȫ =
-                ʕ.Ʀ;
-
-            ʮ =
-                ʕ
-                    .Ƥ;
-
-            ȩ = 0;
-            Ȩ =
-                true;
-            ȫ = true;
-        }
-
-        ȷ.ƙ(
-            ʕ);
-    }
-
-    bool ʫ(
-        IMyShipController ɯ,
-        out Ʈ ʕ)
-    {
-        ʕ = null;
-
-        if (ɯ == null ||
-            ɯ.Closed)
-        {
-            return false;
-        }
-
-        string ʯ;
-        string ʰ;
-        string ʱ;
-        string ʲ;
-        string ʳ;
-        string ʴ;
-
-        if (!ʧ(
-                ɯ.CustomData,
-                ʠ,
-"MasterProgrammableBlockId",
-                out ʯ) ||
-            !ʧ(
-                ɯ.CustomData,
-                ʠ,
+                out Α) ||
+            !Ͳ(
+                Ͱ.CustomData,
+                ˡ,
 "ControllerId",
-                out ʰ) ||
-            !ʧ(
-                ɯ.CustomData,
-                ʠ,
+                out Β) ||
+            !Ͳ(
+                Ͱ.CustomData,
+                ˡ,
 "Sequence",
-                out ʱ) ||
-            !ʧ(
-                ɯ.CustomData,
-                ʠ,
+                out Γ) ||
+            !Ͳ(
+                Ͱ.CustomData,
+                ˡ,
 "Demand",
-                out ʲ))
+                out Δ))
         {
             return false;
         }
 
-        long ʦ;
-        long ʵ;
-        long ʶ;
-        Vector3D ʷ;
+        long ͱ;
+        long Ε;
+        long Ζ;
+        Vector3D ɲ;
 
         if (!long.TryParse(
-                ʯ,
-                out ʦ) ||
+                Α,
+                out ͱ) ||
             !long.TryParse(
-                ʰ,
-                out ʵ) ||
+                Β,
+                out Ε) ||
             !long.TryParse(
-                ʱ,
-                out ʶ) ||
-            !ʸ(
-                ʲ,
-                out ʷ))
+                Γ,
+                out Ζ) ||
+            !Η(
+                Δ,
+                out ɲ))
         {
             return false;
         }
 
-        ʧ(
-            ɯ.CustomData,
-            ʠ,
-"Cruise",
-            out ʳ);
-
-        ʧ(
-            ɯ.CustomData,
-            ʠ,
-"LevelWithGravity",
-            out ʴ);
-
-        bool ʹ;
-        bool ʺ;
-
-        bool.TryParse(
-            ʳ,
-            out ʹ);
-
-        bool.TryParse(
-            ʴ,
-            out ʺ);
-
-        ʕ = new Ʈ
+        if (ͱ ==
+                Me.EntityId ||
+            Ε !=
+                Ͱ.EntityId)
         {
-            Ƥ =
-                ʦ,
-            ƥ = ʵ,
-            Ʀ = ʶ,
-            Ƨ =
-                n.Ŭ(
-                    ʷ,
-                    1),
-            Ɖ = ʹ,
-            Ʃ =
-                ʺ
-        };
+            return false;
+        }
+
+        string Θ;
+        string Ι;
+        string Κ;
+        string Λ;
+        string Μ;
+        string Ν;
+        string Ξ;
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"Dampeners",
+            out Θ);
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"Cruise",
+            out Ι);
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"CruiseTargetSpeed",
+            out Κ);
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"GearIndex",
+            out Λ);
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"GearCount",
+            out Μ);
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"GearFraction",
+            out Ν);
+
+        Ͳ(
+            Ͱ.CustomData,
+            ˡ,
+"LevelWithGravity",
+            out Ξ);
+
+        bool Ο =
+            true;
+
+        bool Π;
+        bool Ρ;
+
+        double Σ;
+        double Τ;
+
+        int Υ;
+        int Φ;
+
+        bool Χ;
+
+        if (bool.TryParse(
+                Θ,
+                out Χ))
+        {
+            Ο =
+                Χ;
+        }
+
+        bool.TryParse(
+            Ι,
+            out Π);
+
+        bool.TryParse(
+            Ξ,
+            out Ρ);
+
+        double.TryParse(
+            Κ,
+            out Σ);
+
+        double.TryParse(
+            Ν,
+            out Τ);
+
+        int.TryParse(
+            Λ,
+            out Υ);
+
+        int.TryParse(
+            Μ,
+            out Φ);
+
+        Ƿ =
+            new Ƶ
+            {
+                ƫ =
+                    ͱ,
+
+                Ƭ =
+                    Ε,
+
+                ƭ =
+                    Ζ,
+
+                Ʈ =
+                    n.Ŭ(
+                        ɲ,
+                        1),
+
+                Ư =
+                    Ο,
+
+                Ɖ =
+                    Π,
+
+                Ʊ =
+                    Σ,
+
+                Ƴ =
+                    Math.Max(
+                        0,
+                        Υ),
+
+                ƴ =
+                    Math.Max(
+                        0,
+                        Φ),
+
+                Ʋ =
+                    MathHelper.Clamp(
+                        Τ,
+                        0,
+                        1),
+
+                ư =
+                    Ρ
+            };
 
         return true;
     }
 
-
-    static int ˆ(
-        string ǽ,
-        string ʻ)
+    void Ψ()
     {
-        if (string.IsNullOrEmpty(ǽ))
+        ɧ =
+            false;
+
+        ɤ =
+            false;
+
+        ɥ = 0;
+
+        ɦ =
+            long.MinValue;
+
+        Ό =
+            0;
+
+        ɱ.ĺ();
+    }
+
+    static int ΐ(string Ω)
+    {
+        if (string.IsNullOrWhiteSpace(Ω))
         {
             return -1;
         }
 
-        string ʼ =
-"["+ ʻ + "]";
+        int Ϊ = Ω.IndexOf('.');
 
-        int ʽ = 0;
+        string Ϋ =
+            Ϊ >= 0
+                ? Ω.Substring(0, Ϊ)
+                : Ω;
 
-        while (ʽ <
-               ǽ.Length)
+        int ά;
+
+        return int.TryParse(Ϋ, out ά)
+            ? ά
+            : -1;
+    }
+
+
+    static int δ(
+        string ȼ,
+        string έ)
+    {
+        if (string.IsNullOrEmpty(
+                ȼ))
         {
-            int ʾ = ǽ.IndexOf(
-                ʼ,
-                ʽ,
-                StringComparison.OrdinalIgnoreCase);
+            return -1;
+        }
 
-            if (ʾ < 0)
+        string ή =
+"["+
+            έ +
+"]";
+
+        int ί = 0;
+
+        while (ί <
+               ȼ.Length)
+        {
+            int ΰ =
+                ȼ.IndexOf(
+                    ή,
+                    ί,
+                    StringComparison
+                        .OrdinalIgnoreCase);
+
+            if (ΰ < 0)
             {
                 return -1;
             }
 
-            bool ʿ =
-                ʾ == 0 ||
-                ǽ[ʾ - 1] == '\n';
+            bool α =
+                ΰ == 0 ||
+                ȼ[
+                    ΰ - 1] ==
+                '\n';
 
-            int ˀ = ʾ + ʼ.Length;
+            int β =
+                ΰ +
+                ή.Length;
 
-            bool ˁ =
-                ˀ >= ǽ.Length ||
-                ǽ[ˀ] == '\r' ||
-                ǽ[ˀ] == '\n';
+            bool γ =
+                β >=
+                    ȼ.Length ||
+                ȼ[β] ==
+                    '\r' ||
+                ȼ[β] ==
+                    '\n';
 
-            if (ʿ && ˁ)
+            if (α &&
+                γ)
             {
-                return ʾ;
+                return ΰ;
             }
 
-            ʽ = ʾ + 1;
+            ί =
+                ΰ + 1;
         }
 
         return -1;
     }
 
-    static int ˊ(
-        string ǽ,
-        int ʽ)
+    static int θ(
+        string ȼ,
+        int ί)
     {
-        while (ʽ <
-               ǽ.Length)
+        while (ί <
+               ȼ.Length)
         {
-            int ˇ =
-                ǽ.IndexOf(
+            int ε =
+                ȼ.IndexOf(
                     '\n',
-                    ʽ);
+                    ί);
 
-            if (ˇ < 0 ||
-                ˇ + 1 >=
-                    ǽ.Length)
+            if (ε < 0 ||
+                ε + 1 >=
+                    ȼ.Length)
             {
-                return ǽ.Length;
+                return ȼ.Length;
             }
 
-            ˇ++;
+            ε++;
 
-            int ˈ = ˇ;
+            int ζ =
+                ε;
 
-            while (ˈ <
-                       ǽ.Length &&
-                   (ǽ[ˈ] == ' ' ||
-                    ǽ[ˈ] == '\t' ||
-                    ǽ[ˈ] == '\r'))
+            while (ζ <
+                       ȼ.Length &&
+                   (ȼ[ζ] ==
+                        ' ' ||
+                    ȼ[ζ] ==
+                        '\t' ||
+                    ȼ[ζ] ==
+                        '\r'))
             {
-                ˈ++;
+                ζ++;
             }
 
-            if (ˈ <
-                    ǽ.Length &&
-                ǽ[ˈ] == '[')
+            if (ζ <
+                    ȼ.Length &&
+                ȼ[ζ] ==
+                    '[')
             {
-                int ˉ =
-                    ǽ.IndexOf(
+                int η =
+                    ȼ.IndexOf(
                         ']',
-                        ˈ + 1);
+                        ζ + 1);
 
-                if (ˉ >= 0)
+                if (η >= 0)
                 {
-                    return ˇ;
+                    return ε;
                 }
             }
 
-            ʽ = ˇ;
+            ί =
+                ε;
         }
 
-        return ǽ.Length;
+        return ȼ.Length;
     }
 
-    static bool ʧ(
-        string ǽ,
-        string ʻ,
-        string Ȕ,
+    static bool Ͳ(
+        string ȼ,
+        string έ,
+        string ɐ,
         out string ğ)
     {
-        ğ = null;
+        ğ =
+            null;
 
-        int ˋ =
-            ˆ(
-                ǽ,
-                ʻ);
+        int ι =
+            δ(
+                ȼ,
+                έ);
 
-        if (ˋ < 0)
+        if (ι < 0)
         {
             return false;
         }
 
-        int ˌ =
-            ˊ(
-                ǽ,
-                ˋ +
-                ʻ.Length + 2);
+        int κ =
+            θ(
+                ȼ,
+                ι +
+                έ.Length +
+                2);
 
-        int ˍ =
-            ǽ.IndexOf(
+        int λ =
+            ȼ.IndexOf(
                 '\n',
-                ˋ);
+                ι);
 
-        if (ˍ < 0 ||
-            ˍ >= ˌ)
+        if (λ < 0 ||
+            λ >= κ)
         {
             return false;
         }
 
-        string ȓ =
-            ǽ.Substring(
-                ˍ + 1,
-                ˌ - ˍ - 1);
+        string ɏ =
+            ȼ.Substring(
+                λ + 1,
+                κ -
+                λ -
+                1);
 
-        string[] ˎ =
-            ȓ.Replace(
+        string[] μ =
+            ɏ
+                .Replace(
 "\r",
                     string.Empty)
                 .Split('\n');
 
         for (int Į = 0;
-            Į < ˎ.Length;
+            Į < μ.Length;
             Į++)
         {
-            string ˏ = ˎ[Į];
+            string ν =
+                μ[Į];
 
-            int ː =
-                ˏ.IndexOf('=');
+            int Ϊ =
+                ν.IndexOf('=');
 
-            if (ː <= 0)
+            if (Ϊ <= 0)
             {
                 continue;
             }
 
-            string ˑ =
-                ˏ.Substring(
+            string ξ =
+                ν
+                    .Substring(
                         0,
-                        ː)
+                        Ϊ)
                     .Trim();
 
-            if (!ˑ.Equals(
-                    Ȕ,
+            if (!ξ.Equals(
+                    ɐ,
                     StringComparison
                         .OrdinalIgnoreCase))
             {
@@ -5189,8 +6544,9 @@ public static double Ē(
             }
 
             ğ =
-                ˏ.Substring(
-                        ː + 1)
+                ν
+                    .Substring(
+                        Ϊ + 1)
                     .Trim();
 
             return true;
@@ -5199,673 +6555,1089 @@ public static double Ē(
         return false;
     }
 
-    static string ʤ(
-        string ǽ,
-        string ʻ,
-        string ˠ)
+    static string ˬ(
+        string ȼ,
+        string έ,
+        string ο)
     {
-        ǽ =
-            ǽ ?? string.Empty;
+        ȼ =
+            ȼ ??
+            string.Empty;
 
-        ˠ =
-            ˠ.TrimEnd(
+        ο =
+            ο.TrimEnd(
                 '\r',
                 '\n') +
 "\n";
 
-        int ˋ =
-            ˆ(
-                ǽ,
-                ʻ);
+        int ι =
+            δ(
+                ȼ,
+                έ);
 
-        if (ˋ < 0)
+        if (ι < 0)
         {
-            if (ǽ.Length == 0)
+            if (ȼ.Length == 0)
             {
-                return ˠ;
+                return ο;
             }
 
-            string ː =
-                ǽ.EndsWith("\n")
+            string Ϊ =
+                ȼ.EndsWith(
+"\n")
                     ? string.Empty
                     : "\n";
 
-            return ǽ +
-                   ː +
-                   ˠ;
+            return ȼ +
+                   Ϊ +
+                   ο;
         }
 
-        int ˌ =
-            ˊ(
-                ǽ,
-                ˋ +
-                ʻ.Length + 2);
+        int κ =
+            θ(
+                ȼ,
+                ι +
+                έ.Length +
+                2);
 
-        return ǽ.Substring(0, ˋ) +
-               ˠ +
-               ǽ.Substring(ˌ);
+        return ȼ.Substring(
+                   0,
+                   ι) +
+               ο +
+               ȼ.Substring(
+                   κ);
     }
 
-    static string ʩ(
-        string ǽ,
-        string ʻ)
+    static string ʹ(
+        string ȼ,
+        string έ)
     {
-        if (string.IsNullOrEmpty(ǽ))
+        if (string.IsNullOrEmpty(
+                ȼ))
         {
-            return ǽ;
+            return ȼ;
         }
 
-        int ˋ =
-            ˆ(
-                ǽ,
-                ʻ);
+        int ι =
+            δ(
+                ȼ,
+                έ);
 
-        if (ˋ < 0)
+        if (ι < 0)
         {
-            return ǽ;
+            return ȼ;
         }
 
-        int ˌ =
-            ˊ(
-                ǽ,
-                ˋ +
-                ʻ.Length + 2);
+        int κ =
+            θ(
+                ȼ,
+                ι +
+                έ.Length +
+                2);
 
-        string ˡ =
-            ǽ.Substring(0, ˋ);
+        string π =
+            ȼ.Substring(
+                0,
+                ι);
 
-        string ˀ =
-            ǽ.Substring(ˌ);
+        string β =
+            ȼ.Substring(
+                κ);
 
-        if (ˡ.EndsWith("\n") &&
-            ˀ.StartsWith("\n"))
+        if (π.EndsWith(
+"\n") &&
+            β.StartsWith(
+"\n"))
         {
-            ˀ = ˀ.Substring(1);
+            β =
+                β.Substring(1);
         }
 
-        return ˡ + ˀ;
+        return π +
+               β;
     }
 
-    static string ʣ(
-        Vector3D ƺ)
+    static string ˤ(
+        Vector3D ǁ)
     {
-        return ƺ.X.ToString("R") +
+        return ǁ.X
+                   .ToString("R") +
 ";"+
-            ƺ.Y.ToString("R") +
+               ǁ.Y
+                   .ToString("R") +
 ";"+
-            ƺ.Z.ToString("R");
+               ǁ.Z
+                   .ToString("R");
     }
 
-    static bool ʸ(
-        string ˢ,
-        out Vector3D ƺ)
+    static bool Η(
+        string Ȧ,
+        out Vector3D ǁ)
     {
-        ƺ = Vector3D.Zero;
+        ǁ =
+            Vector3D.Zero;
 
         if (string.IsNullOrWhiteSpace(
-                ˢ))
+                Ȧ))
         {
             return false;
         }
 
-        string[] ˣ =
-            ˢ.Split(';');
+        string[] ρ =
+            Ȧ.Split(';');
 
-        if (ˣ.Length != 3)
+        if (ρ.Length !=
+            3)
         {
             return false;
         }
 
-        double ˤ;
-        double ˬ;
-        double ˮ;
+        double ς;
+        double σ;
+        double τ;
 
         if (!double.TryParse(
-                ˣ[0],
-                out ˤ) ||
+                ρ[0],
+                out ς) ||
             !double.TryParse(
-                ˣ[1],
-                out ˬ) ||
+                ρ[1],
+                out σ) ||
             !double.TryParse(
-                ˣ[2],
-                out ˮ))
+                ρ[2],
+                out τ))
         {
             return false;
         }
 
-        ƺ = new Vector3D(ˤ, ˬ, ˮ);
+        ǁ =
+            new Vector3D(
+                ς,
+                σ,
+                τ);
+
         return true;
+    }
+    IMyShipController ˑ;
+
+
+    void ɛ()
+    {
+        IMyShipController υ =
+            ɡ;
+
+        IMyShipController φ =
+            null;
+
+        for (int Į = 0;
+            Į < ͺ.Count;
+            Į++)
+        {
+            IMyShipController Ͱ =
+                ͺ[Į];
+
+            if (Ͱ == null ||
+                Ͱ.Closed ||
+                !Ͱ.IsFunctional ||
+                !Ͱ.CanControlShip)
+            {
+                continue;
+            }
+
+            if (Ͱ.IsUnderControl)
+            {
+                φ =
+                    Ͱ;
+
+                break;
+            }
+
+            if (φ == null ||
+                Ͱ.IsMainCockpit)
+            {
+                φ =
+                    Ͱ;
+            }
+        }
+
+        long χ =
+            υ != null
+                ? υ
+                    .EntityId
+                : 0;
+
+        long ψ =
+            φ != null
+                ? φ.EntityId
+                : 0;
+
+        if (ˑ != null &&
+            ˑ.EntityId !=
+                ψ)
+        {
+            ˠ(
+                ˑ);
+
+            ˑ =
+                null;
+        }
+
+        if (χ !=
+            ψ)
+        {
+            ɻ =
+                Vector3D.Zero;
+
+            ω();
+        }
+
+        ɡ =
+            φ;
+
+        ϊ =
+            ɡ ==
+            null;
+
+        ɠ =
+            ȟ.ȭ &&
+            ɡ !=
+                null &&
+            ɡ
+                .IsUnderControl;
     }
 
 
-    void ȯ(bool Ő)
+    void ɨ()
     {
-        Ͱ.Clear();
+        ɛ();
 
-        Ͱ
-            .AppendLine(Ȁ)
-            .Append("v")
-            .AppendLine(ʡ)
-            .AppendLine();
-
-        Ͱ
-            .Append("Mode: ")
-            .AppendLine(ȭ.ToString());
-
-        Ͱ
-            .Append("Controller: ")
-            .AppendLine(
-                Ȥ != null
-                    ? Ȥ
-                        .CustomName
-                    : "NONE");
-
-        Ͱ
-            .Append("Dampeners: ")
-            .AppendLine(
-                ɐ
-                    ? "ON"                    : "OFF");
-
-        Ͱ
-            .Append("Cruise: ")
-            .AppendLine(
-                Ⱦ
-                    ? "ON"                    : "OFF");
-
-        Ͱ
-            .Append("Gear: ")
-            .Append(Ȍ + 1)
-            .Append("/")
-            .Append(ȁ
-                .Ǳ.Count)
-            .Append(" (")
-            .Append(
-                (ȁ
-                    .Ǳ[
-                        MathHelper.Clamp(
-                            Ȍ,
-                            0,
-                            ȁ
-                                .Ǳ
-                                .Count - 1)] *
-                 100)
-                .ToString("0.##"))
-            .AppendLine("%)");
-
-        Ͱ
-            .Append("Nacelles: ")
-            .AppendLine(
-                Ƀ.Count
-                    .ToString());
-
-        Ͱ
-            .Append("Controlled thrust: ")
-            .Append(
-                (ȸ /
-                 1000.0)
-                .ToString("0.##"))
-            .AppendLine(" kN");
-
-        Ͱ
-            .Append("Residual: ")
-            .Append(
-                (ɘ.Length() /
-                 1000.0)
-                .ToString("0.##"))
-            .AppendLine(" kN");
-
-        Ͱ
-            .Append("Gyros: ")
-            .AppendLine(
-                ɢ.Count
-                    .ToString());
-
-        if (ȭ == ƅ.ƃ)
+        if (Ȏ ==
+                ƅ.ƃ &&
+            !ɧ)
         {
-            Ͱ
-                .Append("Heartbeat age: ")
-                .Append(
-                    ȩ)
-                .AppendLine("/2");
+            Ȉ =
+                ϋ;
         }
 
-        Ͱ
-            .Append("Runtime: ")
-            .Append(
-                Runtime.LastRunTimeMs
-                    .ToString("0.###"))
-            .Append(" ms | avg ")
-            .Append(
-                ͱ
-                    .Ƴ
-                    .ToString("0.###"))
-            .Append(" | max ")
-            .AppendLine(
-                ͱ
-                    .ƴ
-                    .ToString("0.###"));
+        ƅ ό;
 
-        Ͱ
-            .Append("Instructions: ")
-            .Append(Runtime
-                .CurrentInstructionCount)
-            .Append("/")
-            .AppendLine(Runtime
-                .MaxInstructionCount
-                .ToString());
-
-        Echo(Ͱ.ToString());
-
-        if (!Ő &&
-            Ͳ.Count == 0)
+        if (ϊ ||
+            Me.CubeGrid.IsStatic ||
+            ȇ)
         {
+            ό =
+                ƅ.Ƅ;
+        }
+        else if (ȟ.Ȯ &&
+                 ɧ &&
+                 !ɠ)
+        {
+            ό =
+                ƅ.ƃ;
+        }
+        else if (ύ ||
+                 Ȉ)
+        {
+            ό =
+                ƅ.Ƅ;
+        }
+        else if (ɠ)
+        {
+            ό =
+                ƅ.Ƃ;
+        }
+        else
+        {
+            ό =
+                ƅ.Ɓ;
+        }
+
+        if (ό ==
+            Ȏ)
+        {
+            ɝ();
             return;
         }
 
-        ͳ.Clear();
+        ώ(
+            ό);
+    }
 
-        ͳ
-            .AppendLine("VECTOR THRUST REDUX")
-            .Append("MODE  ")
-            .AppendLine(
-                ȭ.ToString()
-                    .ToUpperInvariant())
-            .Append("DAMP  ")
-            .AppendLine(
-                ɐ
-                    ? "ON"                    : "OFF")
-            .Append("CRUISE ")
-            .AppendLine(
-                Ⱦ
-                    ? "ON"                    : "OFF")
-            .Append("GEAR  ")
-            .Append(Ȍ + 1)
-            .Append("/")
-            .AppendLine(
-                ȁ
-                    .Ǳ.Count
-                    .ToString())
-            .Append("VECTORS ")
-            .AppendLine(
-                Ƀ.Count
-                    .ToString())
-            .Append("THRUST ")
-            .Append(
-                (ȸ /
-                 1000.0)
-                .ToString("0.0"))
-            .AppendLine(" kN")
-            .Append("ERROR ")
-            .Append(
-                (ɘ.Length() /
-                 1000.0)
-                .ToString("0.0"))
-            .AppendLine(" kN");
+    void ώ(
+        ƅ Ϗ)
+    {
+        ƅ ϐ =
+            Ȏ;
+
+        if (ϐ ==
+                ƅ.Ƃ &&
+            Ϗ !=
+                ƅ.Ƃ)
+        {
+            ː();
+            ɻ =
+                Vector3D.Zero;
+        }
+
+        if (ϐ ==
+                ƅ.Ƅ &&
+            Ϗ !=
+                ƅ.Ƅ)
+        {
+            ϑ();
+        }
+
+        if (ϐ ==
+                ƅ.ƃ &&
+            Ϗ !=
+                ƅ.ƃ &&
+            !ɧ)
+        {
+            Ȉ =
+                ϋ;
+        }
+
+        Ȏ =
+            Ϗ;
+
+        if (Ϗ ==
+            ƅ.ƃ)
+        {
+            ϋ =
+                ϐ ==
+                ƅ.Ƅ;
+
+            Ȉ =
+                false;
+        }
+
+        ϒ(
+            ϐ,
+            Ϗ);
+
+        if (Ϗ ==
+                ƅ.Ƅ &&
+            ϐ !=
+                ƅ.Ƅ)
+        {
+            Ĉ();
+        }
+
+        ϓ =
+            true;
+    }
+
+
+    void ɢ()
+    {
+        if (ȟ.ȯ)
+        {
+            ύ =
+                false;
+
+            return;
+        }
+
+        bool ϔ =
+            false;
 
         for (int Į = 0;
-            Į < Ͳ.Count;
+            Į < ϕ.Count;
             Į++)
         {
-            Ͳ[Į]
-                .ſ(
-                    ͳ.ToString());
+            if (ϖ(
+                    ϕ[Į]))
+            {
+                ϔ =
+                    true;
+
+                break;
+            }
+        }
+
+        if (!ϔ)
+        {
+            for (int Į = 0;
+                Į <
+                    ϗ.Count;
+                Į++)
+            {
+                if (Ϙ(
+                        ϗ[Į]))
+                {
+                    ϔ =
+                        true;
+
+                    break;
+                }
+            }
+        }
+
+        ύ =
+            ϔ;
+    }
+
+    bool ϖ(
+        ǯ ϙ)
+    {
+        IMyShipConnector Ϛ =
+            ϙ.ǭ;
+
+        if (Ϛ == null ||
+            Ϛ.Closed ||
+            Ϛ.Status !=
+                MyShipConnectorStatus
+                    .Connected)
+        {
+            return false;
+        }
+
+        IMyShipConnector Ɨ =
+            Ϛ.OtherConnector;
+
+        if (Ɨ == null)
+        {
+            return false;
+        }
+
+        ǘ ϛ;
+
+        if (!Ϝ.TryGetValue(
+                Ɨ.CubeGrid.EntityId,
+                out ϛ))
+        {
+            return Ɨ
+                .CubeGrid
+                .IsStatic;
+        }
+
+        ǖ Ȝ =
+            ϛ.Ǘ;
+
+        if (Ȝ == null)
+        {
+            return Ɨ
+                .CubeGrid
+                .IsStatic;
+        }
+
+        if (Ȝ.ǥ)
+        {
+            return true;
+        }
+
+        if (Ȝ.Ǣ.Count ==
+            0)
+        {
+            return false;
+        }
+
+        if (ɠ &&
+            Ȝ.Ǧ)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Ϙ(
+        ǰ ϝ)
+    {
+        IMyLandingGear Ϟ =
+            ϝ.ǭ;
+
+        if (Ϟ == null ||
+            Ϟ.Closed ||
+            !Ϟ.IsFunctional)
+        {
+            return false;
+        }
+
+        return Ϟ.IsLocked;
+    }
+
+
+    void Ĉ()
+    {
+        ɬ();
+        ɭ();
+
+        Vector3D ʔ =
+            ɡ !=
+                    null
+                ? ɡ
+                    .GetNaturalGravity()
+                : Vector3D.Zero;
+
+        Vector3D û =
+            Me.CubeGrid
+                .WorldAABB
+                .Center;
+
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            g İ =
+                ʆ[Į];
+
+            if (!İ.P)
+            {
+                continue;
+            }
+
+            İ.j();
+
+            ˀ(
+                İ,
+                ƌ.Ɗ);
+        }
+
+        ü.Clear();
+
+        for (int Į = 0;
+            Į < ϟ.Count;
+            Į++)
+        {
+            Ò Ī =
+                ϟ[Į];
+
+            if (!Ī.P)
+            {
+                continue;
+            }
+
+            Ī.Ĉ(
+                ʔ,
+                û);
+        }
+
+        Ϡ(
+            ϡ);
+            
+        Save();
+    }
+
+    void ϑ()
+    {
+        ʾ(
+            ƌ.Ɗ);
+
+        Ϣ.Clear();
+
+        for (int Į = 0;
+            Į < ϟ.Count;
+            Į++)
+        {
+            Ò Ī =
+                ϟ[Į];
+
+            Ī.Þ();
+            Ī.Ó();
+        }
+
+        ü.Clear();
+
+        ɻ =
+            Vector3D.Zero;
+
+        Ϡ(
+            ϣ);
+            
+        Save();
+    }
+
+    void ϥ()
+    {
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            g İ =
+                ʆ[Į];
+
+            Ϥ(
+                İ);
+
+            if (!İ.P)
+            {
+                continue;
+            }
+
+            İ.j();
+
+            ˀ(
+                İ,
+                ƌ.Ɗ);
+        }
+
+        ɭ();
+
+        Vector3D ʔ =
+            ɡ !=
+                    null
+                ? ɡ
+                    .GetNaturalGravity()
+                : Vector3D.Zero;
+
+        Vector3D û =
+            Me.CubeGrid
+                .WorldAABB
+                .Center;
+
+        for (int Į = 0;
+            Į < ϟ.Count;
+            Į++)
+        {
+            Ò Ī =
+                ϟ[Į];
+
+            if (!Ī.P)
+            {
+                Ī.Ó();
+                continue;
+            }
+
+            double ĉ;
+
+            if (ü
+                    .TryGetValue(
+                        Ī.Q,
+                        out ĉ))
+            {
+                Ī.Ċ(
+                    ĉ);
+            }
+            else
+            {
+                Ī.Ĉ(
+                    ʔ,
+                    û);
+            }
+
+            Ī.Đ();
         }
     }
 
-    const string Ȁ = "Vector Thrust Redux",ʡ = "0.2.0",Ȋ = "Vector Thrust Redux",ʠ = "Vector Thrust Redux Heartbeat",ʹ = "VT-Redux:",Ͷ = "State",ͷ = "Disabled Thrusters",ͺ = "Park Rotor Targets",ͻ = "Topology";
+    void ɩ()
+    {
+        for (int Į = 0;
+            Į < ϟ.Count;
+            Į++)
+        {
+            ϟ[Į]
+                .Đ();
+        }
+    }
+
+    void ɬ()
+    {
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            if (ʆ[Į].P)
+            {
+                ʆ[Į]
+                    .j();
+            }
+        }
+    }
+
+    void ɮ()
+    {
+        ʾ(
+            ƌ.Ɗ);
+
+        Ϣ.Clear();
+    }
+
+    void ϧ(
+        long Ϧ,
+        IMyThrust d)
+    {
+        ʾ(
+            Ϧ,
+            d,
+            ƌ.Ɗ);
+    }
+
+    void Ϡ(
+        List<IMyTimerBlock> Ϩ)
+    {
+        for (int Į = 0;
+            Į < Ϩ.Count;
+            Į++)
+        {
+            IMyTimerBlock ϩ =
+                Ϩ[Į];
+
+            if (ϩ == null ||
+                ϩ.Closed ||
+                !ϩ.IsFunctional)
+            {
+                continue;
+            }
+
+            ϩ.Trigger();
+        }
+    }
+
+    const string ȿ = "Vector Thrust Redux",ˢ = "0.2.0",Ɉ = "Vector Thrust Redux",ˡ = "Vector Thrust Redux Heartbeat",Ϫ = "VT-Redux:",ϫ = "State",Ϭ = "Disabled Thrusters",ϭ = "Park Rotor Targets",Ϯ = "Topology";
 
 
-    const double p = 1e-8,U = 1e-3,ē = 1e-4,Ð = 1e-4,Ķ = 1.0 - 1e-6,ͼ = 1.0 - 1e-4,þ = 1.0 - 1e-4,å = 0.1,č = 1.0,æ = 4.0,Ğ = Math.PI,ď = 1e-3,ͽ = 0.01,µ = 0.0075,ɩ = 4.0,ɬ = 1.5,ŭ = 30.0,Ų = 1e-3,ŧ = 448000.0,Ũ = 33600000.0,ť = 4480000.0,Ŧ = 201600000.0,è = 1.0 / 120.0,Ά = 0.25;
+    const double p = 1e-8,U = 1e-3,ē = 1e-4,Ð = 1e-4,Ķ = 1.0 - 1e-6,ϯ = 1.0 - 1e-4,þ = 1.0 - 1e-4,å = 0.1,č = 1.0,æ = 4.0,Ğ = Math.PI,ď = 1e-3,ʢ = 0.01,µ = 0.0075,ˌ = 4.0,ˏ = 1.5,ŭ = 30.0,Ų = 1e-3,ŧ = 448000.0,Ũ = 33600000.0,ť = 4480000.0,Ŧ = 201600000.0,è = 1.0 / 120.0,ϰ = 0.25;
 
 
-    readonly Ǻ ȁ = new Ǻ();
-    readonly MyIni Έ = new MyIni();
+    readonly ȹ ȟ = new ȹ();
+    readonly MyIni ϱ = new MyIni();
 
-    string Ǿ = string.Empty,Ή = string.Empty;
+    string Ƚ = string.Empty,ϲ = string.Empty;
 
-    bool Ⱦ,ɴ,ɺ;
-    bool ɐ = true,Ȧ,Ί,Ό,ɰ = true,ȣ,ȫ,ɱ,ɲ,Ȩ,Ύ,Ώ = true,ΐ;
-    int Ȍ,ȩ,Α,Β;
+    bool Ȕ,ύ,ϓ;
+    bool Ȍ = true,ȇ,Ȟ,ϳ,ϊ = true,ɠ,ɧ,Ȉ,ϋ,ɤ,ϴ,ϵ = true,Ϸ;
+    int Ȣ,ɥ,ϸ,Ϲ;
 
-    double Γ,ȸ;
+    double ȝ,ʅ;
 
-    readonly Dictionary<long, Ə> Δ =
+    readonly Dictionary<long, Ə> Ϻ =
         new Dictionary<long, Ə>();
 
     readonly Dictionary<long, double> ü =
         new Dictionary<long, double>();
 
-    Ɯ Ε,Ζ;
+    Ɯ ϻ,ϼ;
 
-    readonly Dictionary<long, bool> ʈ =
+    readonly Dictionary<long, bool> Ϣ =
         new Dictionary<long, bool>();
 
 
-    ƅ ȭ = ƅ.ƀ;
+    ƅ Ȏ = ƅ.ƀ;
 
-    IMyShipController Ȥ;
+    IMyShipController ɡ;
 
-    long ʢ;
-    long Ȫ = long.MinValue,ʮ;
+    long ˣ;
+    long ɦ = long.MinValue,Ό;
 
-    Ʈ ȷ = new Ʈ();
+    Ƶ ɱ = new Ƶ();
 
-    Vector3D ȼ;
-    Vector3D ɘ,Ȼ,Ɂ;
-    double Ü,Η;
+    Vector3D ɼ;
+    Vector3D ʵ,ɻ,ʀ;
+    double Ü,Ͻ;
 
-    int Θ;
+    int Ͼ;
+    string Ǽ = string.Empty;
 
-    bool Ι;
+    bool Ͽ;
 
 
-    readonly Ɩ Κ =
-        new Ɩ(),Λ =
-        new Ɩ(),Μ =
+    readonly Ɩ ʇ =
+        new Ɩ(),ʈ =
+        new Ɩ(),ʉ =
         new Ɩ();
 
 
-    readonly List<IMyShipController> ɮ =
-        new List<IMyShipController>(),ʪ =
+    readonly List<IMyShipController> ͺ =
+        new List<IMyShipController>(),ͻ =
         new List<IMyShipController>();
 
-    readonly List<g> Ν =
-        new List<g>(),Ʉ =
-        new List<g>(),ə =
-        new List<g>(),ɗ =
-        new List<g>(),Ξ =
-        new List<g>(),Ο =
-        new List<g>(),Π =
-        new List<g>(),Ρ =
+    readonly List<g> ʆ =
+        new List<g>(),Ѐ =
+        new List<g>(),Ё =
+        new List<g>(),Ђ =
+        new List<g>(),ʲ =
+        new List<g>(),Ѓ =
+        new List<g>(),ʳ =
+        new List<g>(),ʿ =
         new List<g>();
 
-    readonly List<Ò> ʉ =
+    readonly List<Ò> ϟ =
         new List<Ò>();
 
-    readonly List<H> Ƀ =
+    readonly List<H> ʂ =
         new List<H>();
 
-    readonly List<ŝ> ɛ =
+    readonly List<ŝ> Є =
         new List<ŝ>();
 
-    readonly List<ũ> ɢ =
+    readonly List<ũ> ˁ =
         new List<ũ>();
 
-    readonly List<Ǫ> ɼ =
-        new List<Ǫ>();
+    readonly List<ǯ> ϕ =
+        new List<ǯ>();
 
-    readonly List<ǫ> ɾ =
-        new List<ǫ>();
+    readonly List<ǰ> ϗ =
+        new List<ǰ>();
 
-    readonly List<IMyTimerBlock> ʋ =
-        new List<IMyTimerBlock>(),ʌ =
+    readonly List<IMyTimerBlock> ϡ =
+        new List<IMyTimerBlock>(),ϣ =
         new List<IMyTimerBlock>();
 
-    readonly List<Ž> Ͳ =
+    readonly List<Ž> Ѕ =
         new List<Ž>();
 
-    readonly Dictionary<long, Ǒ> ʃ =
-        new Dictionary<long, Ǒ>();
+    readonly Dictionary<long, ǘ> Ϝ =
+        new Dictionary<long, ǘ>();
 
-    readonly StringBuilder Ͱ =
-        new StringBuilder(),ͳ =
+    readonly StringBuilder І =
+        new StringBuilder(),Ї =
         new StringBuilder();
 
-    IEnumerator<int> Σ;
+    IEnumerator<int> Ј;
 
-    ƶ ͱ;
+    ƽ Љ;
 
     public Program()
     {
-        ͱ =
-            new ƶ(this);
+        Љ =
+            new ƽ(this);
 
-        Τ();
-        Ȓ(true);
+        Њ();
+        Ɏ(true);
 
         Runtime.UpdateFrequency =
             UpdateFrequency.Update1 |
             UpdateFrequency.Update10 |
             UpdateFrequency.Update100;
 
-        ȑ();
+        Ȋ();
     }
 
     public void Save()
     {
-        Έ.Clear();
+        ϱ.Clear();
 
-        Έ.Set(
-            Ͷ,
+        ϱ.Set(
+            ϫ,
 "Cruise",
-            Ⱦ);
+            Ȕ);
 
-        Έ.Set(
-            Ͷ,
+        ϱ.Set(
+            ϫ,
 "Dampeners",
-            ɐ);
-
-        Έ.Set(
-            Ͷ,
-"ManualPark",
-            Ȧ);
-
-        Έ.Set(
-            Ͷ,
-"Gear",
             Ȍ);
 
-        Έ.Set(
-            Ͷ,
-"CruiseTargetSpeed",
-            Γ);
+        ϱ.Set(
+            ϫ,
+"ManualPark",
+            ȇ);
 
-        Έ.Set(
-            Ͷ,
+        ϱ.Set(
+            ϫ,
+"Gear",
+            Ȣ);
+
+        ϱ.Set(
+            ϫ,
+"CruiseTargetSpeed",
+            ȝ);
+
+        ϱ.Set(
+            ϫ,
 "CruiseTargetInitialized",
-            Ί);
+            Ȟ);
 
         foreach (
-            KeyValuePair<long, Ə> Υ
-            in Δ)
+            KeyValuePair<long, Ə> Ћ
+            in Ϻ)
         {
-            Ə Φ =
-                Υ.Value;
+            Ə Ȓ =
+                Ћ.Value;
 
-            string ˢ =
-                (Φ.ƍ
+            string Ȧ =
+                (Ȓ.ƍ
                     ? "1"                    : "0") +
 ";"+
-                ((int)Φ.Ǝ).ToString();
+                ((int)Ȓ.Ǝ).ToString();
 
-            Έ.Set(
-                ͷ,
-                Υ.Key.ToString(),
-                ˢ);
+            ϱ.Set(
+                Ϭ,
+                Ћ.Key.ToString(),
+                Ȧ);
         }
 
         foreach (
-            KeyValuePair<long, double> Υ
+            KeyValuePair<long, double> Ћ
             in ü)
         {
-            Έ.Set(
-                ͺ,
-                Υ.Key.ToString(),
-                Υ.Value);
+            ϱ.Set(
+                ϭ,
+                Ћ.Key.ToString(),
+                Ћ.Value);
         }
 
-        if (ΐ)
+        if (Ϸ)
         {
-            Έ.Set(
-                ͻ,
+            ϱ.Set(
+                Ϯ,
 "Count",
-                Ζ.Ɲ);
+                ϼ.Ɲ);
 
-            Έ.Set(
-                ͻ,
+            ϱ.Set(
+                Ϯ,
 "Xor",
-                Ζ.ƞ.ToString());
+                ϼ.ƞ.ToString());
 
-            Έ.Set(
-                ͻ,
+            ϱ.Set(
+                Ϯ,
 "Sum",
-                Ζ.Ɵ.ToString());
+                ϼ.Ɵ.ToString());
         }
-        else if (Ό)
+        else if (ϳ)
         {
-            Έ.Set(
-                ͻ,
+            ϱ.Set(
+                Ϯ,
 "Count",
-                Ε.Ɲ);
+                ϻ.Ɲ);
 
-            Έ.Set(
-                ͻ,
+            ϱ.Set(
+                Ϯ,
 "Xor",
-                Ε.ƞ.ToString());
+                ϻ.ƞ.ToString());
 
-            Έ.Set(
-                ͻ,
+            ϱ.Set(
+                Ϯ,
 "Sum",
-                Ε.Ɵ.ToString());
+                ϻ.Ɵ.ToString());
         }
 
         Storage =
-            Έ.ToString();
+            ϱ.ToString();
     }
 
     public void Main(
-        string ʓ,
-        UpdateType Χ)
+        string Ǳ,
+        UpdateType Ќ)
     {
-        ͱ.Ʒ();
+        Љ.ƾ();
 
-        double Ψ =
+        double Ѝ =
             Runtime.TimeSinceLastRun.TotalSeconds;
 
-        if (Ψ <
+        if (Ѝ <
             è)
         {
-            Ψ =
+            Ѝ =
                 è;
         }
-        else if (Ψ >
-                 Ά)
+        else if (Ѝ >
+                 ϰ)
         {
-            Ψ =
-                Ά;
+            Ѝ =
+                ϰ;
         }
 
-        Η +=
-            Ψ;
+        Ͻ +=
+            Ѝ;
 
-        bool Ω =
-            (Χ &
+        bool Ў =
+            (Ќ &
              (UpdateType.Terminal |
               UpdateType.Trigger |
               UpdateType.Script)) != 0 ||
             !string.IsNullOrWhiteSpace(
-                ʓ);
+                Ǳ);
 
-        Ϊ();
+        Џ();
 
-        if (Ω)
+        if (Ў)
         {
-            Ƞ();
-            ʖ(ʓ);
+            ɛ();
+            Ǿ(Ǳ);
         }
 
-        if ((Χ &
+        if ((Ќ &
              UpdateType.Update100) != 0 &&
-            Ϋ(
-                ref Β,
-                ȁ.ǹ))
+            А(
+                ref Ϲ,
+                ȟ.ȸ))
         {
-            ȟ();
+            ɚ();
         }
 
-        if ((Χ &
+        if ((Ќ &
              UpdateType.Update10) != 0 &&
-            Ϋ(
-                ref Α,
-                ȁ.Ǹ))
+            А(
+                ref ϸ,
+                ȟ.ȷ))
         {
-            Ȱ();
+            ɫ();
         }
 
-        if ((Χ &
+        if ((Ќ &
              UpdateType.Update1) != 0)
         {
-            ʢ++;
+            ˣ++;
 
-            if (ȭ ==
+            if (Ȏ ==
                 ƅ.ƃ)
             {
-                ʭ();
+                Ί();
             }
 
-            Ȭ();
+            ɨ();
 
-            if (Ϋ(
-                    ref Θ,
-                    ȁ.Ƿ))
+            if (А(
+                    ref Ͼ,
+                    ȟ.ȶ))
             {
                 Ü =
                     MathHelper.Clamp(
-                        Η,
+                        Ͻ,
                         è,
-                        Ά);
+                        ϰ);
 
-                Η = 0;
+                Ͻ = 0;
 
-                ɂ(
+                ʁ(
                     Ü);
             }
 
-            if (ȁ.ǭ ||
-                Ȟ != null)
+            if (ȟ.ȭ ||
+                ˑ != null)
             {
-                ʥ();
+                ˮ();
             }
         }
 
-        if (Ω)
+        if (Ў)
         {
-            Ȭ();
+            ɨ();
 
-            if (ȁ.ǭ ||
-                Ȟ != null)
+            if (ȟ.ȭ ||
+                ˑ != null)
             {
-                ʥ();
+                ˮ();
             }
 
-            ɺ = true;
+            ϓ = true;
         }
 
-        if (ɺ)
+        if (ϓ)
         {
-            ȯ(true);
-            ɺ = false;
+            ɪ(true);
+            ϓ = false;
         }
 
-        ͱ.ƹ();
+        Љ.ǀ();
     }
 
-    static bool Ϋ(
-        ref int ά,
-        int έ)
+    static bool А(
+        ref int Б,
+        int В)
     {
-        if (ά <
-            έ)
+        if (Б <
+            В)
         {
-            ά++;
+            Б++;
             return false;
         }
 
-        ά = 0;
+        Б = 0;
         return true;
     }
 
-    void Τ()
+    void Њ()
     {
         if (string.IsNullOrWhiteSpace(
                 Storage))
@@ -5873,1977 +7645,829 @@ public static double Ē(
             return;
         }
 
-        MyIniParseResult ǿ;
+        MyIniParseResult Ⱦ;
 
-        if (!Έ.TryParse(
+        if (!ϱ.TryParse(
                 Storage,
-                out ǿ))
+                out Ⱦ))
         {
             return;
         }
 
-        Ⱦ =
-            Έ
+        Ȕ =
+            ϱ
                 .Get(
-                    Ͷ,
+                    ϫ,
 "Cruise")
                 .ToBoolean(false);
 
-        ɐ =
-            Έ
+        Ȍ =
+            ϱ
                 .Get(
-                    Ͷ,
+                    ϫ,
 "Dampeners")
                 .ToBoolean(true);
 
-        Ȧ =
-            Έ
+        ȇ =
+            ϱ
                 .Get(
-                    Ͷ,
+                    ϫ,
 "ManualPark")
                 .ToBoolean(false);
 
-        Ȍ =
+        Ȣ =
             Math.Max(
                 0,
-                Έ
+                ϱ
                     .Get(
-                        Ͷ,
+                        ϫ,
 "Gear")
                     .ToInt32(0));
 
-        Γ =
-            Έ
+        ȝ =
+            ϱ
                 .Get(
-                    Ͷ,
+                    ϫ,
 "CruiseTargetSpeed")
                 .ToDouble(0);
 
-        Ί =
-            Έ
+        Ȟ =
+            ϱ
                 .Get(
-                    Ͷ,
+                    ϫ,
 "CruiseTargetInitialized")
                 .ToBoolean(false);
 
-        ή();
-        ί();
-        ΰ();
+        Г();
+        Д();
+        Е();
     }
 
-    void ή()
+    void Г()
     {
-        List<MyIniKey> α =
+        List<MyIniKey> Ж =
             new List<MyIniKey>();
 
-        Έ.GetKeys(
-            ͷ,
-            α);
+        ϱ.GetKeys(
+            Ϭ,
+            Ж);
 
         for (int Į = 0;
-            Į < α.Count;
+            Į < Ж.Count;
             Į++)
         {
-            MyIniKey Ȕ =
-                α[Į];
+            MyIniKey ɐ =
+                Ж[Į];
 
-            long ʇ;
+            long Ϧ;
 
             if (!long.TryParse(
-                    Ȕ.Name,
-                    out ʇ))
+                    ɐ.Name,
+                    out Ϧ))
             {
                 continue;
             }
 
-            string ˢ =
-                Έ
-                    .Get(Ȕ)
+            string Ȧ =
+                ϱ
+                    .Get(ɐ)
                     .ToString();
 
-            string[] ˣ =
-                ˢ.Split(';');
+            string[] ρ =
+                Ȧ.Split(';');
 
-            if (ˣ.Length != 2)
+            if (ρ.Length != 2)
             {
                 continue;
             }
 
-            bool β =
-                ˣ[0] == "1";
+            bool З =
+                ρ[0] == "1";
 
-            int γ;
+            int И;
 
             if (!int.TryParse(
-                    ˣ[1],
-                    out γ))
+                    ρ[1],
+                    out И))
             {
                 continue;
             }
 
-            ƌ δ =
+            ƌ Й =
                 (ƌ)
-                    γ;
+                    И;
 
-            if (δ ==
+            if (Й ==
                 ƌ.M)
             {
                 continue;
             }
 
-            Δ[
-                ʇ] =
+            Ϻ[
+                Ϧ] =
                 new Ə
                 {
                     ƍ =
-                        β,
-                    Ǝ = δ
+                        З,
+                    Ǝ = Й
                 };
 
-            if ((δ &
+            if ((Й &
                  ƌ.Ɗ) != 0)
             {
-                ʈ[
-                    ʇ] =
-                    β;
+                Ϣ[
+                    Ϧ] =
+                    З;
             }
         }
     }
 
-    void ί()
+    void Д()
     {
-        List<MyIniKey> α =
+        List<MyIniKey> Ж =
             new List<MyIniKey>();
 
-        Έ.GetKeys(
-            ͺ,
-            α);
+        ϱ.GetKeys(
+            ϭ,
+            Ж);
 
         for (int Į = 0;
-            Į < α.Count;
+            Į < Ж.Count;
             Į++)
         {
-            MyIniKey Ȕ =
-                α[Į];
+            MyIniKey ɐ =
+                Ж[Į];
 
-            long ʇ;
+            long Ϧ;
 
             if (!long.TryParse(
-                    Ȕ.Name,
-                    out ʇ))
+                    ɐ.Name,
+                    out Ϧ))
             {
                 continue;
             }
 
-            double ʄ =
-                Έ
-                    .Get(Ȕ)
+            double Ȝ =
+                ϱ
+                    .Get(ɐ)
                     .ToDouble(
                         double.NaN);
 
-            if (double.IsNaN(ʄ) ||
-                double.IsInfinity(ʄ))
+            if (double.IsNaN(Ȝ) ||
+                double.IsInfinity(Ȝ))
             {
                 continue;
             }
 
             ü[
-                ʇ] =
-                ʄ;
+                Ϧ] =
+                Ȝ;
         }
     }
 
-    void ΰ()
+    void Е()
     {
-        long ε =
-            Έ
+        long К =
+            ϱ
                 .Get(
-                    ͻ,
+                    Ϯ,
 "Count")
                 .ToInt64(-1);
 
-        string ζ =
-            Έ
+        string Л =
+            ϱ
                 .Get(
-                    ͻ,
+                    Ϯ,
 "Xor")
                 .ToString();
 
-        string η =
-            Έ
+        string М =
+            ϱ
                 .Get(
-                    ͻ,
+                    Ϯ,
 "Sum")
                 .ToString();
 
-        ulong θ;
-        ulong ι;
+        ulong Н;
+        ulong О;
 
-        if (ε < 0 ||
+        if (К < 0 ||
             !ulong.TryParse(
-                ζ,
-                out θ) ||
+                Л,
+                out Н) ||
             !ulong.TryParse(
-                η,
-                out ι))
+                М,
+                out О))
         {
             return;
         }
 
-        Ε =
+        ϻ =
             new Ɯ
             {
-                Ɲ = ε,
-                ƞ = θ,
-                Ɵ = ι
+                Ɲ = К,
+                ƞ = Н,
+                Ɵ = О
             };
 
-        Ό =
+        ϳ =
             true;
     }
-    sealed class ϖ
+    IEnumerable<int> Я(
+        П Р)
     {
-        public readonly List<IMyTerminalBlock> κ =
-            new List<IMyTerminalBlock>();
-
-        public readonly List<IMyShipController> ǝ =
-            new List<IMyShipController>(),λ =
-            new List<IMyShipController>(),μ =
-            new List<IMyShipController>();
-
-        public readonly List<IMyThrust> ν =
-            new List<IMyThrust>();
-
-        public readonly List<IMyMotorStator> ξ =
-            new List<IMyMotorStator>();
-
-        public readonly List<IMyPistonBase> ο =
-            new List<IMyPistonBase>();
-
-        public readonly List<IMyGyro> π =
-            new List<IMyGyro>();
-
-        public readonly List<IMyShipConnector> ρ =
-            new List<IMyShipConnector>(),ς =
-            new List<IMyShipConnector>();
-
-        public readonly List<IMyLandingGear> σ =
-            new List<IMyLandingGear>();
-
-        public readonly List<IMyTimerBlock> τ =
-            new List<IMyTimerBlock>(),υ =
-            new List<IMyTimerBlock>(),φ =
-            new List<IMyTimerBlock>();
-
-        public readonly List<IMyProgrammableBlock> χ =
-            new List<IMyProgrammableBlock>();
-
-        public readonly Dictionary<long, F> G =
-            new Dictionary<long, F>();
-
-        public readonly Dictionary<long, Ǒ> ψ =
-            new Dictionary<long, Ǒ>();
-
-        public readonly List<Ǐ> ω =
-            new List<Ǐ>();
-
-        public readonly List<ǧ> ϊ =
-            new List<ǧ>();
-
-        public readonly List<g> ĥ =
-            new List<g>(),ϋ =
-            new List<g>(),ό =
-            new List<g>(),ύ =
-            new List<g>();
-
-        public readonly List<Ò> ώ =
-            new List<Ò>();
-
-        public readonly List<H> Ϗ =
-            new List<H>();
-
-        public readonly List<ŝ> ϐ =
-            new List<ŝ>();
-
-        public readonly List<ũ> ϑ =
-            new List<ũ>();
-
-        public readonly List<Ǫ> ϒ =
-            new List<Ǫ>();
-
-        public readonly List<ǫ> ϓ =
-            new List<ǫ>();
-
-        public readonly List<Ž> ϔ =
-            new List<Ž>();
-
-        public Ǐ ϕ;
-    }
-
-    readonly List<ǧ> ϗ =
-        new List<ǧ>();
-
-    readonly List<IMyShipConnector> ʘ =
-        new List<IMyShipConnector>();
-
-    readonly Dictionary<long, long> ʛ =
-        new Dictionary<long, long>();
-
-    readonly Dictionary<long, bool> ʞ =
-        new Dictionary<long, bool>();
-
-    void ȑ()
-    {
-        Ώ = true;
-    }
-
-    void Ϊ()
-    {
-        if (Σ == null)
-        {
-            if (!Ώ)
-            {
-                return;
-            }
-
-            Ώ = false;
-            Σ = Ϙ().GetEnumerator();
-        }
-
-        int ϙ = Runtime.MaxInstructionCount;
-        int Ϛ =
-            Math.Max(1000, ϙ * 3 / 4);
-
-        int ϛ = 0;
-
-        while (Σ != null &&
-               Runtime.CurrentInstructionCount <
-                   Ϛ &&
-               ϛ < 512)
-        {
-            ϛ++;
-
-            if (Σ.MoveNext())
-            {
-                continue;
-            }
-
-            Σ.Dispose();
-            Σ = null;
-
-            if (Ώ)
-            {
-                Ώ = false;
-                Σ =
-                    Ϙ().GetEnumerator();
-            }
-        }
-    }
-
-    IEnumerable<int> Ϙ()
-    {
-        ϖ Ϝ = new ϖ();
-
-
-        GridTerminalSystem.GetBlocks(Ϝ.κ);
-
-        List<IMyBlockGroup> ϝ =
-            new List<IMyBlockGroup>();
-
-        GridTerminalSystem.GetBlockGroups(ϝ);
-
-        List<IMyTerminalBlock> Ϟ =
-            new List<IMyTerminalBlock>();
-
-        for (int Į = 0; Į < ϝ.Count; Į++)
-        {
-            IMyBlockGroup ɟ = ϝ[Į];
-
-            F Ϡ =
-                ϟ(ɟ.Name);
-
-            if (Ϡ == F.M)
-            {
-                continue;
-            }
-
-            Ϟ.Clear();
-            ɟ.GetBlocks(Ϟ);
-
-            for (int ĵ = 0;
-                ĵ < Ϟ.Count;
-                ĵ++)
-            {
-                ϡ(
-                    Ϝ.G,
-                    Ϟ[ĵ].EntityId,
-                    Ϡ);
-            }
-
-            yield return 1;
-        }
 
         for (int Į = 0;
-            Į < Ϝ.κ.Count;
-            Į++)
-        {
-            IMyTerminalBlock d =
-                Ϝ.κ[Į];
-
-            F Ϣ =
-                ϟ(d.CustomName) |
-                ϟ(d.CustomData);
-
-            ϡ(
-                Ϝ.G,
-                d.EntityId,
-                Ϣ);
-
-            ϣ(
-                Ϝ.ψ,
-                d.CubeGrid);
-
-            IMyShipController ɯ =
-                d as IMyShipController;
-
-            if (ɯ != null)
-            {
-                Ϝ.ǝ.Add(ɯ);
-            }
-
-            IMyThrust T =
-                d as IMyThrust;
-
-            if (T != null)
-            {
-                Ϝ.ν.Add(T);
-            }
-
-            IMyMotorStator Ī =
-                d as IMyMotorStator;
-
-            if (Ī != null)
-            {
-                Ϝ.ξ.Add(Ī);
-            }
-
-            IMyPistonBase Ϥ =
-                d as IMyPistonBase;
-
-            if (Ϥ != null)
-            {
-                Ϝ.ο.Add(Ϥ);
-            }
-
-            IMyGyro ϥ =
-                d as IMyGyro;
-
-            if (ϥ != null)
-            {
-                Ϝ.π.Add(ϥ);
-            }
-
-            IMyShipConnector ʁ =
-                d as IMyShipConnector;
-
-            if (ʁ != null)
-            {
-                Ϝ.ρ.Add(ʁ);
-            }
-
-            IMyLandingGear ʆ =
-                d as IMyLandingGear;
-
-            if (ʆ != null)
-            {
-                Ϝ.σ.Add(
-                    ʆ);
-            }
-
-            IMyTimerBlock ʒ =
-                d as IMyTimerBlock;
-
-            if (ʒ != null)
-            {
-                Ϝ.τ.Add(ʒ);
-            }
-
-            IMyProgrammableBlock Ϧ =
-                d as IMyProgrammableBlock;
-
-            if (Ϧ != null)
-            {
-                Ϝ.χ.Add(
-                    Ϧ);
-            }
-
-            yield return 1;
-        }
-
-        Ǒ ϧ =
-            ϣ(
-                Ϝ.ψ,
-                Me.CubeGrid);
-
-
-        for (int Į = 0;
-            Į < Ϝ.ξ.Count;
-            Į++)
-        {
-            IMyMotorStator Ī =
-                Ϝ.ξ[Į];
-
-            if (Ī.TopGrid == null)
-            {
-                continue;
-            }
-
-            Ϩ(
-                Ϝ.ψ,
-                Ī.CubeGrid,
-                Ī.TopGrid,
-                Ī);
-
-            yield return 1;
-        }
-
-        for (int Į = 0;
-            Į < Ϝ.ο.Count;
-            Į++)
-        {
-            IMyPistonBase Ϥ =
-                Ϝ.ο[Į];
-
-            if (Ϥ.TopGrid == null)
-            {
-                continue;
-            }
-
-            Ϩ(
-                Ϝ.ψ,
-                Ϥ.CubeGrid,
-                Ϥ.TopGrid,
-                Ϥ);
-
-            yield return 1;
-        }
-
-        for (int Į = 0;
-            Į < Ϝ.ρ.Count;
-            Į++)
-        {
-            IMyShipConnector Ɨ =
-                Ϝ.ρ[Į]
-                    .OtherConnector;
-
-            if (Ɨ != null)
-            {
-                ϣ(
-                    Ϝ.ψ,
-                    Ɨ.CubeGrid);
-            }
-
-            yield return 1;
-        }
-
-        ϩ(Ϝ);
-
-
-        for (int Į = 0;
-            Į < Ϝ.ǝ.Count;
-            Į++)
-        {
-            IMyShipController ɯ =
-                Ϝ.ǝ[Į];
-
-            Ǒ ǚ;
-
-            if (!Ϝ.ψ.TryGetValue(
-                    ɯ.CubeGrid.EntityId,
-                    out ǚ))
-            {
-                continue;
-            }
-
-            ǚ.ǐ.ǝ.Add(ɯ);
-
-            if (ɯ.CubeGrid == Me.CubeGrid)
-            {
-                Ϝ.λ.Add(
-                    ɯ);
-            }
-
-            yield return 1;
-        }
-
-        for (int Į = 0;
-            Į < Ϝ.χ.Count;
-            Į++)
-        {
-            IMyProgrammableBlock Ϧ =
-                Ϝ.χ[Į];
-
-            if (!Ϫ(
-                    Ϧ))
-            {
-                continue;
-            }
-
-            Ǒ ǚ;
-
-            if (!Ϝ.ψ.TryGetValue(
-                    Ϧ
-                        .CubeGrid.EntityId,
-                    out ǚ))
-            {
-                continue;
-            }
-
-            ǚ.ǐ
-                .Ǟ
-                .Add(Ϧ);
-
-            if (ϫ(
-                    Ϧ))
-            {
-                ǚ.ǐ
-                    .ǡ = true;
-            }
-
-            yield return 1;
-        }
-
-
-        HashSet<long> Ϭ =
-            new HashSet<long>();
-
-        for (int Į = 0;
-            Į < Ϝ.ρ.Count;
-            Į++)
-        {
-            IMyShipConnector ʁ =
-                Ϝ.ρ[Į];
-
-            IMyShipConnector Ɨ =
-                ʁ.OtherConnector;
-
-            if (Ɨ == null)
-            {
-                continue;
-            }
-
-            long ϭ = Math.Min(
-                ʁ.EntityId,
-                Ɨ.EntityId);
-
-            long Ϯ = Math.Max(
-                ʁ.EntityId,
-                Ɨ.EntityId);
-
-            long ϯ =
-                unchecked(ϭ * 397L ^ Ϯ);
-
-            if (!Ϭ.Add(ϯ))
-            {
-                continue;
-            }
-
-            Ǒ ϰ;
-            Ǒ ϱ;
-
-            if (!Ϝ.ψ.TryGetValue(
-                    ʁ.CubeGrid.EntityId,
-                    out ϰ) ||
-                !Ϝ.ψ.TryGetValue(
-                    Ɨ.CubeGrid.EntityId,
-                    out ϱ))
-            {
-                continue;
-            }
-
-            Ϝ.ϊ.Add(
-                new ǧ
-                {
-                    ǖ = ʁ,
-                    Ǘ = Ɨ,
-                    ǥ = ϰ,
-                    Ǧ = ϱ
-                });
-
-            yield return 1;
-        }
-
-        Ϝ.ϕ =
-            ϧ.ǐ;
-
-        ϲ(Ϝ);
-        ϳ(
-            Ϝ,
-            ϧ);
-
-
-        for (int Į = 0;
-            Į < Ϝ.ω.Count;
-            Į++)
-        {
-            Ǐ ϴ =
-                Ϝ.ω[Į];
-
-            if (!ϴ
-                    .ǟ ||
-                ϴ.Ǖ ||
-                ϴ
-                    .Ǟ.Count == 0)
-            {
-                continue;
-            }
-
-            for (int ĵ = 0;
-                ĵ < ϴ.ǝ.Count;
-                ĵ++)
-            {
-                Ϝ.μ.Add(
-                    ϴ.ǝ[ĵ]);
-            }
-
-            yield return 1;
-        }
-
-
-        Dictionary<long, Ò> ϵ =
-            new Dictionary<long, Ò>();
-
-        for (int Į = 0;
-            Į < Ϝ.ξ.Count;
-            Į++)
-        {
-            IMyMotorStator d =
-                Ϝ.ξ[Į];
-
-            Ǒ ǚ;
-
-            if (!Ϝ.ψ.TryGetValue(
-                    d.CubeGrid.EntityId,
-                    out ǚ) ||
-                !ǚ.Ǖ)
-            {
-                continue;
-            }
-
-            F e =
-                Ϸ(
-                    Ϝ.G,
-                    d.EntityId);
-
-            bool f =
-                ϸ(e);
-
-            Ò Ī = new Ò(
-                d,
-                this,
-                e,
-                f);
-
-            ϵ.Add(
-                d.EntityId,
-                Ī);
-
-            if (f)
-            {
-                Ϝ.ώ.Add(
-                    Ī);
-            }
-
-            yield return 1;
-        }
-
-        Dictionary<long, H> Ϲ =
-            new Dictionary<long, H>();
-
-
-        for (int Į = 0;
-            Į < Ϝ.ν.Count;
-            Į++)
-        {
-            IMyThrust d =
-                Ϝ.ν[Į];
-
-            Ǒ ǚ;
-
-            if (!Ϝ.ψ.TryGetValue(
-                    d.CubeGrid.EntityId,
-                    out ǚ))
-            {
-                continue;
-            }
-
-            bool Ϻ =
-                ǚ.Ǖ ||
-                ǚ.ǐ
-                    .ǟ;
-
-            if (!Ϻ)
-            {
-                continue;
-            }
-
-            F e =
-                Ϸ(
-                    Ϝ.G,
-                    d.EntityId);
-
-            Ò ϼ =
-                ϻ(
-                    ǚ,
-                    ϵ);
-
-            bool Ͻ =
-                ǚ.Ǖ &&
-                ǚ.ǔ > 0;
-
-            bool f =
-                Ͼ(
-                    e,
-                    ǚ.Ǖ,
-                    Ͻ,
-                    ϼ);
-
-            g İ = new g(
-                d,
-                this,
-                e,
-                f);
-
-            Ϝ.ĥ.Add(İ);
-
-            if (!f)
-            {
-                Ϝ
-                    .ύ
-                    .Add(İ);
-
-                yield return 1;
-                continue;
-            }
-
-            Ϝ.ϋ.Add(
-                İ);
-
-            if (ϼ == null ||
-                !ϼ.P)
-            {
-                Ϝ
-                    .ό
-                    .Add(İ);
-
-                yield return 1;
-                continue;
-            }
-
-            H ɡ;
-
-            if (!Ϲ.TryGetValue(
-                    ϼ.Q,
-                    out ɡ))
-            {
-                ɡ = new H(
-                    ϼ,
-                    this);
-
-                Ϲ.Add(
-                    ϼ.Q,
-                    ɡ);
-
-                Ϝ.Ϗ.Add(
-                    ɡ);
-            }
-
-            İ.I = ɡ;
-            ɡ.ĥ.Add(İ);
-
-            Ͽ(
-                ɡ,
-                ǚ,
-                ϼ);
-
-            yield return 1;
-        }
-
-        for (int Į = 0;
-            Į < Ϝ.ώ.Count;
-            Į++)
-        {
-            Ò Ī =
-                Ϝ.ώ[Į];
-
-            if (Ī.I == null &&
-                Math.Abs(
-                    Ī.E
-                        .TargetVelocityRad) >
-                    ď)
-            {
-                Ī.E
-                    .TargetVelocityRad = 0;
-            }
-
-            yield return 1;
-        }
-
-        for (int Į = 0;
-            Į < Ϝ.Ϗ.Count;
-            Į++)
-        {
-            Ϝ.Ϗ[Į]
-                .ĸ();
-
-            Ѐ(
-                Ϝ.ϐ,
-                Ϝ.Ϗ[Į]);
-
-            yield return 1;
-        }
-
-
-        for (int Į = 0;
-            Į < Ϝ.π.Count;
-            Į++)
-        {
-            IMyGyro d =
-                Ϝ.π[Į];
-
-            Ǒ ǚ;
-
-            if (!Ϝ.ψ.TryGetValue(
-                    d.CubeGrid.EntityId,
-                    out ǚ) ||
-                !ǚ.Ǖ ||
-                !Ё(d))
-            {
-                continue;
-            }
-
-            F e =
-                Ϸ(
-                    Ϝ.G,
-                    d.EntityId);
-
-            bool f =
-                Ђ(
-                    e,
-                    ǚ.ǔ > 0);
-
-            if (!f)
-            {
-                continue;
-            }
-
-            Ϝ.ϑ.Add(
-                new ũ(
-                    d,
-                    this,
-                    e,
-                    true));
-
-            yield return 1;
-        }
-
-
-        for (int Į = 0;
-            Į < Ϝ.ρ.Count;
+            Į <
+                Р.С.Count;
             Į++)
         {
             IMyShipConnector d =
-                Ϝ.ρ[Į];
+                Р.С[Į];
 
-            Ǒ ǚ;
+            ǘ ǟ;
 
-            if (!Ϝ.ψ.TryGetValue(
-                    d.CubeGrid.EntityId,
-                    out ǚ) ||
-                !ǚ.Ǖ)
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        d
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ) ||
+                !ǟ.ǜ)
             {
                 continue;
             }
 
-            Ϝ.ς.Add(
-                d);
+            Р
+                .У
+                .Add(d);
 
             F e =
-                Ϸ(
-                    Ϝ.G,
+                Ф(
+                    Р.G,
                     d.EntityId);
 
-            if (!Ѓ(e))
+            if (!Х(
+                    e))
             {
                 continue;
             }
 
-            Ϝ.ϒ.Add(
-                new Ǫ
-                {
-                    Ǩ = d,
-                    ǩ = Є(
-                        Ϝ.ϊ,
-                        d)
-                });
+            Р
+                .Ц
+                .Add(
+                    new ǯ
+                    {
+                        ǭ =
+                            d,
+
+                        Ǯ =
+                            Ч(
+                                Р
+                                    .Ш,
+                                d)
+                    });
 
             yield return 1;
         }
 
+
         for (int Į = 0;
-            Į < Ϝ.σ.Count;
+            Į <
+                Р
+                    .Щ
+                    .Count;
             Į++)
         {
             IMyLandingGear d =
-                Ϝ.σ[Į];
+                Р
+                    .Щ[Į];
 
-            Ǒ ǚ;
+            ǘ ǟ;
 
-            if (!Ϝ.ψ.TryGetValue(
-                    d.CubeGrid.EntityId,
-                    out ǚ) ||
-                !ǚ.Ǖ)
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        d
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ) ||
+                !ǟ.ǜ)
             {
                 continue;
             }
 
             F e =
-                Ϸ(
-                    Ϝ.G,
+                Ф(
+                    Р.G,
                     d.EntityId);
 
-            if (!Ѓ(e))
+            if (!Х(
+                    e))
             {
                 continue;
             }
 
-            Ϝ.ϓ.Add(
-                new ǫ
-                {
-                    Ǩ = d
-                });
+            Р
+                .Ъ
+                .Add(
+                    new ǰ
+                    {
+                        ǭ =
+                            d
+                    });
 
             yield return 1;
         }
 
 
         for (int Į = 0;
-            Į < Ϝ.τ.Count;
+            Į <
+                Р.Ы.Count;
             Į++)
         {
-            IMyTimerBlock ʒ =
-                Ϝ.τ[Į];
+            IMyTimerBlock ϩ =
+                Р.Ы[Į];
 
-            if (ʒ.CubeGrid != Me.CubeGrid)
+            if (ϩ.CubeGrid !=
+                Me.CubeGrid)
             {
                 continue;
             }
 
             F e =
-                Ϸ(
-                    Ϝ.G,
-                    ʒ.EntityId);
+                Ф(
+                    Р.G,
+                    ϩ.EntityId);
 
-            if ((e & F.Ƈ) != 0)
+            if ((e &
+                 F.Ƈ) != 0)
             {
-                Ϝ.υ.Add(ʒ);
+                Р.Ь.Add(
+                    ϩ);
             }
 
-            if ((e & F.ƈ) != 0)
+            if ((e &
+                 F.ƈ) !=
+                0)
             {
-                Ϝ.φ.Add(ʒ);
+                Р
+                    .Э
+                    .Add(ϩ);
             }
 
             yield return 1;
         }
 
-        Ѕ(Ϝ);
-
-        І(Ϝ);
-
-        yield return 1;
+        Ю(
+            Р);
     }
 
-    void ϩ(
-        ϖ Ϝ)
+
+    void ы(
+        П Р)
     {
-        List<Ǒ> Ї =
-            new List<Ǒ>();
+        HashSet<long> а =
+            new HashSet<long>();
 
-        foreach (KeyValuePair<long, Ǒ> Υ
-            in Ϝ.ψ)
-        {
-            Ǒ Ј = Υ.Value;
+        HashSet<long> б =
+            new HashSet<long>();
 
-            if (Ј.ǐ != null)
-            {
-                continue;
-            }
-
-            Ǐ ϴ =
-                new Ǐ();
-
-            Ϝ.ω.Add(ϴ);
-
-            Ї.Clear();
-            Ї.Add(Ј);
-            Ј.ǐ = ϴ;
-
-            for (int ʾ = 0;
-                ʾ < Ї.Count;
-                ʾ++)
-            {
-                Ǒ ǚ = Ї[ʾ];
-
-                ϴ.ǜ.Add(ǚ);
-
-                if (ǚ.ǌ.IsStatic)
-                {
-                    ϴ.Ǡ = true;
-                }
-
-                for (int Љ = 0;
-                    Љ <
-                        ǚ.ǎ.Count;
-                    Љ++)
-                {
-                    Ǒ Њ =
-                        ǚ.ǎ[
-                            Љ]
-                        .Ǜ(ǚ);
-
-                    if (Њ.ǐ != null)
-                    {
-                        continue;
-                    }
-
-                    Њ.ǐ = ϴ;
-                    Ї.Add(Њ);
-                }
-            }
-        }
-    }
-
-    void ϲ(
-        ϖ Ϝ)
-    {
-        Ǐ Ћ =
-            Ϝ.ϕ;
-
-        if (Ћ == null)
-        {
-            return;
-        }
-
-        List<Ǐ> Ї =
-            new List<Ǐ>();
-
-        Ћ.ǟ = true;
-        Ї.Add(Ћ);
-
-        for (int ʾ = 0;
-            ʾ < Ї.Count;
-            ʾ++)
-        {
-            Ǐ ϴ =
-                Ї[ʾ];
-
-            for (int Į = 0;
-                Į < Ϝ
-                    .ϊ.Count;
-                Į++)
-            {
-                ǧ Ќ =
-                    Ϝ.ϊ[Į];
-
-                Ǐ Ɨ = null;
-
-                if (Ќ.ǥ.ǐ ==
-                    ϴ)
-                {
-                    Ɨ = Ќ.Ǧ.ǐ;
-                }
-                else if (Ќ.Ǧ.ǐ ==
-                         ϴ)
-                {
-                    Ɨ = Ќ.ǥ.ǐ;
-                }
-
-                if (Ɨ == null ||
-                    Ɨ
-                        .ǟ)
-                {
-                    continue;
-                }
-
-                Ɨ.ǟ =
-                    true;
-
-                Ї.Add(Ɨ);
-            }
-        }
-    }
-
-    void ϳ(
-        ϖ Ϝ,
-        Ǒ ϧ)
-    {
-        Ǐ Ћ =
-            Ϝ.ϕ;
-
-        if (Ћ == null)
-        {
-            return;
-        }
-
-        Ћ.Ǖ = true;
-
-        Ѝ(
-            Ћ,
-            ϧ,
-            0);
-
-        bool Ў;
-
-        do
-        {
-            Ў = false;
-
-            for (int Į = 0;
-                Į < Ϝ
-                    .ϊ.Count;
-                Į++)
-            {
-                ǧ Ќ =
-                    Ϝ.ϊ[Į];
-
-                bool Џ =
-                    Ќ.ǥ.ǐ
-                        .Ǖ;
-
-                bool А =
-                    Ќ.Ǧ.ǐ
-                        .Ǖ;
-
-                if (Џ == А)
-                {
-                    continue;
-                }
-
-                Ǒ Б =
-                    Џ
-                        ? Ќ.ǥ
-                        : Ќ.Ǧ;
-
-                Ǒ ʄ =
-                    Џ
-                        ? Ќ.Ǧ
-                        : Ќ.ǥ;
-
-                Ǐ В =
-                    ʄ.ǐ;
-
-                if (В
-                        .Ǟ
-                        .Count > 0)
-                {
-                    continue;
-                }
-
-                if (!ȁ.ǭ)
-                {
-                    continue;
-                }
-
-                В
-                    .Ǖ = true;
-
-                int Г =
-                    Б.ǔ == int.MaxValue
-                        ? 0
-                        : Б.ǔ;
-
-                Ѝ(
-                    В,
-                    ʄ,
-                    Г);
-
-                Ў = true;
-            }
-        }
-        while (Ў);
-
-        foreach (KeyValuePair<long, Ǒ> Υ
-            in Ϝ.ψ)
-        {
-            Υ.Value.Ǖ =
-                Υ.Value.ǐ
-                    .Ǖ;
-        }
-    }
-
-    void Ѝ(
-        Ǐ ϴ,
-        Ǒ ˋ,
-        int Д)
-    {
-        List<Ǒ> Ї =
-            new List<Ǒ>();
-
-        if (ˋ.ǔ > Д)
-        {
-            ˋ.ǔ = Д;
-            ˋ.ǒ = null;
-            ˋ.Ǔ = null;
-        }
-
-        Ї.Add(ˋ);
-
-        for (int ʾ = 0;
-            ʾ < Ї.Count;
-            ʾ++)
-        {
-            Ǒ ǚ = Ї[ʾ];
-
-            for (int Į = 0;
-                Į < ǚ.ǎ.Count;
-                Į++)
-            {
-                Ǎ Ќ =
-                    ǚ.ǎ[Į];
-
-                Ǒ Њ =
-                    Ќ.Ǜ(ǚ);
-
-                if (Њ.ǐ !=
-                    ϴ)
-                {
-                    continue;
-                }
-
-                int Е =
-                    ǚ.ǔ + 1;
-
-                if (Е >=
-                    Њ.ǔ)
-                {
-                    continue;
-                }
-
-                Њ.ǔ = Е;
-                Њ.ǒ = ǚ;
-                Њ.Ǔ = Ќ;
-
-                Ї.Add(Њ);
-            }
-        }
-    }
-
-    Ò ϻ(
-        Ǒ ǚ,
-        Dictionary<long, Ò> ϵ)
-    {
-        Ǒ Ж = ǚ;
-
-        while (Ж != null &&
-               Ж.ǒ != null)
-        {
-            Ǎ Ќ =
-                Ж.Ǔ;
-
-            IMyMotorStator З =
-                Ќ != null
-                    ? Ќ.ǘ
-                        as IMyMotorStator
-                    : null;
-
-            if (З != null &&
-                З.TopGrid ==
-                    Ж.ǌ)
-            {
-                Ò Ī;
-
-                if (ϵ.TryGetValue(
-                        З.EntityId,
-                        out Ī) &&
-                    Ī.Ñ)
-                {
-                    return Ī.P
-                        ? Ī
-                        : null;
-                }
-            }
-
-            Ж = Ж.ǒ;
-        }
-
-        return null;
-    }
-
-    void Ͽ(
-        H ɡ,
-        Ǒ И,
-        Ò Ī)
-    {
-        Ǒ Ж = И;
-
-        while (Ж != null)
-        {
-            Й(
-                ɡ.Ħ,
-                Ж.ǌ);
-
-            if (Ж.Ǔ != null &&
-                Ж.Ǔ.ǘ
-                    .EntityId ==
-                Ī.Q)
-            {
-                break;
-            }
-
-            Ж = Ж.ǒ;
-        }
-    }
-
-    void Ѐ(
-        List<ŝ> ϝ,
-        H ɡ)
-    {
-        Vector3D ǃ =
-            n.o(
-                ɡ.É);
+        HashSet<long> в =
+            new HashSet<long>();
 
         for (int Į = 0;
-            Į < ϝ.Count;
+            Į <
+                Р.ĥ.Count;
             Į++)
         {
-            Vector3D К =
-                ϝ[Į].É;
+            а.Add(
+                Р
+                    .ĥ[Į]
+                    .Q);
+        }
 
-            if (Math.Abs(
-                    Vector3D.Dot(
-                        ǃ,
-                        К)) <
-                ͼ)
+        for (int Į = 0;
+            Į <
+                Р
+                    .г
+                    .Count;
+            Į++)
+        {
+            б.Add(
+                Р
+                    .г[Į]
+                    .Q);
+        }
+
+        for (int Į = 0;
+            Į <
+                Р.д.Count;
+            Į++)
+        {
+            в.Add(
+                Р
+                    .д[Į]
+                    .E
+                    .EntityId);
+        }
+
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            g е =
+                ʆ[Į];
+
+            if (а.Contains(
+                    е.Q))
             {
                 continue;
             }
 
-            ϝ[Į].Ř.Add(ɡ);
-            return;
+            е.À();
+
+            ϧ(
+                е.Q,
+                е.E);
+
+            ʾ(
+                е.Q,
+                е.E,
+                ƌ
+                    .Ɖ);
+
+            ʾ(
+                е.Q,
+                е.E,
+                ƌ
+                    .Ƌ);
         }
 
-        ŝ ɟ =
-            new ŝ();
+        for (int Į = 0;
+            Į < ϟ.Count;
+            Į++)
+        {
+            Ò ж =
+                ϟ[Į];
 
-        ɟ.Ř.Add(ɡ);
-        ϝ.Add(ɟ);
+            if (!б
+                    .Contains(
+                        ж.Q))
+            {
+                ж.À();
+            }
+        }
+
+        for (int Į = 0;
+            Į < ˁ.Count;
+            Į++)
+        {
+            ũ з =
+                ˁ[Į];
+
+            if (!в.Contains(
+                    з
+                        .E
+                        .EntityId))
+            {
+                з.À();
+            }
+        }
+
+        и(
+            ͺ,
+            Р.й);
+
+        и(
+            ͻ,
+            Р.к);
+
+        if (ͻ.Count == 0)
+        {
+            Ψ();
+        }
+
+        и(
+            ʆ,
+            Р.ĥ);
+
+        и(
+            Ѐ,
+            Р.л);
+
+        и(
+            Ё,
+            Р.м);
+
+        и(
+            Ђ,
+            Р.н);
+
+        и(
+            ʲ,
+            Р.о);
+
+        и(
+            Ѓ,
+            Р.п);
+
+        и(
+            ʳ,
+            Р.р);
+
+        и(
+            ʎ,
+            Р.с);
+
+        и(
+            ϟ,
+            Р.г);
+
+        и(
+            ʂ,
+            Р.т);
+
+        и(
+            Є,
+            Р.у);
+
+        и(
+            ʏ,
+            Р.ф);
+
+        и(
+            ˁ,
+            Р.д);
+
+        и(
+            ϕ,
+            Р.Ц);
+
+        и(
+            ϗ,
+            Р.Ъ);
+
+        и(
+            х,
+            Р.Ш);
+
+        и(
+            ц,
+            Р.У);
+
+        и(
+            ϡ,
+            Р.Ь);
+
+        и(
+            ϣ,
+            Р.Э);
+
+        и(
+            Ѕ,
+            Р.ч);
+
+        Ϝ.Clear();
+
+        foreach (
+            KeyValuePair<long, ǘ> Ћ
+            in Р.Т)
+        {
+            Ϝ.Add(
+                Ћ.Key,
+                Ћ.Value);
+        }
+
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            Ϥ(
+                ʆ[Į]);
+        }
+
+        ш(
+            а);
+
+        ɛ();
+        щ();
+        ɝ();
+
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            if (!ʆ[Į].P)
+            {
+                ʆ[Į]
+                    .j();
+            }
+        }
+
+        for (int Į = 0;
+            Į < ˁ.Count;
+            Į++)
+        {
+            if (!ˁ[Į]
+                    .P)
+            {
+                ˁ[Į]
+                    .Ū();
+            }
+        }
+
+        if (Ȏ ==
+            ƅ.Ƅ)
+        {
+            ϥ();
+        }
+
+        Ά();
+
+        ϼ =
+            ъ();
+
+        Ϸ =
+            true;
+
+        ϓ =
+            true;
     }
 
-    void Ѕ(
-        ϖ Ϝ)
+
+    void Ю(
+        П Р)
     {
-        HashSet<string> Л =
+        HashSet<string> ь =
             new HashSet<string>(
                 StringComparer.Ordinal);
 
-        List<int> М =
+        List<int> э =
             new List<int>();
 
         for (int Į = 0;
-            Į < Ϝ.κ.Count;
+            Į < Р.ю.Count;
             Į++)
         {
             IMyTerminalBlock d =
-                Ϝ.κ[Į];
+                Р.ю[Į];
 
-            Ǒ ǚ;
+            ǘ ǟ;
 
-            if (!Ϝ.ψ.TryGetValue(
-                    d.CubeGrid.EntityId,
-                    out ǚ) ||
-                ǚ.ǐ !=
-                    Ϝ.ϕ)
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        d
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ) ||
+                ǟ.Ǘ !=
+                    Р.я)
             {
                 continue;
             }
 
             F e =
-                Ϸ(
-                    Ϝ.G,
+                Ф(
+                    Р.G,
                     d.EntityId);
 
-            IMyTextPanel Н =
-                d as IMyTextPanel;
+            IMyTextPanel ѐ =
+                d as
+                    IMyTextPanel;
 
-            if (Н != null &&
-                (e & F.Ɔ) != 0)
+            if (ѐ != null &&
+                (e &
+                 F.Ɔ) != 0)
             {
-                О(
-                    Ϝ.ϔ,
-                    Л,
+                ё(
+                    Р
+                        .ч,
+                    ь,
                     d,
-                    Н,
+                    ѐ,
                     0);
             }
 
-            IMyTextSurfaceProvider П =
-                d as IMyTextSurfaceProvider;
+            IMyTextSurfaceProvider ђ =
+                d as
+                    IMyTextSurfaceProvider;
 
-            if (П == null ||
-                П.SurfaceCount <= 0)
+            if (ђ == null ||
+                ђ.SurfaceCount <= 0)
             {
                 continue;
             }
 
-            М.Clear();
+            э.Clear();
 
-            Р(
+            ѓ(
                 d.CustomData,
-                П.SurfaceCount,
-                М);
+                ђ.SurfaceCount,
+                э);
 
-            if ((e & F.Ɔ) != 0 &&
-                М.Count == 0)
+            if ((e &
+                 F.Ɔ) != 0 &&
+                э.Count ==
+                    0)
             {
-                М.Add(0);
+                э.Add(
+                    0);
             }
 
-            for (int ʾ = 0;
-                ʾ < М.Count;
-                ʾ++)
+            for (int ΰ = 0;
+                ΰ <
+                    э.Count;
+                ΰ++)
             {
                 int ż =
-                    М[ʾ];
+                    э[ΰ];
 
-                О(
-                    Ϝ.ϔ,
-                    Л,
+                ё(
+                    Р
+                        .ч,
+                    ь,
                     d,
-                    П.GetSurface(
+                    ђ.GetSurface(
                         ż),
                     ż);
             }
         }
     }
 
-    void І(
-        ϖ Ϝ)
-    {
-        HashSet<long> С =
-            new HashSet<long>();
-
-        HashSet<long> Т =
-            new HashSet<long>();
-
-        HashSet<long> У =
-            new HashSet<long>();
-
-        for (int Į = 0;
-            Į < Ϝ
-                .ϋ.Count;
-            Į++)
-        {
-            С.Add(
-                Ϝ.ϋ[Į]
-                    .Q);
-        }
-
-        for (int Į = 0;
-            Į < Ϝ
-                .ώ.Count;
-            Į++)
-        {
-            Т.Add(
-                Ϝ.ώ[Į]
-                    .Q);
-        }
-
-        for (int Į = 0;
-            Į < Ϝ
-                .ϑ.Count;
-            Į++)
-        {
-            У.Add(
-                Ϝ.ϑ[Į]
-                    .E.EntityId);
-        }
-
-        for (int Į = 0;
-            Į < Ʉ.Count;
-            Į++)
-        {
-            g Ф =
-                Ʉ[Į];
-
-            if (!С.Contains(
-                    Ф.Q))
-            {
-                Ф.À();
-                ʏ(
-                    Ф.Q,
-                    Ф.E);
-            }
-        }
-
-        for (int Į = 0;
-            Į < ʉ.Count;
-            Į++)
-        {
-            Ò Х =
-                ʉ[Į];
-
-            if (!Т.Contains(
-                    Х.Q))
-            {
-                Х.À();
-            }
-        }
-
-        for (int Į = 0;
-            Į < ɢ.Count;
-            Į++)
-        {
-            ũ Ц =
-                ɢ[Į];
-
-            if (!У.Contains(
-                    Ц.E.EntityId))
-            {
-                Ц.À();
-            }
-        }
-
-        Ч(
-            ɮ,
-            Ϝ.λ);
-
-        Ч(
-            ʪ,
-            Ϝ.μ);
-
-        Ч(
-            Ν,
-            Ϝ.ĥ);
-
-        Ч(
-            Ʉ,
-            Ϝ.ϋ);
-
-        Ч(
-            ə,
-            Ϝ.ό);
-
-        Ч(
-            ɗ,
-            Ϝ.ύ);
-
-        Ч(
-            ʉ,
-            Ϝ.ώ);
-
-        Ч(
-            Ƀ,
-            Ϝ.Ϗ);
-
-        Ч(
-            ɛ,
-            Ϝ.ϐ);
-
-        Ч(
-            ɢ,
-            Ϝ.ϑ);
-
-        Ч(
-            ɼ,
-            Ϝ.ϒ);
-
-        Ч(
-            ɾ,
-            Ϝ.ϓ);
-
-        Ч(
-            ϗ,
-            Ϝ.ϊ);
-
-        Ч(
-            ʘ,
-            Ϝ.ς);
-
-        Ч(
-            ʋ,
-            Ϝ.υ);
-
-        Ч(
-            ʌ,
-            Ϝ.φ);
-
-        Ч(
-            Ͳ,
-            Ϝ.ϔ);
-
-        ʃ.Clear();
-
-        foreach (KeyValuePair<long, Ǒ> Υ
-            in Ϝ.ψ)
-        {
-            ʃ.Add(Υ.Key, Υ.Value);
-        }
-
-        Ƞ();
-
-        if (ȭ == ƅ.Ƅ)
-        {
-            ʍ();
-        }
-
-        ɺ = true;
-    }
-
-    F ϟ(string ž)
-    {
-        if (string.IsNullOrEmpty(ž))
-        {
-            return F.M;
-        }
-
-        F Ш = F.M;
-
-        if (Щ(
-                ž,
-                ȁ.ǲ))
-        {
-            Ш |= F.Z;
-        }
-
-        if (Щ(
-                ž,
-                ȁ.ǳ))
-        {
-            Ш |= F.X;
-        }
-
-        if (Щ(
-                ž,
-                ȁ.Ǵ))
-        {
-            Ш |= F.Ɔ;
-        }
-
-        if (Щ(
-                ž,
-                ȁ.ǵ))
-        {
-            Ш |= F.Ƈ;
-        }
-
-        if (Щ(
-                ž,
-                ȁ.Ƕ))
-        {
-            Ш |= F.ƈ;
-        }
-
-        return Ш;
-    }
-
-    bool ϸ(
-        F e)
-    {
-        if ((e & F.X) != 0)
-        {
-            return false;
-        }
-
-        return ȁ.Ǭ ||
-               (e & F.Z) != 0;
-    }
-
-    bool Ͼ(
-        F e,
-        bool Ъ,
-        bool Ͻ,
-        Ò ϼ)
-    {
-        if (!Ъ ||
-            (e & F.X) != 0)
-        {
-            return false;
-        }
-
-        bool Ы =
-            (e & F.Z) != 0;
-
-        if (!ȁ.Ǭ)
-        {
-            return Ы;
-        }
-
-        return Ы ||
-               Ͻ ||
-               ϼ != null;
-    }
-
-    bool Ђ(
-        F e,
-        bool Ͻ)
-    {
-        if ((e & F.X) != 0)
-        {
-            return false;
-        }
-
-        bool Ы =
-            (e & F.Z) != 0;
-
-        if (!ȁ.Ǭ)
-        {
-            return Ы;
-        }
-
-        return Ы ||
-               Ͻ;
-    }
-
-    bool Ѓ(
-        F e)
-    {
-        if ((e & F.X) != 0)
-        {
-            return false;
-        }
-
-        return ȁ.Ǭ ||
-               (e & F.Z) != 0;
-    }
-
-    bool Ё(IMyGyro ϥ)
-    {
-        string Ь =
-            ϥ.BlockDefinition.SubtypeId;
-
-        if (Ь.Equals(
-"SmallBlockGyro",
-                StringComparison.OrdinalIgnoreCase) ||
-            Ь.Equals(
-"LargeBlockGyro",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return Ь.Equals(
-"SmallPrototechGyro",
-                   StringComparison.OrdinalIgnoreCase) ||
-               Ь.Equals(
-"LargePrototechGyro",
-                   StringComparison.OrdinalIgnoreCase) ||
-               Ь.Equals(
-"SmallPrototechGyroscope",
-                   StringComparison.OrdinalIgnoreCase) ||
-               Ь.Equals(
-"LargePrototechGyroscope",
-                   StringComparison.OrdinalIgnoreCase);
-    }
-
-    bool Ϫ(
-        IMyProgrammableBlock Ϧ)
-    {
-        if (Ϧ == null)
-        {
-            return false;
-        }
-
-        return ˆ(
-                   Ϧ.CustomData,
-                   Ȋ) >= 0;
-    }
-
-    bool ϫ(
-        IMyProgrammableBlock Ϧ)
-    {
-        string ˢ;
-
-        if (!ʧ(
-                Ϧ.CustomData,
-                Ȋ,
-"CanSlave",
-                out ˢ))
-        {
-            return true;
-        }
-
-        bool ğ;
-
-        return bool.TryParse(
-                   ˢ,
-                   out ğ)
-            ? ğ
-            : true;
-    }
-
-    void Р(
-        string ǽ,
-        int Э,
+    void ѓ(
+        string ȼ,
+        int є,
         List<int> Ĺ)
     {
-        if (string.IsNullOrEmpty(ǽ))
+        if (string.IsNullOrEmpty(
+                ȼ))
         {
             return;
         }
 
-        string[] ˎ = ǽ.Replace(
+        string[] μ =
+            ȼ
+                .Replace(
 "\r",
-                string.Empty)
-            .Split('\n');
+                    string.Empty)
+                .Split('\n');
 
         for (int Į = 0;
-            Į < ˎ.Length;
+            Į < μ.Length;
             Į++)
         {
-            string ˏ = ˎ[Į].Trim();
+            string ν =
+                μ[Į].Trim();
 
-            if (!ˏ.StartsWith(
-                    ʹ,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!ν.StartsWith(
+                    Ϫ,
+                    StringComparison
+                        .OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            string Ю =
-                ˏ.Substring(
-                    ʹ.Length)
-                .Trim();
+            string ѕ =
+                ν
+                    .Substring(
+                        Ϫ
+                            .Length)
+                    .Trim();
 
-            int ʾ;
+            int ΰ;
 
             if (!int.TryParse(
-                    Ю,
-                    out ʾ) ||
-                ʾ < 0 ||
-                ʾ >= Э ||
-                Ĺ.Contains(ʾ))
+                    ѕ,
+                    out ΰ) ||
+                ΰ < 0 ||
+                ΰ >= є ||
+                Ĺ.Contains(
+                    ΰ))
             {
                 continue;
             }
 
-            Ĺ.Add(ʾ);
+            Ĺ.Add(
+                ΰ);
         }
     }
 
-    static void О(
+    static void ё(
         List<Ž> Ĺ,
         HashSet<string> w,
         IMyTerminalBlock ź,
         IMyTextSurface Ż,
         int ż)
     {
-        string Ȕ =
+        string ɐ =
             ź.EntityId +
 ":"+
             ż;
 
-        if (!w.Add(Ȕ))
+        if (!w.Add(ɐ))
         {
             return;
         }
@@ -7855,196 +8479,2694 @@ public static double Ē(
                 ż));
     }
 
-    static void Й(
-        List<IMyCubeGrid> Я,
-        IMyCubeGrid Ŗ)
+
+    bool Х(
+        F e)
     {
-        for (int Į = 0;
-            Į < Я.Count;
-            Į++)
+        if ((e &
+             F.X) != 0)
         {
-            if (Я[Į].EntityId ==
-                Ŗ.EntityId)
-            {
-                return;
-            }
+            return false;
         }
 
-        Я.Add(Ŗ);
+        return ȟ.Ȭ ||
+               (e &
+                F.Z) != 0;
     }
 
-    static ǧ Є(
-        List<ǧ> а,
-        IMyShipConnector ʁ)
+    bool ї(
+        IMyProgrammableBlock і)
+    {
+        if (і ==
+            null)
+        {
+            return false;
+        }
+
+        return δ(
+                   і
+                       .CustomData,
+                   Ɉ) >=
+               0;
+    }
+
+    bool ј(
+        IMyProgrammableBlock і)
+    {
+        string Ȧ;
+
+        if (!Ͳ(
+                і.CustomData,
+                Ɉ,
+"CanSlave",
+                out Ȧ))
+        {
+            return true;
+        }
+
+        bool ğ;
+
+        return bool.TryParse(
+                   Ȧ,
+                   out ğ)
+            ? ğ
+            : true;
+    }
+
+    F њ(
+        string ž)
+    {
+        if (string.IsNullOrEmpty(
+                ž))
+        {
+            return F.M;
+        }
+
+        F Ǹ =
+            F.M;
+
+        if (љ(
+                ž,
+                ȟ.ȱ))
+        {
+            Ǹ |=
+                F.Z;
+        }
+
+        if (љ(
+                ž,
+                ȟ.Ȳ))
+        {
+            Ǹ |=
+                F.X;
+        }
+
+        if (љ(
+                ž,
+                ȟ.ȳ))
+        {
+            Ǹ |=
+                F.Ɔ;
+        }
+
+        if (љ(
+                ž,
+                ȟ.ȴ))
+        {
+            Ǹ |=
+                F.Ƈ;
+        }
+
+        if (љ(
+                ž,
+                ȟ.ȵ))
+        {
+            Ǹ |=
+                F.ƈ;
+        }
+
+        return Ǹ;
+    }
+
+    static bool љ(
+        string ž,
+        string ћ)
+    {
+        return !string.IsNullOrEmpty(
+                   ž) &&
+               !string.IsNullOrEmpty(
+                   ћ) &&
+               ž.IndexOf(
+                   ћ,
+                   StringComparison
+                       .OrdinalIgnoreCase) >=
+               0;
+    }
+
+    static void ў(
+        Dictionary<long, F> e,
+        long Ϧ,
+        F ќ)
+    {
+        if (ќ ==
+            F.M)
+        {
+            return;
+        }
+
+        F ѝ;
+
+        e.TryGetValue(
+            Ϧ,
+            out ѝ);
+
+        e[Ϧ] =
+            ѝ |
+            ќ;
+    }
+
+    static F Ф(
+        Dictionary<long, F> e,
+        long Ϧ)
+    {
+        F Ǹ;
+
+        return e.TryGetValue(
+                   Ϧ,
+                   out Ǹ)
+            ? Ǹ
+            : F.M;
+    }
+
+
+    static Ǭ Ч(
+        List<Ǭ> џ,
+        IMyShipConnector Ϛ)
     {
         for (int Į = 0;
-            Į < а.Count;
+            Į < џ.Count;
             Į++)
         {
-            if (а[Į].ǖ.EntityId ==
-                    ʁ.EntityId ||
-                а[Į].Ǘ.EntityId ==
-                    ʁ.EntityId)
+            if (џ[Į]
+                        .ƥ
+                        .EntityId ==
+                    Ϛ.EntityId ||
+                џ[Į]
+                        .Ʀ
+                        .EntityId ==
+                    Ϛ.EntityId)
             {
-                return а[Į];
+                return џ[Į];
             }
         }
 
         return null;
     }
 
-    static Ǒ ϣ(
-        Dictionary<long, Ǒ> б,
+    static void ѡ(
+        List<IMyCubeGrid> Ѡ,
         IMyCubeGrid Ŗ)
     {
-        Ǒ ǚ;
-
-        if (!б.TryGetValue(
-                Ŗ.EntityId,
-                out ǚ))
+        for (int Į = 0;
+            Į < Ѡ.Count;
+            Į++)
         {
-            ǚ = new Ǒ(Ŗ);
-            б.Add(Ŗ.EntityId, ǚ);
+            if (Ѡ[Į]
+                    .EntityId ==
+                Ŗ.EntityId)
+            {
+                return;
+            }
         }
 
-        return ǚ;
+        Ѡ.Add(
+            Ŗ);
     }
 
-    static void Ϩ(
-        Dictionary<long, Ǒ> б,
-        IMyCubeGrid в,
-        IMyCubeGrid г,
-        IMyTerminalBlock Ǚ)
+    static void и<Ѣ>(
+        List<Ѣ> Ȝ,
+        List<Ѣ> ѣ)
     {
-        Ǒ ƻ =
-            ϣ(б, в);
+        Ȝ.Clear();
+        Ȝ.AddRange(
+            ѣ);
+    }
+    IEnumerable<int> Ѳ(
+        П Р)
+    {
+        Dictionary<long, Ò> Ѥ =
+            new Dictionary<long, Ò>();
 
-        Ǒ Ƽ =
-            ϣ(б, г);
+        Dictionary<long, IMyMotorStator> ѥ =
+            new Dictionary<long, IMyMotorStator>();
 
-        Ǎ Ќ =
-            new Ǎ(ƻ, Ƽ, Ǚ);
+        Dictionary<long, List<g>> Ѧ =
+            new Dictionary<long, List<g>>();
 
-        ƻ.ǎ.Add(Ќ);
-        Ƽ.ǎ.Add(Ќ);
+        Dictionary<long, List<g>> ѧ =
+            new Dictionary<long, List<g>>();
+
+
+        for (int Į = 0;
+            Į <
+                Р.Ѩ.Count;
+            Į++)
+        {
+            IMyMotorStator d =
+                Р.Ѩ[Į];
+
+            ǘ ǟ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        d
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ))
+            {
+                continue;
+            }
+
+            F e =
+                Ф(
+                    Р.G,
+                    d.EntityId);
+
+            if (ǟ
+                .ǜ)
+            {
+                Ò Ī =
+                    new Ò(
+                        d,
+                        this,
+                        e,
+                        false);
+
+                Ѥ.Add(
+                    d.EntityId,
+                    Ī);
+
+                Р
+                    .ѩ
+                    .Add(Ī);
+            }
+            else if (Ѫ(
+                         Р,
+                         ǟ.Ǘ))
+            {
+                ѥ.Add(
+                    d.EntityId,
+                    d);
+            }
+
+            yield return 1;
+        }
+
+
+        for (int Į = 0;
+            Į <
+                Р
+                    .ѫ
+                    .Count;
+            Į++)
+        {
+            IMyThrust d =
+                Р.ѫ[Į];
+
+            ǘ ǟ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        d
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ))
+            {
+                continue;
+            }
+
+            F e =
+                Ф(
+                    Р.G,
+                    d.EntityId);
+
+            if (ǟ.ǜ)
+            {
+                Ѭ(
+                    Р,
+                    ǟ,
+                    d,
+                    e,
+                    Ѥ,
+                    Ѧ);
+            }
+            else if (Ѫ(
+                         Р,
+                         ǟ.Ǘ))
+            {
+                ѭ(
+                    Р,
+                    ǟ,
+                    d,
+                    e,
+                    ѥ,
+                    ѧ);
+            }
+            else if (ǟ
+                         .Ǘ
+                         .Ǥ)
+            {
+                g İ =
+                    new g(
+                        d,
+                        this,
+                        e,
+                        false);
+
+                Р
+                    .р
+                    .Add(İ);
+
+                Р
+                    .н
+                    .Add(İ);
+            }
+
+            yield return 1;
+        }
+
+        Ѯ(
+            Р,
+            Ѧ);
+
+        ѯ(
+            Р,
+            ѥ,
+            ѧ);
+
+        foreach (int ѱ in
+            Ѱ(
+                Р))
+        {
+            yield return ѱ;
+        }
     }
 
-    static void ϡ(
-        Dictionary<long, F> e,
-        long ʇ,
-        F д)
+    void Ѭ(
+        П Р,
+        ǘ ǟ,
+        IMyThrust d,
+        F e,
+        Dictionary<long, Ò> ѳ,
+        Dictionary<long, List<g>> Ѵ)
     {
-        if (д ==
-            F.M)
+        Ò Ѷ =
+            ѵ(
+                ǟ,
+                ѳ);
+
+        bool ѷ =
+            ǟ.Ǜ >
+            0;
+
+        bool Ѹ =
+            (e &
+             F.Z) != 0;
+
+        bool ѹ =
+            (e &
+             F.X) != 0;
+
+        bool Ѻ =
+            !ѹ &&
+            (ȟ.Ȭ
+                ? Ѹ ||
+                  ѷ ||
+                  Ѷ != null
+                : Ѹ);
+
+        g İ =
+            new g(
+                d,
+                this,
+                e,
+                Ѻ);
+
+        Р.ĥ.Add(
+            İ);
+
+        if (Ѻ)
+        {
+            Р
+                .л
+                .Add(İ);
+        }
+        else
+        {
+            Р
+                .о
+                .Add(İ);
+
+            Р
+                .н
+                .Add(İ);
+        }
+
+        if (Ѷ == null)
+        {
+            if (Ѻ)
+            {
+                Р
+                    .м
+                    .Add(İ);
+            }
+
+            return;
+        }
+
+        List<g> ѻ;
+
+        if (!Ѵ
+                .TryGetValue(
+                    Ѷ.Q,
+                    out ѻ))
+        {
+            ѻ =
+                new List<g>();
+
+            Ѵ.Add(
+                Ѷ.Q,
+                ѻ);
+        }
+
+        ѻ.Add(
+            İ);
+    }
+
+    void Ѯ(
+        П Р,
+        Dictionary<long, List<g>> Ѵ)
+    {
+        for (int Į = 0;
+            Į <
+                Р
+                    .ѩ
+                    .Count;
+            Į++)
+        {
+            Ò Ī =
+                Р
+                    .ѩ[Į];
+
+            List<g> ѻ;
+
+            bool Ѽ =
+                Ѵ
+                    .TryGetValue(
+                        Ī.Q,
+                        out ѻ);
+
+            bool ѽ =
+                false;
+
+            if (Ѽ)
+            {
+                for (int ĵ = 0;
+                    ĵ < ѻ.Count;
+                    ĵ++)
+                {
+                    if (ѻ[ĵ]
+                        .P)
+                    {
+                        ѽ =
+                            true;
+
+                        break;
+                    }
+                }
+            }
+
+            bool f =
+                !Ī.Y &&
+                (Ī.a ||
+                 ȟ.Ȭ &&
+                 ѽ);
+
+            Ī.N(
+                C.O,
+                f);
+
+            if (!f)
+            {
+                if (Ѽ)
+                {
+                    for (int ĵ = 0;
+                        ĵ < ѻ.Count;
+                        ĵ++)
+                    {
+                        g İ =
+                            ѻ[ĵ];
+
+                        if (İ.P &&
+                            !Р
+                                .м
+                                .Contains(
+                                    İ))
+                        {
+                            Р
+                                .м
+                                .Add(
+                                    İ);
+                        }
+                    }
+                }
+
+                continue;
+            }
+
+            Р
+                .г
+                .Add(Ī);
+
+            if (!ѽ)
+            {
+                continue;
+            }
+
+            H ʋ =
+                new H(
+                    Ī,
+                    this);
+
+            Р
+                .т
+                .Add(ʋ);
+
+            for (int ĵ = 0;
+                ĵ < ѻ.Count;
+                ĵ++)
+            {
+                g İ =
+                    ѻ[ĵ];
+
+                if (!İ.P)
+                {
+                    continue;
+                }
+
+                İ.I =
+                    ʋ;
+
+                ʋ.ĥ.Add(
+                    İ);
+
+                ǘ Ѿ;
+
+                if (Р
+                        .Т
+                        .TryGetValue(
+                            İ
+                                .E
+                                .CubeGrid
+                                .EntityId,
+                            out Ѿ))
+                {
+                    ѿ(
+                        ʋ,
+                        Ѿ,
+                        Ī);
+                }
+            }
+
+            ʋ
+                .ĸ();
+        }
+    }
+
+    void ѭ(
+        П Р,
+        ǘ ǟ,
+        IMyThrust d,
+        F e,
+        Dictionary<long, IMyMotorStator> ѳ,
+        Dictionary<long, List<g>> Ѵ)
+    {
+        ǖ Ҁ =
+            ǟ.Ǘ;
+
+        IMyMotorStator Ѷ =
+            ҁ(
+                ǟ,
+                ѳ);
+
+        bool Ѹ =
+            (e &
+             F.Z) != 0;
+
+        bool ѹ =
+            (e &
+             F.X) != 0;
+
+        bool Ҋ =
+            !ѹ &&
+            Ҁ.Ǩ &&
+            (Ҁ.ǧ ||
+             Ѹ);
+
+        g İ =
+            new g(
+                d,
+                this,
+                e,
+                false);
+
+        if (!Ҋ)
+        {
+            Р
+                .р
+                .Add(İ);
+
+            Р
+                .н
+                .Add(İ);
+
+            return;
+        }
+
+        Р
+            .п
+            .Add(İ);
+
+        if (Ѷ == null)
+        {
+            Р
+                .с
+                .Add(İ);
+
+            return;
+        }
+
+        List<g> ѻ;
+
+        if (!Ѵ
+                .TryGetValue(
+                    Ѷ.EntityId,
+                    out ѻ))
+        {
+            ѻ =
+                new List<g>();
+
+            Ѵ.Add(
+                Ѷ.EntityId,
+                ѻ);
+        }
+
+        ѻ.Add(
+            İ);
+    }
+
+    void ѯ(
+        П Р,
+        Dictionary<long, IMyMotorStator> ѳ,
+        Dictionary<long, List<g>> Ѵ)
+    {
+        foreach (
+            KeyValuePair<long, List<g>> Ћ
+            in Ѵ)
+        {
+            IMyMotorStator ҋ;
+
+            if (!ѳ.TryGetValue(
+                    Ћ.Key,
+                    out ҋ))
+            {
+                Ҍ(
+                    Р,
+                    Ћ.Value);
+
+                continue;
+            }
+
+            ǘ ҍ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        ҋ
+                            .CubeGrid
+                            .EntityId,
+                        out ҍ))
+            {
+                Ҍ(
+                    Р,
+                    Ћ.Value);
+
+                continue;
+            }
+
+            F Ҏ =
+                Ф(
+                    Р.G,
+                    ҋ.EntityId);
+
+            bool ѹ =
+                (Ҏ &
+                 F.X) != 0;
+
+            bool Ѹ =
+                (Ҏ &
+                 F.Z) != 0;
+
+            ǖ Ҁ =
+                ҍ.Ǘ;
+
+            bool Ҋ =
+                !ѹ &&
+                Ҁ.Ǩ &&
+                (Ѹ ||
+                 Ҁ.ǧ &&
+                 Ћ.Value.Count > 0);
+
+            if (!Ҋ ||
+                ҋ.TopGrid == null ||
+                !ҋ.IsFunctional ||
+                !ҋ.Enabled ||
+                ҋ.RotorLock)
+            {
+                Ҍ(
+                    Р,
+                    Ћ.Value);
+
+                continue;
+            }
+
+            ҏ Ґ =
+                new ҏ(
+                    ҋ);
+
+            Ґ.ĥ.AddRange(
+                Ћ.Value);
+
+            Р
+                .ф
+                .Add(Ґ);
+        }
+    }
+
+    static void Ҍ(
+        П Р,
+        List<g> ʆ)
+    {
+        for (int Į = 0;
+            Į < ʆ.Count;
+            Į++)
+        {
+            g İ =
+                ʆ[Į];
+
+            if (!Р
+                    .с
+                    .Contains(
+                        İ))
+            {
+                Р
+                    .с
+                    .Add(İ);
+            }
+        }
+    }
+
+    IEnumerable<int> Ѱ(
+        П Р)
+    {
+        for (int Į = 0;
+            Į <
+                Р.ґ.Count;
+            Į++)
+        {
+            IMyGyro d =
+                Р.ґ[Į];
+
+            ǘ ǟ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        d
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ) ||
+                !ǟ.ǜ ||
+                !Ғ(
+                    d))
+            {
+                continue;
+            }
+
+            F e =
+                Ф(
+                    Р.G,
+                    d.EntityId);
+
+            bool ѹ =
+                (e &
+                 F.X) != 0;
+
+            if (ѹ)
+            {
+                continue;
+            }
+
+            bool ѷ =
+                ǟ.Ǜ >
+                0;
+
+            bool Ѹ =
+                (e &
+                 F.Z) != 0;
+
+            bool ғ =
+                ȟ.Ȭ
+                    ? Ѹ ||
+                      ѷ
+                    : Ѹ;
+
+            bool Ҕ =
+                d.CubeGrid ==
+                Me.CubeGrid;
+
+            if (!ғ &&
+                !Ҕ)
+            {
+                continue;
+            }
+
+            ũ ҕ =
+                new ũ(
+                    d,
+                    this,
+                    e,
+                    ғ);
+
+            Р.д.Add(
+                ҕ);
+
+            yield return 1;
+        }
+    }
+
+    Ò ѵ(
+        ǘ ǟ,
+        Dictionary<long, Ò> ѳ)
+    {
+        ǘ Җ =
+            ǟ;
+
+        while (Җ != null &&
+               Җ.Ǚ != null)
+        {
+            ǔ җ =
+                Җ.ǚ;
+
+            IMyMotorStator Ҙ =
+                җ != null
+                    ? җ.ǝ as
+                        IMyMotorStator
+                    : null;
+
+            if (Ҙ != null &&
+                Ҙ.TopGrid ==
+                    Җ.Ǔ)
+            {
+                Ò Ī;
+
+                if (ѳ.TryGetValue(
+                        Ҙ.EntityId,
+                        out Ī))
+                {
+                    return Ī;
+                }
+            }
+
+            Җ =
+                Җ.Ǚ;
+        }
+
+        return null;
+    }
+
+    IMyMotorStator ҁ(
+        ǘ ǟ,
+        Dictionary<long, IMyMotorStator> ѳ)
+    {
+        ǘ Җ =
+            ǟ;
+
+        while (Җ != null &&
+               Җ.Ǚ != null)
+        {
+            ǔ җ =
+                Җ.ǚ;
+
+            IMyMotorStator Ҙ =
+                җ != null
+                    ? җ.ǝ as
+                        IMyMotorStator
+                    : null;
+
+            if (Ҙ != null &&
+                Ҙ.TopGrid ==
+                    Җ.Ǔ)
+            {
+                IMyMotorStator Ī;
+
+                if (ѳ.TryGetValue(
+                        Ҙ.EntityId,
+                        out Ī))
+                {
+                    return Ī;
+                }
+            }
+
+            Җ =
+                Җ.Ǚ;
+        }
+
+        return null;
+    }
+
+    void ѿ(
+        H ʋ,
+        ǘ Ѿ,
+        Ò Ī)
+    {
+        ǘ Җ =
+            Ѿ;
+
+        while (Җ != null)
+        {
+            ѡ(
+                ʋ.Ħ,
+                Җ.Ǔ);
+
+            if (Җ.ǚ !=
+                    null &&
+                Җ.ǚ
+                    .ǝ
+                    .EntityId ==
+                Ī.Q)
+            {
+                break;
+            }
+
+            Җ =
+                Җ.Ǚ;
+        }
+    }
+
+    static bool Ѫ(
+        П Р,
+        ǖ Ҁ)
+    {
+        return Ҁ != null &&
+               Ҁ !=
+                   Р.я &&
+               !Ҁ
+                   .ǜ &&
+               Ҁ
+                   .Ǥ &&
+               Ҁ
+                   .ǩ !=
+                   null;
+    }
+
+    bool Ғ(
+        IMyGyro ҕ)
+    {
+        string ҙ =
+            ҕ
+                .BlockDefinition
+                .SubtypeId;
+
+        if (ҙ.Equals(
+"SmallBlockGyro",
+                StringComparison
+                    .OrdinalIgnoreCase) ||
+            ҙ.Equals(
+"LargeBlockGyro",
+                StringComparison
+                    .OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return ҙ.Equals(
+"SmallPrototechGyro",
+                   StringComparison
+                       .OrdinalIgnoreCase) ||
+               ҙ.Equals(
+"LargePrototechGyro",
+                   StringComparison
+                       .OrdinalIgnoreCase) ||
+               ҙ.Equals(
+"SmallPrototechGyroscope",
+                   StringComparison
+                       .OrdinalIgnoreCase) ||
+               ҙ.Equals(
+"LargePrototechGyroscope",
+                   StringComparison
+                       .OrdinalIgnoreCase);
+    }
+    IEnumerable<int> ҥ()
+    {
+        П Р =
+            new П();
+
+        foreach (int ѱ in
+            Қ(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        foreach (int ѱ in
+            қ(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        Ҝ(
+            Р);
+
+        foreach (int ѱ in
+            ҝ(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        foreach (int ѱ in
+            Ҟ(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        ǘ Ҡ =
+            ҟ(
+                Р.Т,
+                Me.CubeGrid);
+
+        Р.я =
+            Ҡ.Ǘ;
+
+        ҡ(
+            Р);
+
+        Ң(
+            Р,
+            Ҡ);
+
+        ң(
+            Р);
+
+        foreach (int ѱ in
+            Ҥ(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        foreach (int ѱ in
+            Ѳ(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        foreach (int ѱ in
+            Я(
+                Р))
+        {
+            yield return ѱ;
+        }
+
+        ы(
+            Р);
+
+        yield return 1;
+    }
+
+
+    IEnumerable<int> Қ(
+        П Р)
+    {
+        GridTerminalSystem.GetBlocks(
+            Р.ю);
+
+        List<IMyBlockGroup> Ҧ =
+            new List<IMyBlockGroup>();
+
+        GridTerminalSystem.GetBlockGroups(
+            Ҧ);
+
+        List<IMyTerminalBlock> ҧ =
+            new List<IMyTerminalBlock>();
+
+        for (int Į = 0;
+            Į < Ҧ.Count;
+            Į++)
+        {
+            IMyBlockGroup Ҩ =
+                Ҧ[Į];
+
+            F ҩ =
+                њ(
+                    Ҩ.Name);
+
+            if (ҩ ==
+                F.M)
+            {
+                continue;
+            }
+
+            ҧ.Clear();
+
+            Ҩ.GetBlocks(
+                ҧ);
+
+            for (int ĵ = 0;
+                ĵ < ҧ.Count;
+                ĵ++)
+            {
+                ў(
+                    Р.G,
+                    ҧ[ĵ]
+                        .EntityId,
+                    ҩ);
+            }
+
+            yield return 1;
+        }
+
+        for (int Į = 0;
+            Į < Р.ю.Count;
+            Į++)
+        {
+            IMyTerminalBlock d =
+                Р.ю[Į];
+
+            F Ҫ =
+                њ(
+                    d.CustomName) |
+                њ(
+                    d.CustomData);
+
+            ў(
+                Р.G,
+                d.EntityId,
+                Ҫ);
+
+            ҟ(
+                Р.Т,
+                d.CubeGrid);
+
+            IMyShipController Ͱ =
+                d as
+                    IMyShipController;
+
+            if (Ͱ != null)
+            {
+                Р.Ǣ.Add(
+                    Ͱ);
+            }
+
+            IMyThrust T =
+                d as
+                    IMyThrust;
+
+            if (T != null)
+            {
+                Р.ѫ.Add(
+                    T);
+            }
+
+            IMyMotorStator Ī =
+                d as
+                    IMyMotorStator;
+
+            if (Ī != null)
+            {
+                Р.Ѩ.Add(
+                    Ī);
+            }
+
+            IMyPistonBase ҫ =
+                d as
+                    IMyPistonBase;
+
+            if (ҫ != null)
+            {
+                Р.Ҭ.Add(
+                    ҫ);
+            }
+
+            IMyGyro ҕ =
+                d as
+                    IMyGyro;
+
+            if (ҕ != null)
+            {
+                Р.ґ.Add(
+                    ҕ);
+            }
+
+            IMyShipConnector Ϛ =
+                d as
+                    IMyShipConnector;
+
+            if (Ϛ != null)
+            {
+                Р.С.Add(
+                    Ϛ);
+            }
+
+            IMyLandingGear Ϟ =
+                d as
+                    IMyLandingGear;
+
+            if (Ϟ != null)
+            {
+                Р
+                    .Щ
+                    .Add(
+                        Ϟ);
+            }
+
+            IMyTimerBlock ϩ =
+                d as
+                    IMyTimerBlock;
+
+            if (ϩ != null)
+            {
+                Р.Ы.Add(
+                    ϩ);
+            }
+
+            IMyProgrammableBlock і =
+                d as
+                    IMyProgrammableBlock;
+
+            if (і != null)
+            {
+                Р
+                    .ҭ
+                    .Add(
+                        і);
+            }
+
+            yield return 1;
+        }
+
+        ҟ(
+            Р.Т,
+            Me.CubeGrid);
+    }
+
+
+    IEnumerable<int> қ(
+        П Р)
+    {
+        for (int Į = 0;
+            Į <
+                Р.Ѩ.Count;
+            Į++)
+        {
+            IMyMotorStator Ī =
+                Р.Ѩ[Į];
+
+            if (Ī.TopGrid ==
+                null)
+            {
+                continue;
+            }
+
+            Ү(
+                Р.Т,
+                Ī.CubeGrid,
+                Ī.TopGrid,
+                Ī);
+
+            yield return 1;
+        }
+
+        for (int Į = 0;
+            Į <
+                Р.Ҭ.Count;
+            Į++)
+        {
+            IMyPistonBase ҫ =
+                Р.Ҭ[Į];
+
+            if (ҫ.TopGrid ==
+                null)
+            {
+                continue;
+            }
+
+            Ү(
+                Р.Т,
+                ҫ.CubeGrid,
+                ҫ.TopGrid,
+                ҫ);
+
+            yield return 1;
+        }
+
+        for (int Į = 0;
+            Į <
+                Р.С.Count;
+            Į++)
+        {
+            IMyShipConnector Ɨ =
+                Р
+                    .С[Į]
+                    .OtherConnector;
+
+            if (Ɨ != null)
+            {
+                ҟ(
+                    Р.Т,
+                    Ɨ.CubeGrid);
+            }
+
+            yield return 1;
+        }
+    }
+
+    void Ҝ(
+        П Р)
+    {
+        List<ǘ> ү =
+            new List<ǘ>();
+
+        foreach (
+            KeyValuePair<long, ǘ> Ћ
+            in Р.Т)
+        {
+            ǘ Ұ =
+                Ћ.Value;
+
+            if (Ұ.Ǘ !=
+                null)
+            {
+                continue;
+            }
+
+            ǖ Ҁ =
+                new ǖ();
+
+            Р.ұ.Add(
+                Ҁ);
+
+            ү.Clear();
+            ү.Add(Ұ);
+
+            Ұ.Ǘ =
+                Ҁ;
+
+            for (int ΰ = 0;
+                ΰ < ү.Count;
+                ΰ++)
+            {
+                ǘ ǟ =
+                    ү[ΰ];
+
+                Ҁ.ǡ.Add(
+                    ǟ);
+
+                if (ǟ.Ǔ.IsStatic)
+                {
+                    Ҁ.ǥ =
+                        true;
+                }
+
+                for (int Ҳ = 0;
+                    Ҳ <
+                        ǟ
+                            .Ǖ
+                            .Count;
+                    Ҳ++)
+                {
+                    ǘ ҳ =
+                        ǟ
+                            .Ǖ[
+                                Ҳ]
+                            .Ǡ(ǟ);
+
+                    if (ҳ.Ǘ !=
+                        null)
+                    {
+                        continue;
+                    }
+
+                    ҳ.Ǘ =
+                        Ҁ;
+
+                    ү.Add(
+                        ҳ);
+                }
+            }
+        }
+    }
+
+
+    IEnumerable<int> ҝ(
+        П Р)
+    {
+        for (int Į = 0;
+            Į <
+                Р.Ǣ.Count;
+            Į++)
+        {
+            IMyShipController Ͱ =
+                Р.Ǣ[Į];
+
+            ǘ ǟ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        Ͱ
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ))
+            {
+                continue;
+            }
+
+            ǟ.Ǘ
+                .Ǣ
+                .Add(Ͱ);
+
+            if (Ͱ.CubeGrid ==
+                Me.CubeGrid)
+            {
+                Р
+                    .й
+                    .Add(Ͱ);
+            }
+
+            yield return 1;
+        }
+
+        for (int Į = 0;
+            Į <
+                Р
+                    .ҭ
+                    .Count;
+            Į++)
+        {
+            IMyProgrammableBlock і =
+                Р
+                    .ҭ[Į];
+
+            if (!ї(
+                    і))
+            {
+                continue;
+            }
+
+            ǘ ǟ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        і
+                            .CubeGrid
+                            .EntityId,
+                        out ǟ))
+            {
+                continue;
+            }
+
+            ǖ Ҁ =
+                ǟ.Ǘ;
+
+            Ҁ
+                .ǣ
+                .Add(
+                    і);
+
+            bool Ҵ =
+                ј(
+                    і);
+
+            if (Ҵ)
+            {
+                Ҁ
+                    .Ǧ =
+                    true;
+            }
+
+            if (Ҁ
+                    .ǩ ==
+                    null ||
+                і
+                    .EntityId <
+                Ҁ
+                    .ǩ
+                    .EntityId)
+            {
+                Ҁ
+                    .ǩ =
+                    і;
+
+                Ҁ.ǧ =
+                    ҵ(
+                        і);
+
+                Ҁ.Ǩ =
+                    Ҵ;
+            }
+
+            yield return 1;
+        }
+    }
+
+    bool ҵ(
+        IMyProgrammableBlock і)
+    {
+        string Ȧ;
+
+        if (!Ͳ(
+                і.CustomData,
+                Ɉ,
+"Greedy",
+                out Ȧ))
+        {
+            return true;
+        }
+
+        bool ğ;
+
+        return bool.TryParse(
+                   Ȧ,
+                   out ğ)
+            ? ğ
+            : true;
+    }
+
+
+    IEnumerable<int> Ҟ(
+        П Р)
+    {
+        HashSet<Ƥ> Ҷ =
+            new HashSet<Ƥ>();
+
+        for (int Į = 0;
+            Į <
+                Р.С.Count;
+            Į++)
+        {
+            IMyShipConnector Ϛ =
+                Р.С[Į];
+
+            IMyShipConnector Ɨ =
+                Ϛ.OtherConnector;
+
+            if (Ɨ == null)
+            {
+                continue;
+            }
+
+            Ƥ Ћ =
+                new Ƥ(
+                    Ϛ.EntityId,
+                    Ɨ.EntityId);
+
+            if (!Ҷ.Add(
+                    Ћ))
+            {
+                continue;
+            }
+
+            ǘ ҷ;
+            ǘ Ҹ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        Ϛ
+                            .CubeGrid
+                            .EntityId,
+                        out ҷ) ||
+                !Р
+                    .Т
+                    .TryGetValue(
+                        Ɨ
+                            .CubeGrid
+                            .EntityId,
+                        out Ҹ))
+            {
+                continue;
+            }
+
+            Р
+                .Ш
+                .Add(
+                    new Ǭ
+                    {
+                        ƥ =
+                            Ϛ,
+
+                        Ʀ =
+                            Ɨ,
+
+                        Ǫ =
+                            ҷ,
+
+                        ǫ =
+                            Ҹ
+                    });
+
+            yield return 1;
+        }
+    }
+
+    void ҡ(
+        П Р)
+    {
+        ǖ ҹ =
+            Р.я;
+
+        if (ҹ == null)
         {
             return;
         }
 
-        F е;
+        List<ǖ> ү =
+            new List<ǖ>();
 
-        e.TryGetValue(
-            ʇ,
-            out е);
+        ҹ.Ǥ =
+            true;
 
-        e[ʇ] =
-            е | д;
-    }
+        ү.Add(ҹ);
 
-    static F Ϸ(
-        Dictionary<long, F> e,
-        long ʇ)
-    {
-        F Ш;
-
-        return e.TryGetValue(
-                   ʇ,
-                   out Ш)
-            ? Ш
-            : F.M;
-    }
-
-    static bool Щ(
-        string ž,
-        string ж)
-    {
-        return !string.IsNullOrEmpty(ž) &&
-               !string.IsNullOrEmpty(ж) &&
-               ž.IndexOf(
-                   ж,
-                   StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    static void Ч<з>(
-        List<з> ʄ,
-        List<з> Б)
-    {
-        ʄ.Clear();
-        ʄ.AddRange(Б);
-    }
-
-    bool и
-    {
-        get
+        for (int ΰ = 0;
+            ΰ < ү.Count;
+            ΰ++)
         {
-            return ȭ ==
-                    ƅ.ƃ
-                ? ȷ
-                    .ƨ
-                : ɐ;
+            ǖ Ҁ =
+                ү[ΰ];
+
+            for (int Į = 0;
+                Į <
+                    Р
+                        .Ш
+                        .Count;
+                Į++)
+            {
+                Ǭ җ =
+                    Р
+                        .Ш[Į];
+
+                ǖ Ɨ =
+                    null;
+
+                if (җ.Ǫ.Ǘ ==
+                    Ҁ)
+                {
+                    Ɨ =
+                        җ.ǫ.Ǘ;
+                }
+                else if (җ.ǫ.Ǘ ==
+                         Ҁ)
+                {
+                    Ɨ =
+                        җ.Ǫ.Ǘ;
+                }
+
+                if (Ɨ == null ||
+                    Ɨ
+                        .Ǥ)
+                {
+                    continue;
+                }
+
+                Ɨ
+                    .Ǥ =
+                    true;
+
+                ү.Add(Ɨ);
+            }
         }
     }
 
-    bool й
+    void Ң(
+        П Р,
+        ǘ Ҡ)
+    {
+        ǖ ҹ =
+            Р.я;
+
+        if (ҹ == null)
+        {
+            return;
+        }
+
+        ҹ.ǜ =
+            true;
+
+        Һ(
+            ҹ,
+            Ҡ,
+            0);
+
+        bool һ;
+
+        do
+        {
+            һ =
+                false;
+
+            for (int Į = 0;
+                Į <
+                    Р
+                        .Ш
+                        .Count;
+                Į++)
+            {
+                Ǭ җ =
+                    Р
+                        .Ш[Į];
+
+                bool Ҽ =
+                    җ
+                        .Ǫ
+                        .Ǘ
+                        .ǜ;
+
+                bool ҽ =
+                    җ
+                        .ǫ
+                        .Ǘ
+                        .ǜ;
+
+                if (Ҽ ==
+                    ҽ)
+                {
+                    continue;
+                }
+
+                ǘ ѣ =
+                    Ҽ
+                        ? җ.Ǫ
+                        : җ.ǫ;
+
+                ǘ Ȝ =
+                    Ҽ
+                        ? җ.ǫ
+                        : җ.Ǫ;
+
+                ǖ Ҿ =
+                    Ȝ.Ǘ;
+
+                if (Ҿ
+                        .ǣ
+                        .Count > 0)
+                {
+                    continue;
+                }
+
+                if (!ȟ.ȭ)
+                {
+                    continue;
+                }
+
+                Ҿ
+                    .ǜ =
+                    true;
+
+                int ҿ =
+                    ѣ.Ǜ ==
+                        int.MaxValue
+                        ? 0
+                        : ѣ.Ǜ;
+
+                Һ(
+                    Ҿ,
+                    Ȝ,
+                    ҿ);
+
+                һ =
+                    true;
+            }
+        }
+        while (һ);
+
+        foreach (
+            KeyValuePair<long, ǘ> Ћ
+            in Р.Т)
+        {
+            Ћ.Value
+                .ǜ =
+                Ћ.Value
+                    .Ǘ
+                    .ǜ;
+        }
+    }
+
+    void ң(
+        П Р)
+    {
+        for (int Į = 0;
+            Į <
+                Р.ұ.Count;
+            Į++)
+        {
+            ǖ Ҁ =
+                Р.ұ[Į];
+
+            if (Ҁ ==
+                    Р.я ||
+                Ҁ.ǜ ||
+                !Ҁ
+                    .Ǥ ||
+                Ҁ
+                    .ǩ ==
+                    null)
+            {
+                continue;
+            }
+
+            ǘ Ҡ;
+
+            if (!Р
+                    .Т
+                    .TryGetValue(
+                        Ҁ
+                            .ǩ
+                            .CubeGrid
+                            .EntityId,
+                        out Ҡ))
+            {
+                continue;
+            }
+
+            Һ(
+                Ҁ,
+                Ҡ,
+                0);
+        }
+    }
+
+    void Һ(
+        ǖ Ҁ,
+        ǘ ι,
+        int Ӏ)
+    {
+        List<ǘ> ү =
+            new List<ǘ>();
+
+        if (ι.Ǜ >
+            Ӏ)
+        {
+            ι.Ǜ =
+                Ӏ;
+
+            ι.Ǚ =
+                null;
+
+            ι.ǚ =
+                null;
+        }
+
+        ү.Add(ι);
+
+        for (int ΰ = 0;
+            ΰ < ү.Count;
+            ΰ++)
+        {
+            ǘ ǟ =
+                ү[ΰ];
+
+            for (int Į = 0;
+                Į <
+                    ǟ
+                        .Ǖ
+                        .Count;
+                Į++)
+            {
+                ǔ җ =
+                    ǟ
+                        .Ǖ[Į];
+
+                ǘ ҳ =
+                    җ.Ǡ(ǟ);
+
+                if (ҳ.Ǘ !=
+                    Ҁ)
+                {
+                    continue;
+                }
+
+                int Ӂ =
+                    ǟ.Ǜ + 1;
+
+                if (Ӂ >=
+                    ҳ.Ǜ)
+                {
+                    continue;
+                }
+
+                ҳ.Ǜ =
+                    Ӂ;
+
+                ҳ.Ǚ =
+                    ǟ;
+
+                ҳ.ǚ =
+                    җ;
+
+                ү.Add(
+                    ҳ);
+            }
+        }
+    }
+
+    IEnumerable<int> Ҥ(
+        П Р)
+    {
+        for (int Į = 0;
+            Į <
+                Р.ұ.Count;
+            Į++)
+        {
+            ǖ Ҁ =
+                Р.ұ[Į];
+
+            if (!Ҁ
+                    .Ǥ ||
+                Ҁ
+                    .ǜ ||
+                Ҁ
+                    .ǣ
+                    .Count == 0)
+            {
+                continue;
+            }
+
+            for (int ĵ = 0;
+                ĵ <
+                    Ҁ
+                        .Ǣ
+                        .Count;
+                ĵ++)
+            {
+                Р
+                    .к
+                    .Add(
+                        Ҁ
+                            .Ǣ[ĵ]);
+            }
+
+            yield return 1;
+        }
+    }
+
+
+    static ǘ ҟ(
+        Dictionary<long, ǘ> ӂ,
+        IMyCubeGrid Ŗ)
+    {
+        ǘ ǟ;
+
+        if (!ӂ.TryGetValue(
+                Ŗ.EntityId,
+                out ǟ))
+        {
+            ǟ =
+                new ǘ(Ŗ);
+
+            ӂ.Add(
+                Ŗ.EntityId,
+                ǟ);
+        }
+
+        return ǟ;
+    }
+
+    static void Ү(
+        Dictionary<long, ǘ> ӂ,
+        IMyCubeGrid Ӄ,
+        IMyCubeGrid ӄ,
+        IMyTerminalBlock Ǟ)
+    {
+        ǘ ǂ =
+            ҟ(
+                ӂ,
+                Ӄ);
+
+        ǘ ǃ =
+            ҟ(
+                ӂ,
+                ӄ);
+
+        ǔ җ =
+            new ǔ(
+                ǂ,
+                ǃ,
+                Ǟ);
+
+        ǂ.Ǖ.Add(
+            җ);
+
+        ǃ.Ǖ.Add(
+            җ);
+    }
+    sealed class П
+    {
+        public readonly List<IMyTerminalBlock> ю =
+            new List<IMyTerminalBlock>();
+
+        public readonly List<IMyShipController> Ǣ =
+            new List<IMyShipController>(),й =
+            new List<IMyShipController>(),к =
+            new List<IMyShipController>();
+
+        public readonly List<IMyThrust> ѫ =
+            new List<IMyThrust>();
+
+        public readonly List<IMyMotorStator> Ѩ =
+            new List<IMyMotorStator>();
+
+        public readonly List<IMyPistonBase> Ҭ =
+            new List<IMyPistonBase>();
+
+        public readonly List<IMyGyro> ґ =
+            new List<IMyGyro>();
+
+        public readonly List<IMyShipConnector> С =
+            new List<IMyShipConnector>(),У =
+            new List<IMyShipConnector>();
+
+        public readonly List<IMyLandingGear> Щ =
+            new List<IMyLandingGear>();
+
+        public readonly List<IMyTimerBlock> Ы =
+            new List<IMyTimerBlock>(),Ь =
+            new List<IMyTimerBlock>(),Э =
+            new List<IMyTimerBlock>();
+
+        public readonly List<IMyProgrammableBlock> ҭ =
+            new List<IMyProgrammableBlock>();
+
+        public readonly Dictionary<long, F> G =
+            new Dictionary<long, F>();
+
+        public readonly Dictionary<long, ǘ> Т =
+            new Dictionary<long, ǘ>();
+
+        public readonly List<ǖ> ұ =
+            new List<ǖ>();
+
+        public readonly List<Ǭ> Ш =
+            new List<Ǭ>();
+
+        public readonly List<g> ĥ =
+            new List<g>(),л =
+            new List<g>(),м =
+            new List<g>(),н =
+            new List<g>(),о =
+            new List<g>(),п =
+            new List<g>(),р =
+            new List<g>(),с =
+            new List<g>();
+
+        public readonly List<Ò> ѩ =
+            new List<Ò>(),г =
+            new List<Ò>();
+
+        public readonly List<H> т =
+            new List<H>();
+
+        public readonly List<ҏ> ф =
+            new List<ҏ>();
+
+        public readonly List<ŝ> у =
+            new List<ŝ>();
+
+        public readonly List<ũ> д =
+            new List<ũ>();
+
+        public readonly List<ǯ> Ц =
+            new List<ǯ>();
+
+        public readonly List<ǰ> Ъ =
+            new List<ǰ>();
+
+        public readonly List<Ž> ч =
+            new List<Ž>();
+
+        public ǖ я;
+    }
+
+    sealed class ҏ
+    {
+        readonly List<double> Ĥ =
+            new List<double>();
+
+        public readonly IMyMotorStator Ò;
+
+        public readonly List<g> ĥ =
+            new List<g>();
+
+        public ҏ(
+            IMyMotorStator Ī)
+        {
+            Ò = Ī;
+        }
+
+        public Vector3D É
+        {
+            get
+            {
+                return Ò
+                    .WorldMatrix
+                    .Up;
+            }
+        }
+
+        public double ŉ(
+            Vector3D m)
+        {
+            m =
+                n.o(
+                    m);
+
+            if (Ò == null ||
+                Ò.Closed ||
+                Ò.TopGrid == null ||
+                !Ò.IsFunctional ||
+                m
+                    .LengthSquared() <=
+                p)
+            {
+                return 0;
+            }
+
+            Ĥ.Clear();
+
+            Ӆ(0);
+
+            for (int Į = 0;
+                Į < ĥ.Count;
+                Į++)
+            {
+                g İ =
+                    ĥ[Į];
+
+                if (!ӆ(
+                        İ))
+                {
+                    continue;
+                }
+
+                double ñ =
+                    n.Ē(
+                        m,
+                        İ
+                            .R,
+                        É);
+
+                Ӆ(
+                    ã(
+                        ñ));
+            }
+
+            double Õ =
+                Ò.Angle;
+
+            if (Î(
+                    Ò.LowerLimitRad))
+            {
+                Ӆ(
+                    Ò.LowerLimitRad -
+                    Õ);
+            }
+
+            if (Ï(
+                    Ò.UpperLimitRad))
+            {
+                Ӆ(
+                    Ò.UpperLimitRad -
+                    Õ);
+            }
+
+            double Ŀ = 0;
+            double Ӈ =
+                double.MaxValue;
+
+            for (int Į = 0;
+                Į <
+                    Ĥ.Count;
+                Į++)
+            {
+                double Ł =
+                    ã(
+                        Ĥ[Į]);
+
+                double ł =
+                    Ľ(
+                        m,
+                        Ł);
+
+                double ӈ =
+                    Math.Abs(Ł);
+
+                if (ł >
+                        Ŀ +
+                        U ||
+                    Math.Abs(
+                        ł -
+                        Ŀ) <=
+                        U &&
+                    ӈ <
+                        Ӈ)
+                {
+                    Ŀ =
+                        ł;
+
+                    Ӈ =
+                        ӈ;
+                }
+            }
+
+            return Ŀ;
+        }
+
+        void Ӆ(
+            double ñ)
+        {
+            ñ =
+                ã(
+                    ñ);
+
+            for (int Į = 0;
+                Į <
+                    Ĥ.Count;
+                Į++)
+            {
+                if (Math.Abs(
+                        Ĥ[Į] -
+                        ñ) <=
+                    ē)
+                {
+                    return;
+                }
+            }
+
+            Ĥ.Add(
+                ñ);
+        }
+
+        double Ľ(
+            Vector3D m,
+            double ñ)
+        {
+            double ł = 0;
+
+            for (int Į = 0;
+                Į < ĥ.Count;
+                Į++)
+            {
+                g İ =
+                    ĥ[Į];
+
+                if (!ӆ(
+                        İ))
+                {
+                    continue;
+                }
+
+                Vector3D ŗ =
+                    n.ë(
+                        İ
+                            .R,
+                        É,
+                        -ñ);
+
+                double q =
+                    Vector3D.Dot(
+                        ŗ,
+                        m);
+
+                if (q <= 0)
+                {
+                    continue;
+                }
+
+                ł +=
+                    q *
+                    İ
+                        .V;
+            }
+
+            return ł;
+        }
+
+        static bool ӆ(
+            g İ)
+        {
+            if (İ == null ||
+                İ.Y ||
+                İ.E == null ||
+                İ.E.Closed ||
+                !İ
+                    .E
+                    .IsFunctional)
+            {
+                return false;
+            }
+
+            return İ
+                       .V >
+                   U;
+        }
+
+        double ã(
+            double ø)
+        {
+            ø =
+                n.Ø(
+                    ø);
+
+            bool Ĕ =
+                Î(
+                    Ò.LowerLimitRad);
+
+            bool ĕ =
+                Ï(
+                    Ò.UpperLimitRad);
+
+            if (!Ĕ &&
+                !ĕ)
+            {
+                return ø;
+            }
+
+            double Õ =
+                Ò.Angle;
+
+            double Ė =
+                double.NaN;
+
+            double ė =
+                double.MaxValue;
+
+            for (int Ę = -2;
+                Ę <= 2;
+                Ę++)
+            {
+                double ę =
+                    ø +
+                    Ę *
+                    MathHelper.TwoPi;
+
+                double Ě =
+                    Õ +
+                    ę;
+
+                if (Ĕ &&
+                    Ě <
+                        Ò.LowerLimitRad -
+                        ē)
+                {
+                    continue;
+                }
+
+                if (ĕ &&
+                    Ě >
+                        Ò.UpperLimitRad +
+                        ē)
+                {
+                    continue;
+                }
+
+                double ě =
+                    Math.Abs(
+                        ę);
+
+                if (ě <
+                    ė)
+                {
+                    ė =
+                        ě;
+
+                    Ė =
+                        ę;
+                }
+            }
+
+            if (!double.IsNaN(
+                    Ė))
+            {
+                return Ė;
+            }
+
+            double Ĝ =
+                Õ +
+                ø;
+
+            if (Ĕ)
+            {
+                Ĝ =
+                    Math.Max(
+                        Ĝ,
+                        Ò.LowerLimitRad);
+            }
+
+            if (ĕ)
+            {
+                Ĝ =
+                    Math.Min(
+                        Ĝ,
+                        Ò.UpperLimitRad);
+            }
+
+            return Ĝ -
+                   Õ;
+        }
+
+        static bool Î(
+            double ğ)
+        {
+            return !double.IsNaN(
+                       ğ) &&
+                   !double.IsInfinity(
+                       ğ) &&
+                   ğ > -1e20;
+        }
+
+        static bool Ï(
+            double ğ)
+        {
+            return !double.IsNaN(
+                       ğ) &&
+                   !double.IsInfinity(
+                       ğ) &&
+                   ğ < 1e20;
+        }
+    }
+
+    readonly List<Ǭ> х =
+        new List<Ǭ>();
+
+    readonly List<IMyShipConnector> ц =
+        new List<IMyShipConnector>();
+
+    readonly Dictionary<long, long> Ӊ =
+        new Dictionary<long, long>();
+
+    readonly Dictionary<long, bool> ӊ =
+        new Dictionary<long, bool>();
+
+    readonly List<ҏ> ʏ =
+        new List<ҏ>();
+
+    readonly List<g> ʎ =
+        new List<g>();
+
+    void Ȋ()
+    {
+        ϵ =
+            true;
+    }
+
+    void Џ()
+    {
+        if (Ј == null)
+        {
+            if (!ϵ)
+            {
+                return;
+            }
+
+            ϵ =
+                false;
+
+            Ј =
+                ҥ()
+                    .GetEnumerator();
+        }
+
+        int Ӌ =
+            Runtime.MaxInstructionCount;
+
+        int ӌ =
+            Math.Max(
+                1000,
+                Ӌ *
+                3 /
+                4);
+
+        int Ӎ = 0;
+
+        while (Ј !=
+                   null &&
+               Runtime
+                   .CurrentInstructionCount <
+                   ӌ &&
+               Ӎ < 512)
+        {
+            Ӎ++;
+
+            if (Ј
+                .MoveNext())
+            {
+                continue;
+            }
+
+            Ј.Dispose();
+
+            Ј =
+                null;
+
+            if (ϵ)
+            {
+                ϵ =
+                    false;
+
+                Ј =
+                    ҥ()
+                        .GetEnumerator();
+            }
+        }
+    }
+
+    static double ʍ(
+        List<g> ӎ,
+        Vector3D m)
+    {
+        m =
+            n.o(
+                m);
+
+        if (m
+                .LengthSquared() <=
+            p)
+        {
+            return 0;
+        }
+
+        double ł = 0;
+
+        for (int Į = 0;
+            Į <
+                ӎ.Count;
+            Į++)
+        {
+            g İ =
+                ӎ[Į];
+
+            if (İ == null ||
+                İ.Y ||
+                İ.E == null ||
+                İ.E.Closed ||
+                !İ
+                    .E
+                    .IsFunctional)
+            {
+                continue;
+            }
+
+            double q =
+                Vector3D.Dot(
+                    İ
+                        .R,
+                    m);
+
+            if (q <= 0)
+            {
+                continue;
+            }
+
+            ł +=
+                q *
+                İ
+                    .V;
+        }
+
+        return ł;
+    }
+
+    bool ʟ
     {
         get
         {
-            return ȭ ==
+            return Ȏ ==
                     ƅ.ƃ
-                ? ȷ
+                ? ɱ
+                    .Ư
+                : Ȍ;
+        }
+    }
+
+    bool ǻ
+    {
+        get
+        {
+            return Ȏ ==
+                    ƅ.ƃ
+                ? ɱ
                     .Ɖ
-                : Ⱦ;
+                : Ȕ;
         }
     }
 
-    double к
+    double ʭ
     {
         get
         {
-            return ȭ ==
+            return Ȏ ==
                     ƅ.ƃ
-                ? ȷ
-                    .ƪ
-                : Γ;
+                ? ɱ
+                    .Ʊ
+                : ȝ;
         }
     }
 
-    double л
+    double ʝ
     {
         get
         {
-            if (ȭ ==
+            if (Ȏ ==
                 ƅ.ƃ)
             {
                 return MathHelper.Clamp(
-                    ȷ
-                        .ƫ,
+                    ɱ
+                        .Ʋ,
                     0,
                     1);
             }
 
-            if (ȁ
-                    .Ǳ.Count == 0)
+            if (ȟ
+                    .Ƞ.Count == 0)
             {
                 return 0;
             }
 
             return MathHelper.Clamp(
-                ȁ.Ǳ[
+                ȟ.Ƞ[
                     MathHelper.Clamp(
-                        Ȍ,
+                        Ȣ,
                         0,
-                        ȁ
-                            .Ǳ
+                        ȟ
+                            .Ƞ
                             .Count -
                         1)],
                 0,
@@ -8053,194 +11175,194 @@ public static double Ē(
     }
 
 
-    void н(
-        string Ш,
-        bool м)
+    void ǽ(
+        string Ǹ,
+        bool ǹ)
     {
-        Ή =
-            Ш ?? string.Empty;
+        ϲ =
+            Ǹ ?? string.Empty;
 
-        Ύ =
-            м;
+        ϴ =
+            ǹ;
 
-        ɺ =
+        ϓ =
             true;
     }
 
-    void о()
+    void ӏ()
     {
-        Ή =
+        ϲ =
             string.Empty;
 
-        Ύ =
+        ϴ =
             false;
     }
 
 
-    void р(
+    void ȍ(
         bool i)
     {
-        ɐ =
+        Ȍ =
             i;
 
-        п(
+        Ӑ(
             i);
     }
 
-    void п(
+    void Ӑ(
         bool i)
     {
         for (int Į = 0;
-            Į < ɮ.Count;
+            Į < ͺ.Count;
             Į++)
         {
-            IMyShipController ɯ =
-                ɮ[Į];
+            IMyShipController Ͱ =
+                ͺ[Į];
 
-            if (ɯ == null ||
-                ɯ.Closed ||
-                !ɯ.IsFunctional)
+            if (Ͱ == null ||
+                Ͱ.Closed ||
+                !Ͱ.IsFunctional)
             {
                 continue;
             }
 
-            if (ɯ
+            if (Ͱ
                     .DampenersOverride ==
                 i)
             {
                 continue;
             }
 
-            ɯ
+            Ͱ
                 .DampenersOverride =
                 i;
         }
     }
 
-    void т()
+    void ɞ()
     {
-        if (ȭ ==
+        if (Ȏ ==
             ƅ.ƃ)
         {
-            п(
-                ȷ
-                    .ƨ);
+            Ӑ(
+                ɱ
+                    .Ư);
 
             return;
         }
 
-        if (!Ι)
+        if (!Ͽ)
         {
-            п(
-                ɐ);
+            Ӑ(
+                Ȍ);
 
             return;
         }
 
-        if (Ȥ ==
+        if (ɡ ==
                 null ||
-            Ȥ.Closed)
+            ɡ.Closed)
         {
             return;
         }
 
-        bool с =
-            Ȥ
+        bool ӑ =
+            ɡ
                 .DampenersOverride;
 
-        if (с ==
-            ɐ)
+        if (ӑ ==
+            Ȍ)
         {
             return;
         }
 
-        ɐ =
-            с;
+        Ȍ =
+            ӑ;
 
-        п(
-            ɐ);
+        Ӑ(
+            Ȍ);
     }
 
-    void ш(
+    void ȕ(
         bool i)
     {
         if (i &&
-            !Ⱦ)
+            !Ȕ)
         {
-            у();
+            Ӓ();
         }
 
-        Ⱦ = i;
+        Ȕ = i;
 
-        if (!Ⱦ)
+        if (!Ȕ)
         {
-            ф(
+            ʾ(
                 ƌ.Ɖ);
 
-            х(
+            ӓ(
                 C.Ɖ);
         }
 
-        ц();
-        ч();
+        ɝ();
+        Ӕ();
     }
 
-    void щ()
+    void ȏ()
     {
-        ш(
-            !Ⱦ);
+        ȕ(
+            !Ȕ);
     }
 
-    void у()
+    void Ӓ()
     {
-        if (Ȥ ==
+        if (ɡ ==
                 null ||
-            Ȥ.Closed)
+            ɡ.Closed)
         {
-            Γ = 0;
-            Ί =
+            ȝ = 0;
+            Ȟ =
                 false;
 
             return;
         }
 
-        Vector3D Ɉ =
-            Ȥ
+        Vector3D ʓ =
+            ɡ
                 .GetShipVelocities()
                 .LinearVelocity;
 
-        Γ =
+        ȝ =
             Vector3D.Dot(
-                Ɉ,
-                Ȥ
+                ʓ,
+                ɡ
                     .WorldMatrix
                     .Forward);
 
-        Ί =
+        Ȟ =
             true;
     }
 
-    void ъ()
+    void ʤ()
     {
-        if (Ί)
+        if (Ȟ)
         {
             return;
         }
 
-        у();
+        Ӓ();
     }
 
-    void ы(
+    void Ș(
         double Ö)
     {
-        ъ();
+        ʤ();
 
-        Γ +=
+        ȝ +=
             Ö;
 
-        н(
+        ǽ(
 "Cruise target: "+
-            Γ
+            ȝ
                 .ToString("0.###") +
 " m/s",
             false);
@@ -8248,67 +11370,67 @@ public static double Ē(
 
 
     bool b(
-        long ʇ)
+        long Ϧ)
     {
-        Ə Φ;
+        Ə Ȓ;
 
-        if (!Δ
+        if (!Ϻ
                 .TryGetValue(
-                    ʇ,
-                    out Φ))
+                    Ϧ,
+                    out Ȓ))
         {
             return false;
         }
 
-        return Φ.ƍ &&
-               Φ.Ǝ !=
+        return Ȓ.ƍ &&
+               Ȓ.Ǝ !=
                    ƌ.M;
     }
 
-    bool ь(
-        long ʇ,
-        out Ə Φ)
+    bool ӕ(
+        long Ϧ,
+        out Ə Ȓ)
     {
-        return Δ
+        return Ϻ
             .TryGetValue(
-                ʇ,
-                out Φ);
+                Ϧ,
+                out Ȓ);
     }
 
-    void ю(
+    void ˀ(
         g İ,
-        ƌ э)
+        ƌ Ӗ)
     {
         if (İ == null)
         {
             return;
         }
 
-        ю(
+        ˀ(
             İ.E,
-            э);
+            Ӗ);
     }
 
-    void ю(
+    void ˀ(
         IMyThrust d,
-        ƌ э)
+        ƌ Ӗ)
     {
         if (d == null ||
             d.Closed ||
-            э ==
+            Ӗ ==
                 ƌ.M)
         {
             return;
         }
 
-        Ə Φ;
+        Ə Ȓ;
 
-        if (!Δ
+        if (!Ϻ
                 .TryGetValue(
                     d.EntityId,
-                    out Φ))
+                    out Ȓ))
         {
-            Φ =
+            Ȓ =
                 new Ə
                 {
                     ƍ =
@@ -8317,13 +11439,13 @@ public static double Ē(
                         ƌ.M
                 };
 
-            Δ.Add(
+            Ϻ.Add(
                 d.EntityId,
-                Φ);
+                Ȓ);
         }
 
-        Φ.Ǝ |=
-            э;
+        Ȓ.Ǝ |=
+            Ӗ;
 
         if (d.Enabled)
         {
@@ -8331,12 +11453,12 @@ public static double Ē(
                 false;
         }
 
-        if ((Φ.Ǝ &
+        if ((Ȓ.Ǝ &
              ƌ.Ɗ) != 0)
         {
-            ʈ[
+            Ϣ[
                 d.EntityId] =
-                Φ.ƍ;
+                Ȓ.ƍ;
         }
     }
 
@@ -8361,17 +11483,17 @@ public static double Ē(
             return;
         }
 
-        Ə Φ;
+        Ə Ȓ;
 
-        if (!Δ
+        if (!Ϻ
                 .TryGetValue(
                     d.EntityId,
-                    out Φ))
+                    out Ȓ))
         {
             return;
         }
 
-        if (Φ.ƍ &&
+        if (Ȓ.ƍ &&
             !d.Enabled)
         {
             d.Enabled =
@@ -8379,47 +11501,47 @@ public static double Ē(
         }
     }
 
-    void ф(
+    void ʾ(
         g İ,
-        ƌ э)
+        ƌ Ӗ)
     {
         if (İ == null)
         {
             return;
         }
 
-        ф(
+        ʾ(
             İ.Q,
             İ.E,
-            э);
+            Ӗ);
     }
 
-    void ф(
-        long ʇ,
+    void ʾ(
+        long Ϧ,
         IMyThrust d,
-        ƌ э)
+        ƌ Ӗ)
     {
-        Ə Φ;
+        Ə Ȓ;
 
-        if (!Δ
+        if (!Ϻ
                 .TryGetValue(
-                    ʇ,
-                    out Φ))
+                    Ϧ,
+                    out Ȓ))
         {
             return;
         }
 
-        Φ.Ǝ &=
-            ~э;
+        Ȓ.Ǝ &=
+            ~Ӗ;
 
-        if ((э &
+        if ((Ӗ &
              ƌ.Ɗ) != 0)
         {
-            ʈ.Remove(
-                ʇ);
+            Ϣ.Remove(
+                Ϧ);
         }
 
-        if (Φ.Ǝ !=
+        if (Ȓ.Ǝ !=
             ƌ.M)
         {
             if (d != null &&
@@ -8437,56 +11559,56 @@ public static double Ē(
             !d.Closed)
         {
             d.Enabled =
-                Φ.ƍ;
+                Ȓ.ƍ;
         }
 
-        Δ.Remove(
-            ʇ);
+        Ϻ.Remove(
+            Ϧ);
     }
 
-    void ф(
-        ƌ э)
+    void ʾ(
+        ƌ Ӗ)
     {
-        if (Δ.Count ==
+        if (Ϻ.Count ==
             0)
         {
             return;
         }
 
-        List<long> я =
+        List<long> ӗ =
             new List<long>(
-                Δ.Keys);
+                Ϻ.Keys);
 
         for (int Į = 0;
-            Į < я.Count;
+            Į < ӗ.Count;
             Į++)
         {
-            long ʇ =
-                я[Į];
+            long Ϧ =
+                ӗ[Į];
 
             IMyThrust d =
-                ѐ(
-                    ʇ);
+                Ә(
+                    Ϧ);
 
-            ф(
-                ʇ,
+            ʾ(
+                Ϧ,
                 d,
-                э);
+                Ӗ);
         }
     }
 
-    IMyThrust ѐ(
-        long ʇ)
+    IMyThrust Ә(
+        long Ϧ)
     {
         for (int Į = 0;
-            Į < Ν.Count;
+            Į < ʆ.Count;
             Į++)
         {
             g İ =
-                Ν[Į];
+                ʆ[Į];
 
             if (İ.Q ==
-                ʇ)
+                Ϧ)
             {
                 return İ.E;
             }
@@ -8495,7 +11617,7 @@ public static double Ē(
         return null;
     }
 
-    void ё(
+    void Ϥ(
         g İ)
     {
         if (İ == null)
@@ -8503,20 +11625,20 @@ public static double Ē(
             return;
         }
 
-        Ə Φ;
+        Ə Ȓ;
 
-        if (!Δ
+        if (!Ϻ
                 .TryGetValue(
                     İ.Q,
-                    out Φ))
+                    out Ȓ))
         {
             return;
         }
 
-        if (Φ.Ǝ ==
+        if (Ȓ.Ǝ ==
             ƌ.M)
         {
-            Δ.Remove(
+            Ϻ.Remove(
                 İ.Q);
 
             return;
@@ -8529,97 +11651,97 @@ public static double Ē(
         }
     }
 
-    void є(
-        HashSet<long> ђ)
+    void ш(
+        HashSet<long> ә)
     {
-        if (Δ.Count ==
+        if (Ϻ.Count ==
             0)
         {
             return;
         }
 
-        List<long> ѓ =
+        List<long> Ӛ =
             new List<long>();
 
         foreach (
-            KeyValuePair<long, Ə> Υ
-            in Δ)
+            KeyValuePair<long, Ə> Ћ
+            in Ϻ)
         {
-            if (!ђ.Contains(
-                    Υ.Key))
+            if (!ә.Contains(
+                    Ћ.Key))
             {
-                ѓ.Add(
-                    Υ.Key);
+                Ӛ.Add(
+                    Ћ.Key);
             }
         }
 
         for (int Į = 0;
-            Į < ѓ.Count;
+            Į < Ӛ.Count;
             Į++)
         {
-            long ʇ =
-                ѓ[Į];
+            long Ϧ =
+                Ӛ[Į];
 
-            Δ.Remove(
-                ʇ);
+            Ϻ.Remove(
+                Ϧ);
 
-            ʈ.Remove(
-                ʇ);
+            Ϣ.Remove(
+                Ϧ);
         }
     }
 
 
-    void ц()
+    void ɝ()
     {
-        bool ѕ =
-            ȭ ==
+        bool ӛ =
+            Ȏ ==
             ƅ.ƃ;
 
-        bool і =
-            й;
+        bool Ӝ =
+            ǻ;
 
         for (int Į = 0;
-            Į < Ν.Count;
+            Į < ʆ.Count;
             Į++)
         {
             g İ =
-                Ν[Į];
+                ʆ[Į];
 
-            bool ї =
+            bool ӝ =
                 İ
                     .E
                     .CubeGrid ==
                 Me.CubeGrid;
 
-            bool ј =
+            bool Ӟ =
                 !İ.Y &&
-                (ȁ.Ǭ ||
+                (ȟ.Ȭ ||
                  İ
                      .a);
 
-            bool љ =
-                ѕ &&
-                ї &&
-                ј;
+            bool ӟ =
+                ӛ &&
+                ӝ &&
+                Ӟ;
 
-            bool ћ =
-                і &&
-                ї &&
-                њ(
+            bool ӡ =
+                Ӝ &&
+                ӝ &&
+                Ӡ(
                     İ) &&
-                ј;
+                Ӟ;
 
             İ.N(
                 C.ƃ,
-                љ);
+                ӟ);
 
             İ.N(
                 C.Ɖ,
-                ћ);
+                ӡ);
 
-            if (!ћ)
+            if (!ӡ)
             {
-                ф(
+                ʾ(
                     İ,
                     ƌ
                         .Ɖ);
@@ -8627,62 +11749,62 @@ public static double Ē(
         }
 
         for (int Į = 0;
-            Į < ɢ.Count;
+            Į < ˁ.Count;
             Į++)
         {
-            ũ ϥ =
-                ɢ[Į];
+            ũ ҕ =
+                ˁ[Į];
 
-            bool ї =
-                ϥ
+            bool ӝ =
+                ҕ
                     .E
                     .CubeGrid ==
                 Me.CubeGrid;
 
-            bool ќ =
-                !ϥ.Y &&
-                (ȁ.Ǭ ||
-                 ϥ.a);
+            bool Ӣ =
+                !ҕ.Y &&
+                (ȟ.Ȭ ||
+                 ҕ.a);
 
-            ϥ.N(
+            ҕ.N(
                 C.ƃ,
-                ѕ &&
-                ї &&
-                ќ);
+                ӛ &&
+                ӝ &&
+                Ӣ);
         }
 
-        ѝ();
+        ω();
     }
 
-    void х(
+    void ӓ(
         C h)
     {
         for (int Į = 0;
-            Į < Ν.Count;
+            Į < ʆ.Count;
             Į++)
         {
-            Ν[Į]
+            ʆ[Į]
                 .N(
                     h,
                     false);
         }
 
         for (int Į = 0;
-            Į < ɢ.Count;
+            Į < ˁ.Count;
             Į++)
         {
-            ɢ[Į]
+            ˁ[Į]
                 .N(
                     h,
                     false);
         }
     }
 
-    bool њ(
+    bool Ӡ(
         g İ)
     {
         if (İ == null ||
-            Ȥ ==
+            ɡ ==
                 null ||
             İ
                 .E
@@ -8696,168 +11818,1286 @@ public static double Ē(
                    n.o(
                        İ
                            .R),
-                   Ȥ
+                   ɡ
                        .WorldMatrix
                        .Backward) >=
                Ķ;
     }
 
-    void ѝ()
+    void ω()
     {
-        Ρ.Clear();
+        ʿ.Clear();
 
-        if (Ȥ ==
+        if (ɡ ==
             null)
         {
             return;
         }
 
         for (int Į = 0;
-            Į < Ν.Count;
+            Į < ʆ.Count;
             Į++)
         {
             g İ =
-                Ν[Į];
+                ʆ[Į];
 
-            if (њ(
+            if (Ӡ(
                     İ))
             {
-                Ρ.Add(
+                ʿ.Add(
                     İ);
             }
         }
+
+        Ӕ();
     }
 
-    void ў()
+    void щ()
     {
-        Ι =
+        Ͽ =
             false;
 
         for (int Į = 0;
-            Į < Ν.Count;
+            Į < ʆ.Count;
             Į++)
         {
             g İ =
-                Ν[Į];
+                ʆ[Į];
 
             if (İ.E.CubeGrid ==
                 Me.CubeGrid)
             {
-                Ι =
+                Ͽ =
                     true;
 
                 break;
             }
         }
 
-        ѝ();
+        ω();
     }
 
-    void ч()
+    void Ӕ()
     {
-        if (!й ||
-            Ρ.Count ==
+        Ǽ =
+            string.Empty;
+
+        if (!ǻ ||
+            ʿ.Count ==
                 0)
         {
             return;
         }
 
-        if (ȁ.Ǭ)
+        if (ȟ.Ȭ)
         {
-            bool џ =
+            bool ӣ =
                 true;
 
             for (int Į = 0;
                 Į <
-                    Ρ
+                    ʿ
                         .Count;
                 Į++)
             {
-                if (!Ρ[Į]
+                if (!ʿ[Į]
                         .Y)
                 {
-                    џ =
+                    ӣ =
                         false;
 
                     break;
                 }
             }
 
-            if (џ)
+            if (ӣ)
             {
-                н(
-"WARNING: Cruise cannot control "+
-"main-grid reverse thrusters; "+
-"all are "+
-                    ȁ.ǳ +
-".",
-                    true);
+                Ǽ =
+"Cruise cannot control main-grid "+
+"reverse thrusters; all are "+
+                    ȟ.Ȳ +
+".";
             }
 
             return;
         }
 
-        bool Ѡ =
+        bool Ӥ =
             false;
 
         for (int Į = 0;
             Į <
-                Ρ
+                ʿ
                     .Count;
             Į++)
         {
             g İ =
-                Ρ[Į];
+                ʿ[Į];
 
             if (!İ.Y &&
                 İ.a)
             {
-                Ѡ =
+                Ӥ =
                     true;
 
                 break;
             }
         }
 
-        if (!Ѡ)
+        if (!Ӥ)
         {
-            н(
-"WARNING: Cruise cannot control "+
-"main-grid reverse thrusters; "+
-"add "+
-                ȁ.ǲ +
-".",
-                true);
+            Ǽ =
+"Cruise cannot control main-grid "+
+"reverse thrusters; add "+
+                ȟ.ȱ +
+".";
         }
     }
 
 
-    void ѡ(
-        ƅ ɷ,
-        ƅ ɶ)
+    void ϒ(
+        ƅ ϐ,
+        ƅ Ϗ)
     {
-        if (ɷ ==
+        if (ϐ ==
                 ƅ.ƃ &&
-            ɶ !=
+            Ϗ !=
                 ƅ.ƃ)
         {
-            х(
+            ӓ(
                 C.ƃ);
 
-            п(
-                ɐ);
+            Ӑ(
+                Ȍ);
         }
 
-        if (ɷ !=
+        if (ϐ !=
                 ƅ.ƃ &&
-            ɶ ==
+            Ϗ ==
                 ƅ.ƃ)
         {
-            п(
-                ȷ
-                    .ƨ);
+            Ӑ(
+                ɱ
+                    .Ư);
         }
 
-        ц();
+        ɝ();
+    }
+
+    void ɪ(
+        bool Ő)
+    {
+        І.Clear();
+
+        І
+            .AppendLine(
+                ȿ)
+            .Append("v")
+            .AppendLine(
+                ˢ)
+            .AppendLine();
+
+        І
+            .Append("Mode: ")
+            .AppendLine(
+                ǒ(
+                    Ȏ));
+
+        І
+            .Append("Controller: ")
+            .AppendLine(
+                ɡ !=
+                        null
+                    ? ɡ
+                        .CustomName
+                    : "NONE");
+
+        ӥ(
+            І);
+
+        І
+            .Append("Nacelles: ")
+            .AppendLine(
+                ʂ
+                    .Count
+                    .ToString());
+
+        І
+            .Append(
+"Controlled thrust: ")
+            .Append(
+                (ʅ /
+                 1000.0)
+                .ToString("0.##"))
+            .AppendLine(" kN");
+
+        І
+            .Append(
+"Capacity F/B: ")
+            .Append(
+                (ʇ
+                     .Ɛ /
+                 1000.0)
+                .ToString("0.##"))
+            .Append("/")
+            .Append(
+                (ʇ
+                     .Ƒ /
+                 1000.0)
+                .ToString("0.##"))
+            .AppendLine(" kN");
+
+        І
+            .Append("Residual: ")
+            .Append(
+                (ʵ
+                     .Length() /
+                 1000.0)
+                .ToString("0.##"))
+            .AppendLine(" kN");
+
+        І
+            .Append("Gyros: ")
+            .AppendLine(
+                ˁ
+                    .Count
+                    .ToString());
+
+        if (Ȏ ==
+            ƅ.ƃ)
+        {
+            І
+                .Append(
+"Heartbeat age: ")
+                .Append(
+                    ɥ)
+                .AppendLine("/2");
+        }
+
+        if (!string.IsNullOrEmpty(
+                Ǽ))
+        {
+            І
+                .AppendLine()
+                .Append("WARNING: ")
+                .AppendLine(
+                    Ǽ);
+        }
+
+        if (!string.IsNullOrEmpty(
+                ϲ))
+        {
+            І
+                .AppendLine()
+                .Append(
+                    ϴ
+                        ? "WARNING: "                        : "Command: ")
+                .AppendLine(
+                    ϲ);
+        }
+
+        І
+            .Append("Runtime: ")
+            .Append(
+                Runtime
+                    .LastRunTimeMs
+                    .ToString("0.###"))
+            .Append(" ms | avg ")
+            .Append(
+                Љ
+                    .ƺ
+                    .ToString("0.###"))
+            .Append(" | max ")
+            .AppendLine(
+                Љ
+                    .ƻ
+                    .ToString("0.###"));
+
+        І
+            .Append("Instructions: ")
+            .Append(
+                Runtime
+                    .CurrentInstructionCount)
+            .Append("/")
+            .AppendLine(
+                Runtime
+                    .MaxInstructionCount
+                    .ToString());
+
+        Echo(
+            І.ToString());
+
+        if (!Ő &&
+            Ѕ.Count == 0)
+        {
+            return;
+        }
+
+        Ї.Clear();
+
+        Ї
+            .AppendLine(
+"VECTOR THRUST REDUX")
+            .Append("MODE  ")
+            .AppendLine(
+                ǒ(Ȏ)
+                    .ToUpperInvariant());
+
+        Ӧ(
+            Ї);
+
+        Ї
+            .Append("VECTORS ")
+            .AppendLine(
+                ʂ
+                    .Count
+                    .ToString())
+            .Append("THRUST ")
+            .Append(
+                (ʅ /
+                 1000.0)
+                .ToString("0.0"))
+            .AppendLine(" kN")
+            .Append("ERROR ")
+            .Append(
+                (ʵ
+                     .Length() /
+                 1000.0)
+                .ToString("0.0"))
+            .AppendLine(" kN");
+
+        if (!string.IsNullOrEmpty(
+                Ǽ))
+        {
+            Ї
+                .Append("WARN ")
+                .AppendLine(
+                    Ǽ);
+        }
+            
+        if (!string.IsNullOrEmpty(
+                ϲ))
+        {
+            Ї
+                .Append(
+                    ϴ
+                        ? "WARN "                        : "CMD  ")
+                .AppendLine(
+                    ϲ);
+        }
+
+        string ӧ =
+            Ї.ToString();
+
+        for (int Į = 0;
+            Į < Ѕ.Count;
+            Į++)
+        {
+            Ѕ[Į]
+                .ſ(ӧ);
+        }
+    }
+
+    void ӥ(
+        StringBuilder ɖ)
+    {
+        if (Ȏ !=
+            ƅ.ƃ)
+        {
+            ɖ
+                .Append("Dampeners: ")
+                .AppendLine(
+                    Ȍ
+                        ? "ON"                        : "OFF");
+
+            ɖ
+                .Append("Cruise: ")
+                .Append(
+                    Ȕ
+                        ? "ON"                        : "OFF");
+
+            if (Ȟ)
+            {
+                ɖ
+                    .Append(" @ ")
+                    .Append(
+                        ȝ
+                            .ToString(
+"0.###"))
+                    .Append(" m/s");
+            }
+
+            ɖ.AppendLine();
+
+            Ө(
+                ɖ);
+
+            return;
+        }
+
+        ɖ
+            .Append("Dampeners: local ")
+            .Append(
+                Ȍ
+                    ? "ON"                    : "OFF")
+            .Append(" | master ")
+            .Append(
+                ɱ
+                    .Ư
+                    ? "ON"                    : "OFF")
+            .Append(" | effective ")
+            .AppendLine(
+                ʟ
+                    ? "ON"                    : "OFF");
+
+        ɖ
+            .Append("Cruise: local ")
+            .Append(
+                Ȕ
+                    ? "ON"                    : "OFF");
+
+        if (Ȟ)
+        {
+            ɖ
+                .Append(" @ ")
+                .Append(
+                    ȝ
+                        .ToString("0.###"));
+        }
+
+        ɖ
+            .Append(" | master ")
+            .Append(
+                ɱ
+                    .Ɖ
+                    ? "ON"                    : "OFF")
+            .Append(" @ ")
+            .Append(
+                ɱ
+                    .Ʊ
+                    .ToString("0.###"))
+            .AppendLine(" m/s");
+
+        ɖ
+            .Append("Gear: local ")
+            .Append(
+                Ȣ + 1)
+            .Append("/")
+            .Append(
+                ȟ
+                    .Ƞ
+                    .Count)
+            .Append(" | master ")
+            .Append(
+                ɱ
+                    .Ƴ +
+                1)
+            .Append("/")
+            .Append(
+                ɱ
+                    .ƴ)
+            .Append(" (")
+            .Append(
+                (ɱ
+                     .Ʋ *
+                 100)
+                .ToString("0.##"))
+            .AppendLine("%)");
+    }
+
+    void Ӧ(
+        StringBuilder ɖ)
+    {
+        if (Ȏ !=
+            ƅ.ƃ)
+        {
+            ɖ
+                .Append("DAMP  ")
+                .AppendLine(
+                    Ȍ
+                        ? "ON"                        : "OFF")
+                .Append("CRUISE ")
+                .Append(
+                    Ȕ
+                        ? "ON"                        : "OFF");
+
+            if (Ȟ)
+            {
+                ɖ
+                    .Append(" ")
+                    .Append(
+                        ȝ
+                            .ToString("0.##"))
+                    .Append("m/s");
+            }
+
+            ɖ
+                .AppendLine()
+                .Append("GEAR  ")
+                .Append(
+                    Ȣ + 1)
+                .Append("/")
+                .AppendLine(
+                    ȟ
+                        .Ƞ
+                        .Count
+                        .ToString());
+
+            return;
+        }
+
+        ɖ
+            .Append("DAMP  L:")
+            .Append(
+                Ȍ
+                    ? "ON"                    : "OFF")
+            .Append(" M:")
+            .AppendLine(
+                ɱ
+                        .Ư
+                    ? "ON"                    : "OFF")
+            .Append("CRUISE L:")
+            .Append(
+                Ȕ
+                    ? "ON"                    : "OFF")
+            .Append(" M:")
+            .Append(
+                ɱ
+                        .Ɖ
+                    ? "ON"                    : "OFF")
+            .Append(" ")
+            .Append(
+                ɱ
+                    .Ʊ
+                    .ToString("0.##"))
+            .AppendLine("m/s")
+            .Append("GEAR  L:")
+            .Append(
+                Ȣ + 1)
+            .Append("/")
+            .Append(
+                ȟ
+                    .Ƞ
+                    .Count)
+            .Append(" M:")
+            .Append(
+                ɱ
+                    .Ƴ +
+                1)
+            .Append("/")
+            .AppendLine(
+                ɱ
+                    .ƴ
+                    .ToString());
+    }
+
+    void Ө(
+        StringBuilder ɖ)
+    {
+        int ȡ =
+            ȟ
+                .Ƞ
+                .Count;
+
+        int ө =
+            ȡ > 0
+                ? MathHelper.Clamp(
+                    Ȣ,
+                    0,
+                    ȡ - 1)
+                : 0;
+
+        double ȧ =
+            ȡ > 0
+                ? ȟ
+                    .Ƞ[
+                        ө] *
+                  100
+                : 0;
+
+        ɖ
+            .Append("Gear: ")
+            .Append(
+                ө + 1)
+            .Append("/")
+            .Append(
+                ȡ)
+            .Append(" (")
+            .Append(
+                ȧ
+                    .ToString("0.##"))
+            .AppendLine("%)");
+    }
+    readonly List<IMyTerminalBlock> Ӫ =
+        new List<IMyTerminalBlock>(),ӫ =
+        new List<IMyTerminalBlock>();
+
+    readonly List<IMyBlockGroup> Ӭ =
+        new List<IMyBlockGroup>();
+
+
+    void ə()
+    {
+        Ɯ ӭ =
+            ъ();
+
+        if (!Ϸ)
+        {
+            ϼ =
+                ӭ;
+
+            Ϸ =
+                true;
+
+            return;
+        }
+
+        if (ӭ ==
+            ϼ)
+        {
+            return;
+        }
+
+        ϼ =
+            ӭ;
+
+        Ȋ();
+    }
+
+    Ɯ ъ()
+    {
+        Ɯ ӭ =
+            new Ɯ();
+
+        Ӫ.Clear();
+
+        GridTerminalSystem.GetBlocks(
+            Ӫ);
+
+        for (int Į = 0;
+            Į <
+                Ӫ
+                    .Count;
+            Į++)
+        {
+            IMyTerminalBlock d =
+                Ӫ[Į];
+
+            int ӯ =
+                Ӯ(
+                    d);
+
+            if (ӯ == 0)
+            {
+                continue;
+            }
+
+            ulong ӱ =
+                Ӱ;
+
+            ӱ =
+                Ӳ(
+                    ӱ,
+                    unchecked(
+                        (ulong)
+                            d.EntityId));
+
+            ӱ =
+                Ӳ(
+                    ӱ,
+                    unchecked(
+                        (ulong)
+                            d
+                                .CubeGrid
+                                .EntityId));
+
+            ӱ =
+                Ӳ(
+                    ӱ,
+                    unchecked(
+                        (ulong)ӯ));
+
+            ӱ =
+                Ӳ(
+                    ӱ,
+                    d
+                        .CubeGrid
+                        .IsStatic
+                        ? 1UL
+                        : 0UL);
+
+            F e =
+                њ(
+                    d.CustomName) |
+                њ(
+                    d.CustomData);
+
+            ӱ =
+                Ӳ(
+                    ӱ,
+                    unchecked(
+                        (ulong)(int)e));
+
+            IMyMotorStator Ī =
+                d as
+                    IMyMotorStator;
+
+            if (Ī != null)
+            {
+                ӱ =
+                    Ӳ(
+                        ӱ,
+                        Ī.TopGrid !=
+                                null
+                            ? unchecked(
+                                (ulong)
+                                    Ī
+                                        .TopGrid
+                                        .EntityId)
+                            : 0UL);
+
+                ӱ =
+                    Ӳ(
+                        ӱ,
+                        ӳ(
+                            Ī
+                                .LowerLimitRad));
+
+                ӱ =
+                    Ӳ(
+                        ӱ,
+                        ӳ(
+                            Ī
+                                .UpperLimitRad));
+            }
+
+            IMyPistonBase ҫ =
+                d as
+                    IMyPistonBase;
+
+            if (ҫ != null)
+            {
+                ӱ =
+                    Ӳ(
+                        ӱ,
+                        ҫ.TopGrid !=
+                                null
+                            ? unchecked(
+                                (ulong)
+                                    ҫ
+                                        .TopGrid
+                                        .EntityId)
+                            : 0UL);
+            }
+
+            IMyShipConnector Ϛ =
+                d as
+                    IMyShipConnector;
+
+            if (Ϛ != null)
+            {
+                ӱ =
+                    Ӳ(
+                        ӱ,
+                        Ϛ
+                                .OtherConnector !=
+                            null
+                            ? unchecked(
+                                (ulong)
+                                    Ϛ
+                                        .OtherConnector
+                                        .EntityId)
+                            : 0UL);
+            }
+
+            IMyProgrammableBlock і =
+                d as
+                    IMyProgrammableBlock;
+
+            if (і !=
+                null)
+            {
+                bool Ӵ =
+                    ї(
+                        і);
+
+                ӱ =
+                    Ӳ(
+                        ӱ,
+                        Ӵ
+                            ? 1UL
+                            : 0UL);
+
+                if (Ӵ)
+                {
+                    ӱ =
+                        Ӳ(
+                            ӱ,
+                            ј(
+                                і)
+                                ? 1UL
+                                : 0UL);
+
+                    ӱ =
+                        Ӳ(
+                            ӱ,
+                            ҵ(
+                                і)
+                                ? 1UL
+                                : 0UL);
+                }
+            }
+
+            ӵ(
+                ref ӭ,
+                ӱ,
+                d.EntityId);
+        }
+
+        Ӷ(
+            ref ӭ);
+
+        return ӭ;
+    }
+
+    void Ӷ(
+        ref Ɯ ӭ)
+    {
+        Ӭ.Clear();
+
+        GridTerminalSystem.GetBlockGroups(
+            Ӭ);
+
+        for (int Į = 0;
+            Į <
+                Ӭ
+                    .Count;
+            Į++)
+        {
+            IMyBlockGroup Ҩ =
+                Ӭ[Į];
+
+            F ҩ =
+                њ(
+                    Ҩ.Name);
+
+            if (ҩ ==
+                F.M)
+            {
+                continue;
+            }
+
+            ӫ.Clear();
+
+            Ҩ.GetBlocks(
+                ӫ);
+
+            ulong ӷ =
+                Ӱ;
+
+            ӷ =
+                Ӳ(
+                    ӷ,
+                    Ӹ(
+                        Ҩ.Name));
+
+            ӷ =
+                Ӳ(
+                    ӷ,
+                    unchecked(
+                        (ulong)
+                            (int)ҩ));
+
+            ulong ӹ = 0;
+            ulong Ӻ = 0;
+
+            for (int ĵ = 0;
+                ĵ <
+                    ӫ
+                        .Count;
+                ĵ++)
+            {
+                ulong ӻ =
+                    Ӳ(
+                        Ӱ,
+                        unchecked(
+                            (ulong)
+                                ӫ[ĵ]
+                                    .EntityId));
+
+                ӹ ^=
+                    Ӽ(
+                        ӻ,
+                        (int)(
+                            ӫ[ĵ]
+                                .EntityId &
+                            63));
+
+                Ӻ +=
+                    ӻ *
+                    ӽ;
+            }
+
+            ӷ =
+                Ӳ(
+                    ӷ,
+                    ӹ);
+
+            ӷ =
+                Ӳ(
+                    ӷ,
+                    Ӻ);
+
+            long Ӿ =
+                unchecked(
+                    (long)
+                        Ӹ(
+                            Ҩ.Name));
+
+            ӵ(
+                ref ӭ,
+                ӷ,
+                Ӿ);
+        }
+    }
+
+    static void ӵ(
+        ref Ɯ ӭ,
+        ulong ӱ,
+        long ӿ)
+    {
+        ӭ.Ɲ++;
+
+        ӭ.ƞ ^=
+            Ӽ(
+                ӱ,
+                (int)(ӿ & 63));
+
+        ӭ.Ɵ +=
+            ӱ *
+            ӽ;
+    }
+
+    static int Ӯ(
+        IMyTerminalBlock d)
+    {
+        if (d is
+            IMyMotorStator)
+        {
+            return 1;
+        }
+
+        if (d is
+            IMyPistonBase)
+        {
+            return 2;
+        }
+
+        if (d is
+            IMyThrust)
+        {
+            return 3;
+        }
+
+        if (d is
+            IMyGyro)
+        {
+            return 4;
+        }
+
+        if (d is
+            IMyShipController)
+        {
+            return 5;
+        }
+
+        if (d is
+            IMyShipConnector)
+        {
+            return 6;
+        }
+
+        if (d is
+            IMyLandingGear)
+        {
+            return 7;
+        }
+
+        if (d is
+            IMyProgrammableBlock)
+        {
+            return 8;
+        }
+
+        if (d is
+            IMyTimerBlock)
+        {
+            return 9;
+        }
+
+        if (d is
+                IMyTextPanel ||
+            d is
+                IMyTextSurfaceProvider)
+        {
+            return 10;
+        }
+
+        return 0;
+    }
+
+    static ulong ӳ(
+        double ğ)
+    {
+        if (double.IsNaN(ğ))
+        {
+            return ulong.MaxValue;
+        }
+
+        if (double.IsPositiveInfinity(
+                ğ))
+        {
+            return ulong.MaxValue -
+                1;
+        }
+
+        if (double.IsNegativeInfinity(
+                ğ))
+        {
+            return ulong.MaxValue -
+                2;
+        }
+
+        return unchecked(
+            (ulong)(uint)
+                ğ.GetHashCode());
+    }
+
+    static ulong Ӹ(
+        string ž)
+    {
+        ulong ơ =
+            Ӱ;
+
+        if (string.IsNullOrEmpty(
+                ž))
+        {
+            return ơ;
+        }
+
+        for (int Į = 0;
+            Į < ž.Length;
+            Į++)
+        {
+            char Ȫ =
+                char.ToUpperInvariant(
+                    ž[Į]);
+
+            ơ ^=
+                Ȫ;
+
+            ơ *=
+                ӽ;
+        }
+
+        return ơ;
+    }
+
+    static ulong Ӳ(
+        ulong ơ,
+        ulong ğ)
+    {
+        ơ ^=
+            ğ;
+
+        ơ *=
+            ӽ;
+
+        ơ ^=
+            ğ >> 32;
+
+        ơ *=
+            ӽ;
+
+        return ơ;
+    }
+
+    static ulong Ӽ(
+        ulong ğ,
+        int К)
+    {
+        К &=
+            63;
+
+        if (К == 0)
+        {
+            return ğ;
+        }
+
+        return ğ << К |
+               ğ >>
+               (64 - К);
+    }
+
+    const ulong Ӱ =
+        14695981039346656037UL,ӽ =
+        1099511628211UL;
+
+
+    void ɜ()
+    {
+        HashSet<long> Ԁ =
+            new HashSet<long>();
+
+        for (int Į = 0;
+            Į < ц.Count;
+            Į++)
+        {
+            IMyShipConnector Ϛ =
+                ц[Į];
+
+            if (Ϛ == null ||
+                Ϛ.Closed)
+            {
+                continue;
+            }
+
+            long ԁ =
+                Ϛ
+                        .OtherConnector !=
+                    null
+                    ? Ϛ
+                        .OtherConnector
+                        .EntityId
+                    : 0;
+
+            long Ԃ;
+
+            if (!Ӊ
+                    .TryGetValue(
+                        Ϛ.EntityId,
+                        out Ԃ) ||
+                Ԃ !=
+                    ԁ)
+            {
+                Ӊ[
+                    Ϛ.EntityId] =
+                    ԁ;
+
+                Ȋ();
+            }
+
+            Ԁ.Add(
+                Ϛ.EntityId);
+        }
+
+        ԃ(
+            Ԁ);
+
+        HashSet<long> Ԅ =
+            new HashSet<long>();
+
+        for (int Į = 0;
+            Į < ϗ.Count;
+            Į++)
+        {
+            IMyLandingGear ԅ =
+                ϗ[Į]
+                    .ǭ;
+
+            if (ԅ == null ||
+                ԅ.Closed)
+            {
+                continue;
+            }
+
+            bool Ԇ;
+
+            if (!ӊ
+                    .TryGetValue(
+                        ԅ.EntityId,
+                        out Ԇ) ||
+                Ԇ !=
+                    ԅ.IsLocked)
+            {
+                ӊ[
+                    ԅ.EntityId] =
+                    ԅ.IsLocked;
+
+                Ȋ();
+            }
+
+            Ԅ.Add(
+                ԅ.EntityId);
+        }
+
+        ԇ(
+            Ԅ);
+    }
+
+    void ԃ(
+        HashSet<long> Ԉ)
+    {
+        if (Ӊ.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> ԉ =
+            new List<long>();
+
+        foreach (
+            KeyValuePair<long, long> Ћ
+            in Ӊ)
+        {
+            if (!Ԉ.Contains(
+                    Ћ.Key))
+            {
+                ԉ.Add(
+                    Ћ.Key);
+            }
+        }
+
+        for (int Į = 0;
+            Į < ԉ.Count;
+            Į++)
+        {
+            Ӊ.Remove(
+                ԉ[Į]);
+        }
+    }
+
+    void ԇ(
+        HashSet<long> Ԉ)
+    {
+        if (ӊ.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> ԉ =
+            new List<long>();
+
+        foreach (
+            KeyValuePair<long, bool> Ћ
+            in ӊ)
+        {
+            if (!Ԉ.Contains(
+                    Ћ.Key))
+            {
+                ԉ.Add(
+                    Ћ.Key);
+            }
+        }
+
+        for (int Į = 0;
+            Į < ԉ.Count;
+            Į++)
+        {
+            ӊ.Remove(
+                ԉ[Į]);
+        }
     }
 }

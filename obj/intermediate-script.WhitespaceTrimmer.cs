@@ -64,362 +64,514 @@ Zero;}Vector3D ĭ=n.Ĭ(ħ,ī.WorldMatrix);return-n.o(ĭ);}}public void ĸ(){ģ.C
 IMyCubeGrid ī=Ò.E.TopGrid;if(ī==null){ħ=Vector3D.Zero;ĩ=0;return;}MatrixD į=ī.WorldMatrix;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ
 .P||!İ.c){continue;}double ı=İ.V;if(ı<=U){continue;}Vector3D ĳ=n.o(n.Ĳ(İ.S,į));Ģ Ĵ=null;for(int ĵ=0;ĵ<ģ.Count;ĵ++){if(
 Vector3D.Dot(ģ[ĵ].Ġ,ĳ)>=Ķ){Ĵ=ģ[ĵ];break;}}if(Ĵ==null){Ĵ=new Ģ{Ġ=ĳ};ģ.Add(Ĵ);}Ĵ.ġ+=ı;}Ģ ķ=null;for(int Į=0;Į<ģ.Count;Į++){if(ķ==
-null||ģ[Į].ġ>ķ.ġ){ķ=ģ[Į];}}if(ķ==null){ħ=Vector3D.Zero;ĩ=0;return;}ħ=ķ.Ġ;ĩ=ķ.ġ;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.c){
-continue;}Vector3D ĳ=n.o(n.Ĳ(İ.S,į));İ.J=Vector3D.Dot(ĳ,ħ)>=Ķ;}}public bool ň(Vector3D m,î Ĺ){if(Ĺ==null){return false;}Ĺ.ĺ();Ĺ.
-I=this;m=n.o(m);if(!Ò.P||!Ò.Ñ||m.LengthSquared()<=p){return false;}Ĥ.Clear();Ļ(0);Vector3D ļ=ß;if(ļ.LengthSquared()>p){Ļ(
-Ò.ö(m,ļ));}for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.P||!İ.c){continue;}Ļ(Ò.ö(m,İ.R));}double Õ=Ò.E.Angle;double Ì=Ò.E.
-LowerLimitRad;double Í=Ò.E.UpperLimitRad;if(!double.IsNaN(Ì)&&!double.IsInfinity(Ì)&&Ì>-1e20){Ļ(Ì-Õ);}if(!double.IsNaN(Í)&&!double.
-IsInfinity(Í)&&Í<1e20){Ļ(Í-Õ);}double ľ=Ľ(m,0);double Ŀ=-1;double ŀ=0;for(int Į=0;Į<Ĥ.Count;Į++){double Ł=Ò.ù(Ĥ[Į]);double ł=Ľ(m,Ł
-);if(ł>Ŀ+U){Ŀ=ł;ŀ=Ł;continue;}if(Math.Abs(ł-Ŀ)>U){continue;}double Ń=Math.Abs(Ł);double ė=Math.Abs(ŀ);if(Ń<ė-ē){ŀ=Ł;
-continue;}if(Math.Abs(Ń-ė)<=ē&&Ò.Ë!=0&&Math.Sign(Ł)==Ò.Ë){ŀ=Ł;}}if(Ŀ<=U){return false;}Ĺ.ð=ŀ;Ĺ.ń=Ŀ;Ĺ.Ņ=ľ;Vector3D ņ=n.ë(ļ,É,-ŀ);
-Ĺ.Ň=n.í(ņ,m);return true;}public double ŉ(Vector3D m){î ï=new î();return ň(m,ï)?ï.ń:0;}public double Ŋ(Vector3D Ú){Ĩ=Ú;if
-(Ú.LengthSquared()<=p){Ò.Ó();return 0;}î ï=new î();if(!ň(Ú,ï)){Ò.Ó();return 0;}double Ý=ï.ń>U?MathHelper.Clamp(Ú.Length()
-/ï.ń,0,1):0;Ò.ò(ï,Ý,A.Ü);return ï.Ň;}public void Ŋ(î ï,double ŋ,double Ô){if(ï==null||ï.I!=this||ï.ń<=U){Ĩ=Vector3D.Zero;
-Ò.Ó();return;}double Ý=MathHelper.Clamp(ŋ/ï.ń,0,1);Ò.ò(ï,Ý,Ô);}public double Œ(ref Vector3D s,Vector3D Ō,ref Vector3D ō){
-double Ŏ=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.J){continue;}double ŏ=İ.x(ref s);if(ŏ<=U){continue;}Vector3D Ő=İ.R*ŏ;
-Vector3D ő=İ.E.GetPosition()-Ō;ō+=Vector3D.Cross(ő,Ő);Ŏ+=ŏ;}return Ŏ;}public double œ(ref Vector3D s,Vector3D Ō,ref Vector3D ō){
-double Ŏ=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(İ.J){continue;}double ŏ=İ.x(ref s);if(ŏ<=U){continue;}Vector3D Ő=İ.R*ŏ;
-Vector3D ő=İ.E.GetPosition()-Ō;ō+=Vector3D.Cross(ő,Ő);Ŏ+=ŏ;}return Ŏ;}public Vector3D Ā(){if(Ħ.Count==0){return Ò.E.TopGrid!=
-null?Ò.E.TopGrid.WorldAABB.Center:Ò.E.GetPosition();}Vector3D Ŕ=Vector3D.Zero;int ŕ=0;for(int Į=0;Į<Ħ.Count;Į++){IMyCubeGrid
-Ŗ=Ħ[Į];if(Ŗ==null||Ŗ.Closed){continue;}Ŕ+=Ŗ.WorldAABB.Center;ŕ++;}return ŕ>0?Ŕ/ŕ:Ò.E.GetPosition();}void Ļ(double ñ){ñ=Ò.
-ù(ñ);for(int Į=0;Į<Ĥ.Count;Į++){if(Math.Abs(Ĥ[Į]-ñ)<=ē){return;}}Ĥ.Add(ñ);}double Ľ(Vector3D m,double ñ){double ł=0;for(
-int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.P||!İ.c){continue;}Vector3D ŗ=n.ë(İ.R,É,-ñ);double q=Vector3D.Dot(ŗ,m);if(q<=0){
-continue;}ł+=q*İ.V;}return ł;}}sealed class ŝ{public readonly List<H>Ř=new List<H>();public Vector3D É{get{return Ř.Count>0?n.o(
-Ř[0].É):Vector3D.Zero;}}public double ř{get{double ł=0;for(int Į=0;Į<Ř.Count;Į++){ł+=Ř[Į].ĩ;}return ł;}}public Vector3D Ś
-(Vector3D Ő){return n.ą(Ő,É);}public double Ŝ(Vector3D s){Vector3D ś=Ś(s);if(ś.LengthSquared()<=p){return 0;}return Math.
-Min(ś.Length(),ř);}}sealed class ũ{readonly Program A;bool Ş;float ş=float.NaN,Š=float.NaN,š=float.NaN;C D;public readonly
-IMyGyro E;public readonly F G;public readonly double Ţ;public C L{get{return D;}}public bool P{get{return D!=C.M;}set{N(C.O,
-value);}}public bool Y{get{return(G&F.X)!=0;}}public bool a{get{return(G&F.Z)!=0;}}public double ř{get{if(!P||E==null||E.
-Closed||!E.IsFunctional||!E.Enabled){return 0;}return Ţ*MathHelper.Clamp(E.GyroPower,0,1);}}public ũ(IMyGyro d,Program A,F e,
-bool f){E=d;this.A=A;G=e;if(f&&!Y){D=C.O;}bool ţ=d.CubeGrid.GridSizeEnum==VRage.Game.MyCubeSize.Small;bool Ť=d.
-BlockDefinition.SubtypeId.IndexOf("Prototech",StringComparison.OrdinalIgnoreCase)>=0;if(Ť){Ţ=ţ?ť:Ŧ;}else{Ţ=ţ?ŧ:Ũ;}}public void N(C h,
-bool i){if(Y){D=C.M;Ū();return;}if(i){D|=h;return;}D&=~h;if(D==C.M){Ū();}}public bool k(C h){return(D&h)!=0;}public void Ŵ(
-Vector3D ū){if(!P||E==null||E.Closed||ř<=p){Ū();return;}ū=n.Ŭ(ū,ŭ);Vector3D Ů=n.Ĳ(ū,E.WorldMatrix);float ů=(float)Ů.X;float Ű=(
-float)Ů.Y;float ű=(float)Ů.Z;bool ų=Ů.LengthSquared()>Ų*Ų;if(!ų){Ū();return;}if(!Ş||Math.Abs(ů-ş)>Ų){E.Pitch=ů;ş=ů;}if(!Ş||
-Math.Abs(Ű-Š)>Ų){E.Yaw=Ű;Š=Ű;}if(!Ş||Math.Abs(ű-š)>Ų){E.Roll=ű;š=ű;}if(!Ş||!E.GyroOverride){E.GyroOverride=true;}Ş=true;}
-public void Ū(){if(E==null||E.Closed){return;}if(E.GyroOverride){E.GyroOverride=false;}if(Math.Abs(E.Pitch)>Ų){E.Pitch=0;}if(
-Math.Abs(E.Yaw)>Ų){E.Yaw=0;}if(Math.Abs(E.Roll)>Ų){E.Roll=0;}Ş=false;ş=0;Š=0;š=0;}public void À(){Ū();D=C.M;}}sealed class Ž
-{public readonly IMyTerminalBlock ŵ;public readonly IMyTextSurface Ŷ;public readonly int ŷ;bool Ÿ;public string Ź{get{
-return ŵ.EntityId+":"+ŷ;}}public Ž(IMyTerminalBlock ź,IMyTextSurface Ż,int ż){ŵ=ź;Ŷ=Ż;ŷ=ż;}public void ſ(string ž){if(ŵ==null
-||ŵ.Closed||Ŷ==null){return;}if(!Ÿ){Ŷ.ContentType=VRage.Game.GUI.TextPanel.ContentType.TEXT_AND_IMAGE;Ŷ.Font="Monospace";Ŷ
-.FontSize=0.8f;Ŷ.Alignment=VRage.Game.GUI.TextPanel.TextAlignment.LEFT;Ÿ=true;}Ŷ.WriteText(ž,false);}}enum ƅ{ƀ,Ɓ,Ƃ,ƃ,Ƅ}[
-Flags]enum F{M=0,Z=1,X=2,Ɔ=4,Ƈ=8,ƈ=16}[Flags]enum C{M=0,O=1,Ɖ=2,ƃ=4}[Flags]enum ƌ{M=0,Ɗ=1,Ɖ=2,Ƌ=4}sealed class Ə{public bool
-ƍ;public ƌ Ǝ;}sealed class Ɩ{public double Ɛ,Ƒ,ƒ,Ɠ,Ɣ,ƕ;public void ĺ(){Ɛ=0;Ƒ=0;ƒ=0;Ɠ=0;Ɣ=0;ƕ=0;}public void Ƙ(Ɩ Ɨ){if(Ɨ==
-null){return;}Ɛ+=Ɨ.Ɛ;Ƒ+=Ɨ.Ƒ;ƒ+=Ɨ.ƒ;Ɠ+=Ɨ.Ɠ;Ɣ+=Ɨ.Ɣ;ƕ+=Ɨ.ƕ;}public void ƙ(Ɩ Ɨ){if(Ɨ==null){ĺ();return;}Ɛ=Ɨ.Ɛ;Ƒ=Ɨ.Ƒ;ƒ=Ɨ.ƒ;Ɠ=Ɨ.Ɠ;
-Ɣ=Ɨ.Ɣ;ƕ=Ɨ.ƕ;}public double ƛ(Vector3D ƚ){double ł=0;if(ƚ.X>0){ł+=Ɠ*ƚ.X;}else if(ƚ.X<0){ł+=ƒ*-ƚ.X;}if(ƚ.Y>0){ł+=Ɣ*ƚ.Y;}
-else if(ƚ.Y<0){ł+=ƕ*-ƚ.Y;}if(ƚ.Z>0){ł+=Ƒ*ƚ.Z;}else if(ƚ.Z<0){ł+=Ɛ*-ƚ.Z;}return ł;}}sealed class î{public H I;public double ð
-,ń,Ņ,Ň;public void ĺ(){I=null;ð=0;ń=0;Ņ=0;Ň=0;}}struct Ɯ:IEquatable<Ɯ>{public long Ɲ;public ulong ƞ,Ɵ;public bool Equals(
-Ɯ Ɨ){return Ɲ==Ɨ.Ɲ&&ƞ==Ɨ.ƞ&&Ɵ==Ɨ.Ɵ;}public override bool Equals(object Ơ){return Ơ is Ɯ&&Equals((Ɯ)Ơ);}public override
-int GetHashCode(){unchecked{int ơ=(int)Ɲ^(int)(Ɲ>>32);ơ=ơ*397^(int)ƞ^(int)(ƞ>>32);ơ=ơ*397^(int)Ɵ^(int)(Ɵ>>32);return ơ;}}
-public static bool operator==(Ɯ Ƣ,Ɯ ƣ){return Ƣ.Equals(ƣ);}public static bool operator!=(Ɯ Ƣ,Ɯ ƣ){return!Ƣ.Equals(ƣ);}}sealed
-class Ʈ{public long Ƥ,ƥ,Ʀ;public Vector3D Ƨ;public bool ƨ,Ɖ,Ʃ;public double ƪ,ƫ;public int Ƭ,ƭ;public void ƙ(Ʈ Ɨ){Ƥ=Ɨ.Ƥ;ƥ=Ɨ.ƥ
-;Ʀ=Ɨ.Ʀ;Ƨ=Ɨ.Ƨ;ƨ=Ɨ.ƨ;Ɖ=Ɨ.Ɖ;ƪ=Ɨ.ƪ;Ƭ=Ɨ.Ƭ;ƭ=Ɨ.ƭ;ƫ=Ɨ.ƫ;Ʃ=Ɨ.Ʃ;}public void ĺ(){Ƥ=0;ƥ=0;Ʀ=0;Ƨ=Vector3D.Zero;ƨ=true;Ɖ=false;ƪ=0;Ƭ=
-0;ƭ=0;ƫ=0;Ʃ=false;}}sealed class ƶ{readonly Program A;double Ư;double ư,Ʊ;int Ʋ;public double Ƴ{get{return Ư;}}public
-double ƴ{get{return ư;}}public double Ƶ{get{return Ʊ;}}public ƶ(Program A){this.A=A;}public void Ʒ(){Ʊ=A.Runtime.LastRunTimeMs
-;}public void ƹ(){double Ƹ=A.Runtime.LastRunTimeMs;Ʋ++;if(Ʋ==1){Ư=Ƹ;ư=Ƹ;return;}Ư+=(Ƹ-Ư)*0.05;if(Ƹ>ư){ư=Ƹ;}else if(Ʋ%600
-==0){ư=Ư;}}}public static class n{public static Vector3D o(Vector3D ƺ){if(Vector3D.IsZero(ƺ)){return Vector3D.Zero;}if(
-Vector3D.IsUnit(ref ƺ)){return ƺ;}return Vector3D.Normalize(ƺ);}public static Vector3D ą(Vector3D ƻ,Vector3D Ƽ){double ƽ=Ƽ.
-LengthSquared();if(ƻ.LengthSquared()<=p||ƽ<=p){return Vector3D.Zero;}return ƻ-Vector3D.Dot(ƻ,Ƽ)/ƽ*Ƽ;}public static Vector3D ƾ(
-Vector3D ƻ,Vector3D Ƽ){double ƽ=Ƽ.LengthSquared();if(ƻ.LengthSquared()<=p||ƽ<=p){return Vector3D.Zero;}return Vector3D.Dot(ƻ,Ƽ)/
-ƽ*Ƽ;}public static double í(Vector3D ƻ,Vector3D Ƽ){double ƽ=Math.Sqrt(ƻ.LengthSquared()*Ƽ.LengthSquared());if(ƽ<=p){
-return 0;}return MathHelper.Clamp(Vector3D.Dot(ƻ,Ƽ)/ƽ,-1,1);}public static Vector3D Ŭ(Vector3D ƺ,double ƿ){if(ƿ<=0){return
-Vector3D.Zero;}double ǀ=ƺ.LengthSquared();double ǁ=ƿ*ƿ;if(ǀ<=ǁ){return ƺ;}if(ǀ<=p){return Vector3D.Zero;}return ƺ*(ƿ/Math.Sqrt(ǀ
-));}public static double Ø(double ǂ){while(ǂ>Math.PI){ǂ-=MathHelper.TwoPi;}while(ǂ<-Math.PI){ǂ+=MathHelper.TwoPi;}return
-ǂ;}public static Vector3D ë(Vector3D ƺ,Vector3D ǃ,double ǂ){ǃ=o(ǃ);if(ǃ.LengthSquared()<=p){return ƺ;}double Ǆ=Math.Cos(ǂ
-);double ǅ=Math.Sin(ǂ);return ƺ*Ǆ+Vector3D.Cross(ǃ,ƺ)*ǅ+ǃ*Vector3D.Dot(ǃ,ƺ)*(1.0-Ǆ);}public static double Ē(Vector3D m,
-Vector3D đ,Vector3D ǆ){Vector3D Ǉ=ą(m,ǆ);Vector3D ǈ=ą(đ,ǆ);if(Ǉ.LengthSquared()<=p||ǈ.LengthSquared()<=p){return 0;}Ǉ=o(Ǉ);ǈ=o(ǈ
-);ǆ=o(ǆ);return Math.Atan2(Vector3D.Dot(ǆ,Vector3D.Cross(Ǉ,ǈ)),Vector3D.Dot(Ǉ,ǈ));}public static Vector3D Ĳ(Vector3D ǉ,
-MatrixD Ǌ){return Vector3D.TransformNormal(ǉ,MatrixD.Transpose(Ǌ));}public static Vector3D Ĭ(Vector3D ƚ,MatrixD Ǌ){return
-Vector3D.TransformNormal(ƚ,Ǌ);}}static string ǋ(ƅ ğ){switch(ğ){case ƅ.ƀ:return"Initializing";case ƅ.Ɓ:return"Active";case ƅ.Ƃ:
-return"Master";case ƅ.ƃ:return"Slave";case ƅ.Ƅ:return"Parked";default:return"Unknown";}}sealed class Ǒ{public readonly
-IMyCubeGrid ǌ;public readonly List<Ǎ>ǎ=new List<Ǎ>();public Ǐ ǐ;public Ǒ ǒ;public Ǎ Ǔ;public int ǔ=int.MaxValue;public bool Ǖ;
-public Ǒ(IMyCubeGrid Ŗ){ǌ=Ŗ;}}sealed class Ǎ{public readonly Ǒ ǖ,Ǘ;public readonly IMyTerminalBlock ǘ;public Ǎ(Ǒ ƻ,Ǒ Ƽ,
-IMyTerminalBlock Ǚ){ǖ=ƻ;Ǘ=Ƽ;ǘ=Ǚ;}public Ǒ Ǜ(Ǒ ǚ){return ǚ==ǖ?Ǘ:ǖ;}}sealed class Ǐ{public readonly List<Ǒ>ǜ=new List<Ǒ>();public readonly
-List<IMyShipController>ǝ=new List<IMyShipController>();public readonly List<IMyProgrammableBlock>Ǟ=new List<
-IMyProgrammableBlock>();public bool Ǖ,ǟ,Ǡ,ǡ,Ǣ=true,ǣ=true;public IMyProgrammableBlock Ǥ;}sealed class ǧ{public IMyShipConnector ǖ,Ǘ;public Ǒ
-ǥ,Ǧ;}sealed class Ǫ{public IMyShipConnector Ǩ;public ǧ ǩ;}sealed class ǫ{public IMyLandingGear Ǩ;}sealed class Ǻ{public
-bool Ǭ=true,ǭ=true,Ǯ=true,ǯ,ǰ=true;public readonly List<double>Ǳ=new List<double>{0.15,0.50,1.00};public string ǲ="[VT-use]"
-,ǳ="[VT-ignore]",Ǵ="[VT-status]",ǵ="[VT-park]",Ƕ="[VT-unpark]";public int Ƿ,Ǹ,ǹ;}readonly MyIni ǻ=new MyIni();bool Ȓ(bool
-Ǽ){string ǽ=Me.CustomData??string.Empty;if(!Ǽ&&ǽ==Ǿ){return false;}ǻ.Clear();MyIniParseResult ǿ;if(!ǻ.TryParse(ǽ,out ǿ)){
-Echo(Ȁ+"\n\nCustom Data could not be parsed as INI:\n"+ǿ);Ǿ=ǽ;return false;}bool Ȃ=ȁ.Ǭ;bool ȃ=ȁ.ǭ;bool Ȅ=ȁ.Ǯ;string ȅ=ȁ.ǲ;
-string Ȇ=ȁ.ǳ;string ȇ=ȁ.Ǵ;string Ȉ=ȁ.ǵ;string ȉ=ȁ.Ƕ;ȁ.Ǭ=ǻ.Get(Ȋ,"Greedy").ToBoolean(ȁ.Ǭ);ȁ.ǭ=ǻ.Get(Ȋ,"CanMaster").ToBoolean(ȁ.
-ǭ);ȁ.Ǯ=ǻ.Get(Ȋ,"CanSlave").ToBoolean(ȁ.Ǯ);ȁ.ǯ=ǻ.Get("Parking","ParkOnlyByCommand").ToBoolean(ȁ.ǯ);ȁ.ǰ=ǻ.Get("Flight",
-"CruiseLevelsWithGravity").ToBoolean(ȁ.ǰ);ȋ(ǻ.Get("Flight","GearPercentages").ToString("15; 50; 100"));if(Ȍ>=ȁ.Ǳ.Count){Ȍ=ȁ.Ǳ.Count-1;}ȁ.ǲ=ȍ(
-"Tags","Use",ȁ.ǲ);ȁ.ǳ=ȍ("Tags","Ignore",ȁ.ǳ);ȁ.Ǵ=ȍ("Tags","Status",ȁ.Ǵ);ȁ.ǵ=ȍ("Tags","ParkTimer",ȁ.ǵ);ȁ.Ƕ=ȍ("Tags",
-"UnparkTimer",ȁ.Ƕ);ȁ.Ƿ=Math.Max(0,ǻ.Get("Performance","Update1Skip").ToInt32(ȁ.Ƿ));ȁ.Ǹ=Math.Max(0,ǻ.Get("Performance","Update10Skip")
-.ToInt32(ȁ.Ǹ));ȁ.ǹ=Math.Max(0,ǻ.Get("Performance","Update100Skip").ToInt32(ȁ.ǹ));Ȏ();string ȏ=ǻ.ToString();if(ȏ!=Me.
-CustomData){Me.CustomData=ȏ;}Ǿ=Me.CustomData;bool Ȑ=Ȃ!=ȁ.Ǭ||ȃ!=ȁ.ǭ||Ȅ!=ȁ.Ǯ||!ȅ.Equals(ȁ.ǲ,StringComparison.OrdinalIgnoreCase)||!Ȇ.
-Equals(ȁ.ǳ,StringComparison.OrdinalIgnoreCase)||!ȇ.Equals(ȁ.Ǵ,StringComparison.OrdinalIgnoreCase)||!Ȉ.Equals(ȁ.ǵ,
-StringComparison.OrdinalIgnoreCase)||!ȉ.Equals(ȁ.Ƕ,StringComparison.OrdinalIgnoreCase);if(!Ǽ&&Ȑ){ȑ();}return true;}string ȍ(string ȓ,
-string Ȕ,string ȕ){string ğ=ǻ.Get(ȓ,Ȕ).ToString(ȕ).Trim();return ğ.Length==0?ȕ:ğ;}void ȋ(string Ȗ){string[]ȗ=Ȗ.Split(new[]{';'
-,','},StringSplitOptions.RemoveEmptyEntries);List<double>Ș=new List<double>();for(int Į=0;Į<ȗ.Length;Į++){double ș;if(!
-double.TryParse(ȗ[Į].Trim(),out ș)){continue;}if(ș>0){Ș.Add(ș/100.0);}}if(Ș.Count==0){return;}ȁ.Ǳ.Clear();ȁ.Ǳ.AddRange(Ș);}
-void Ȏ(){ǻ.Set(Ȋ,"Greedy",ȁ.Ǭ);ǻ.Set(Ȋ,"CanMaster",ȁ.ǭ);ǻ.Set(Ȋ,"CanSlave",ȁ.Ǯ);ǻ.SetSectionComment(Ȋ,
-" Vector Thrust Redux ownership and coordination.\n"+" Greedy controls eligible mechanical-subgrid blocks unless ignored.\n"+
-" Main-grid player thrusters and gyros remain read-only unless explicitly tagged.");ǻ.Set("Parking","ParkOnlyByCommand",ȁ.ǯ);ǻ.Set("Flight","CruiseLevelsWithGravity",ȁ.ǰ);ǻ.Set("Flight",
-"GearPercentages",Ț());ǻ.Set("Tags","Use",ȁ.ǲ);ǻ.Set("Tags","Ignore",ȁ.ǳ);ǻ.Set("Tags","Status",ȁ.Ǵ);ǻ.Set("Tags","ParkTimer",ȁ.ǵ);ǻ.Set(
-"Tags","UnparkTimer",ȁ.Ƕ);ǻ.SetComment("Tags","Use"," Tag may appear in a block name, group name, or block Custom Data.");ǻ.
-SetComment("Tags","Ignore"," Ignore always prevents Redux from modifying the block.");ǻ.Set("Performance","Update1Skip",ȁ.Ƿ);ǻ.Set
-("Performance","Update10Skip",ȁ.Ǹ);ǻ.Set("Performance","Update100Skip",ȁ.ǹ);ǻ.SetSectionComment("Performance",
-" Number of matching update intervals skipped between executions.\n"+" Heartbeat publication is never skipped.");}string Ț(){StringBuilder ț=new StringBuilder();for(int Į=0;Į<ȁ.Ǳ.Count;Į++
-){if(Į>0){ț.Append("; ");}ț.Append((ȁ.Ǳ[Į]*100.0).ToString("0.########"));}return ț.ToString();}readonly List<ŝ>Ȝ=new
-List<ŝ>();readonly HashSet<H>ȝ=new HashSet<H>();IMyShipController Ȟ;void ȟ(){Ȓ(false);ȑ();}void Ȱ(){Ƞ();ȡ();Ȣ();ȣ=ȁ.ǭ&&Ȥ!=
-null&&Ȥ.IsUnderControl;ȥ();if(ȁ.Ǯ&&!ȣ&&!Ȧ){ȧ();}if(Ȩ){ȩ=0;}else if(Ȫ!=long.MinValue){ȩ++;}ȫ=Ȫ!=long.MinValue&&ȩ<2;Ȩ=false;Ȭ(
-);if(ȭ==ƅ.Ƅ){Ȯ();}ȯ(false);}void ɂ(double Ô){Ƞ();if(ȭ==ƅ.Ƅ||ȭ==ƅ.ƀ||Ȥ==null){ȱ();Ȳ();return;}ȳ();ȴ();Vector3D ȵ=Ȥ.
-CenterOfMass;Vector3D ȶ;if(ȭ==ƅ.ƃ){ȶ=ȷ.Ƨ*ȸ;ȶ-=ȹ();}else{ȶ=Ⱥ(Ô);if(ȸ>U){Ȼ=n.Ŭ(ȶ/ȸ,1.0);}else{Ȼ=Vector3D.Zero;}}ȼ=ȶ;Ƚ(ȶ,ȵ);bool ȿ=ȭ==ƅ
-.ƃ?ȷ.Ʃ:Ⱦ&&ȁ.ǰ;ɀ(Ɂ,ȿ);}void Ȣ(){for(int Į=0;Į<Ƀ.Count;Į++){Ƀ[Į].ĸ();}ȴ();}void ȴ(){ȸ=0;for(int Į=0;Į<Ʉ.Count;Į++){g İ=Ʉ[Į]
-;if(!İ.c){continue;}ȸ+=İ.V;}}Vector3D Ⱥ(double Ô){MyShipMass Ʌ=Ȥ.CalculateShipMass();double Ɇ=Ʌ.PhysicalMass;if(Ɇ<=U){
-return Vector3D.Zero;}MyShipVelocities ɇ=Ȥ.GetShipVelocities();Vector3D Ɉ=ɇ.LinearVelocity;Vector3D ɉ=Ȥ.GetNaturalGravity();
-Vector3D Ɋ=Vector3D.TransformNormal(Ȥ.MoveIndicator,Ȥ.WorldMatrix);bool ɋ=Ɋ.LengthSquared()>p;Vector3D Ɍ=n.o(Ɋ);double ɍ=ȸ/Ɇ;
-double Ɏ=ȁ.Ǳ[MathHelper.Clamp(Ȍ,0,ȁ.Ǳ.Count-1)];Vector3D ɏ=Ɍ*ɍ*Ɏ;ɐ=Ȥ.DampenersOverride;if(ɐ){Vector3D ɑ=Ɉ;if(ɋ){double ɒ=
-Vector3D.Dot(Ɉ,Ɍ);if(ɒ>0){ɑ-=Ɍ*ɒ;}}if(Ⱦ){Vector3D ɓ=Ȥ.WorldMatrix.Forward;double ɔ=Vector3D.Dot(ɑ,ɓ);if(ɔ>0){ɑ-=ɓ*ɔ;}}Vector3D ɕ
-=-ɑ/Math.Max(Ô,è);ɕ=n.Ŭ(ɕ,ɍ);ɏ+=ɕ;}ɏ=n.Ŭ(ɏ,ɍ);Vector3D ɖ=Ɇ*(ɏ-ɉ);return ɖ-ȹ();}Vector3D ȹ(){Vector3D Ő=Vector3D.Zero;for(
-int Į=0;Į<ɗ.Count;Į++){Ő+=ɗ[Į].W;}return Ő;}void Ƚ(Vector3D ȶ,Vector3D ȵ){ɘ=ȶ;Ɂ=Vector3D.Zero;for(int Į=0;Į<Ʉ.Count;Į++){Ʉ[
-Į].l();}ȝ.Clear();for(int Į=0;Į<ə.Count;Į++){ɚ(ə[Į],ref ɘ,ȵ,ref Ɂ);}for(int Į=0;Į<Ƀ.Count;Į++){Ƀ[Į].œ(ref ɘ,ȵ,ref Ɂ);}Ȝ.
-Clear();for(int Į=0;Į<ɛ.Count;Į++){Ȝ.Add(ɛ[Į]);}while(Ȝ.Count>0&&ɘ.LengthSquared()>U*U){int ɜ=-1;double ɝ=U;for(int Į=0;Į<Ȝ.
-Count;Į++){double ɞ=Ȝ[Į].Ŝ(ɘ);if(ɞ<=ɝ){continue;}ɝ=ɞ;ɜ=Į;}if(ɜ<0){break;}ŝ ɟ=Ȝ[ɜ];Ȝ.RemoveAt(ɜ);Vector3D ɠ=ɟ.Ś(ɘ);if(ɠ.
-LengthSquared()<=p){continue;}for(int Į=0;Į<ɟ.Ř.Count;Į++){H ɡ=ɟ.Ř[Į];ɡ.Ŋ(ɠ);ȝ.Add(ɡ);}for(int Į=0;Į<ɟ.Ř.Count;Į++){ɟ.Ř[Į].Œ(ref ɘ,ȵ,
-ref Ɂ);}}for(int Į=0;Į<Ƀ.Count;Į++){H ɡ=Ƀ[Į];if(!ȝ.Contains(ɡ)){ɡ.Ŋ(Vector3D.Zero);}}for(int Į=0;Į<Ʉ.Count;Į++){Ʉ[Į].º();}}
-void ɚ(g İ,ref Vector3D s,Vector3D ȵ,ref Vector3D ō){double ŏ=İ.x(ref s);if(ŏ<=U){return;}Vector3D Ő=İ.R*ŏ;Vector3D ő=İ.E.
-GetPosition()-ȵ;ō+=Vector3D.Cross(ő,Ő);}void ɀ(Vector3D ō,bool ȿ){if(ɢ.Count==0||Ȥ==null){return;}double ɣ=0;for(int Į=0;Į<ɢ.Count;
-Į++){ɣ+=ɢ[Į].ř;}if(ɣ<=p){Ȳ();return;}Vector3D ɤ=-ō/ɣ*ŭ;if(ȿ){Vector3D ɉ=Ȥ.GetNaturalGravity();if(ɉ.LengthSquared()>p){
-Vector3D ɥ=-n.o(ɉ);Vector3D ɦ=Ȥ.WorldMatrix.Up;Vector3D ɧ=Vector3D.Cross(ɦ,ɥ);double q=MathHelper.Clamp(Vector3D.Dot(ɦ,ɥ),-1,1);
-double ɨ=Math.Atan2(ɧ.Length(),q);if(ɧ.LengthSquared()>p){ɧ=n.o(ɧ);ɤ+=ɧ*ɨ*ɩ;}Vector3D ɪ=Ȥ.GetShipVelocities().AngularVelocity;
-Vector3D ɫ=n.ą(ɪ,ɥ);ɤ-=ɫ*ɬ;}}if(ɤ.LengthSquared()<=Ų*Ų){Ȳ();return;}for(int Į=0;Į<ɢ.Count;Į++){ɢ[Į].Ŵ(ɤ);}}void Ȳ(){for(int Į=0;
-Į<ɢ.Count;Į++){ɢ[Į].Ū();}}void Ƞ(){IMyShipController ɭ=null;for(int Į=0;Į<ɮ.Count;Į++){IMyShipController ɯ=ɮ[Į];if(ɯ==
-null||ɯ.Closed||!ɯ.IsFunctional||!ɯ.CanControlShip){continue;}if(ɯ.IsUnderControl){ɭ=ɯ;break;}if(ɭ==null||ɯ.IsMainCockpit){ɭ
-=ɯ;}}Ȥ=ɭ;ɰ=Ȥ==null;ȣ=ȁ.ǭ&&Ȥ!=null&&Ȥ.IsUnderControl;}void Ȭ(){Ƞ();if(ȭ==ƅ.ƃ&&!ȫ){ɱ=ɲ;}ƅ ɳ;if(ɰ||Me.CubeGrid.IsStatic||Ȧ){
-ɳ=ƅ.Ƅ;}else if(ȁ.Ǯ&&ȫ&&!ȣ){ɳ=ƅ.ƃ;}else if(ɴ||ɱ){ɳ=ƅ.Ƅ;}else if(ȣ){ɳ=ƅ.Ƃ;}else{ɳ=ƅ.Ɓ;}if(ɳ==ȭ){return;}ɵ(ɳ);}void ɵ(ƅ ɶ){ƅ
-ɷ=ȭ;if(ɷ==ƅ.Ƅ&&ɶ!=ƅ.Ƅ){ɸ();}if(ɷ==ƅ.ƃ&&ɶ!=ƅ.ƃ&&!ȫ){ɱ=ɲ;}ȭ=ɶ;if(ɶ==ƅ.ƃ){ɲ=ɷ==ƅ.Ƅ;ɱ=false;}if(ɶ==ƅ.Ƅ&&ɷ!=ƅ.Ƅ){ɹ();Ĉ();}ɺ=
-true;}void ȥ(){if(ȁ.ǯ){ɴ=false;return;}bool ɻ=false;for(int Į=0;Į<ɼ.Count;Į++){if(ɽ(ɼ[Į])){ɻ=true;break;}}if(!ɻ){for(int Į=0
-;Į<ɾ.Count;Į++){if(ɿ(ɾ[Į])){ɻ=true;break;}}}ɴ=ɻ;}bool ɽ(Ǫ ʀ){IMyShipConnector ʁ=ʀ.Ǩ;if(ʁ==null||ʁ.Closed||ʁ.Status!=
-MyShipConnectorStatus.Connected){return false;}IMyShipConnector Ɨ=ʁ.OtherConnector;if(Ɨ==null){return false;}Ǒ ʂ;if(!ʃ.TryGetValue(Ɨ.CubeGrid
-.EntityId,out ʂ)){return Ɨ.CubeGrid.IsStatic;}Ǐ ʄ=ʂ.ǐ;if(ʄ==null){return Ɨ.CubeGrid.IsStatic;}if(ʄ.Ǡ){return true;}if(ʄ.ǝ
-.Count==0){return false;}if(ȣ&&ʄ.ǡ){return false;}return true;}bool ɿ(ǫ ʅ){IMyLandingGear ʆ=ʅ.Ǩ;if(ʆ==null||ʆ.Closed||!ʆ.
-IsFunctional){return false;}return ʆ.IsLocked;}void Ĉ(){ȱ();Ȳ();Vector3D ɉ=Ȥ!=null?Ȥ.GetNaturalGravity():Vector3D.Zero;Vector3D û=Me
-.CubeGrid.WorldAABB.Center;for(int Į=0;Į<Ʉ.Count;Į++){g İ=Ʉ[Į];long ʇ=İ.Q;if(!ʈ.ContainsKey(ʇ)){ʈ.Add(ʇ,İ.E.Enabled);}İ.j
-();İ.E.Enabled=false;}for(int Į=0;Į<ʉ.Count;Į++){ʉ[Į].Ĉ(ɉ,û);}ʊ(ʋ);}void ɸ(){ȳ();for(int Į=0;Į<ʉ.Count;Į++){ʉ[Į].Þ();}ʊ(ʌ
-);}void ʍ(){for(int Į=0;Į<Ʉ.Count;Į++){g İ=Ʉ[Į];if(!ʈ.ContainsKey(İ.Q)){ʈ.Add(İ.Q,İ.E.Enabled);}İ.j();İ.E.Enabled=false;}
-Ȳ();for(int Į=0;Į<ʉ.Count;Į++){if(Math.Abs(ʉ[Į].E.TargetVelocityRad)>ď){ʉ[Į].E.TargetVelocityRad=0;}}}void Ȯ(){for(int Į=
-0;Į<ʉ.Count;Į++){ʉ[Į].Đ();}}void ȱ(){for(int Į=0;Į<Ʉ.Count;Į++){Ʉ[Į].j();}}void ȳ(){if(ʈ.Count==0){return;}for(int Į=0;Į<
-Ʉ.Count;Į++){g İ=Ʉ[Į];bool ʎ;if(!ʈ.TryGetValue(İ.Q,out ʎ)){continue;}İ.E.Enabled=ʎ;}ʈ.Clear();}void ʏ(long ʇ,IMyThrust d)
-{bool ʎ;if(!ʈ.TryGetValue(ʇ,out ʎ)){return;}if(d!=null&&!d.Closed){d.Enabled=ʎ;}ʈ.Remove(ʇ);}bool ʐ(long ʇ){return ʈ.
-ContainsKey(ʇ);}void ʊ(List<IMyTimerBlock>ʑ){for(int Į=0;Į<ʑ.Count;Į++){IMyTimerBlock ʒ=ʑ[Į];if(ʒ==null||ʒ.Closed||!ʒ.IsFunctional)
-{continue;}ʒ.Trigger();}}void ʖ(string ʓ){if(string.IsNullOrWhiteSpace(ʓ)){return;}string[]ʔ=ʓ.ToLowerInvariant().Split(
-new[]{';','\n','\r'},StringSplitOptions.RemoveEmptyEntries);for(int Į=0;Į<ʔ.Length;Į++){string ʕ=ʔ[Į].Trim();if(ʕ=="park"){
-Ȧ=!Ȧ;ɱ=false;}else if(ʕ=="park on"){Ȧ=true;ɱ=false;}else if(ʕ=="park off"||ʕ=="unpark"){Ȧ=false;ɱ=false;}else if(ʕ==
-"cruise"){Ⱦ=!Ⱦ;}else if(ʕ=="cruise on"){Ⱦ=true;}else if(ʕ=="cruise off"){Ⱦ=false;}else if(ʕ=="dampeners"){ɐ=!ɐ;if(Ȥ!=null){Ȥ.
-DampenersOverride=ɐ;}}else if(ʕ=="gear"){Ȍ++;if(Ȍ>=ȁ.Ǳ.Count){Ȍ=0;}}else if(ʕ=="rescan"){ȑ();}}Save();}void ȡ(){HashSet<long>ʗ=new
-HashSet<long>();for(int Į=0;Į<ʘ.Count;Į++){IMyShipConnector ʁ=ʘ[Į];if(ʁ==null||ʁ.Closed){continue;}long ʙ=ʁ.OtherConnector!=
-null?ʁ.OtherConnector.EntityId:0;long ʚ;if(!ʛ.TryGetValue(ʁ.EntityId,out ʚ)||ʚ!=ʙ){ʛ[ʁ.EntityId]=ʙ;ȑ();}ʗ.Add(ʁ.EntityId);}
-for(int Į=0;Į<ɾ.Count;Į++){IMyLandingGear ʜ=ɾ[Į].Ǩ;if(ʜ==null||ʜ.Closed){continue;}bool ʝ;if(!ʞ.TryGetValue(ʜ.EntityId,out
-ʝ)||ʝ!=ʜ.IsLocked){ʞ[ʜ.EntityId]=ʜ.IsLocked;ȑ();}}}void ʥ(){if(ȭ!=ƅ.Ƃ||Ȥ==null){ɹ();return;}if(Ȟ!=null&&Ȟ.EntityId!=Ȥ.
-EntityId){ʟ(Ȟ);}Ȟ=Ȥ;StringBuilder ȓ=new StringBuilder();ȓ.Append('[').Append(ʠ).AppendLine("]");ȓ.Append("Version=").AppendLine(
-ʡ);ȓ.Append("MasterProgrammableBlockId=").AppendLine(Me.EntityId.ToString());ȓ.Append("ControllerId=").AppendLine(Ȥ.
-EntityId.ToString());ȓ.Append("Sequence=").AppendLine(ʢ.ToString());ȓ.Append("Demand=").AppendLine(ʣ(Ȼ));ȓ.Append("Cruise=").
-AppendLine(Ⱦ.ToString());ȓ.Append("LevelWithGravity=").AppendLine((Ⱦ&&ȁ.ǰ).ToString());Ȥ.CustomData=ʤ(Ȥ.CustomData,ʠ,ȓ.ToString())
-;}void ɹ(){if(Ȟ==null){return;}ʟ(Ȟ);Ȟ=null;}void ʟ(IMyShipController ɯ){if(ɯ==null||ɯ.Closed){return;}string ʦ;if(!ʧ(ɯ.
-CustomData,ʠ,"MasterProgrammableBlockId",out ʦ)){return;}long ʨ;if(!long.TryParse(ʦ,out ʨ)||ʨ!=Me.EntityId){return;}ɯ.CustomData=ʩ
-(ɯ.CustomData,ʠ);}void ȧ(){for(int Į=0;Į<ʪ.Count;Į++){Ʈ ʕ;if(!ʫ(ʪ[Į],out ʕ)){continue;}ʬ(ʕ);return;}}void ʭ(){for(int Į=0
-;Į<ʪ.Count;Į++){IMyShipController ɯ=ʪ[Į];if(ȷ.ƥ!=0&&ɯ.EntityId!=ȷ.ƥ){continue;}Ʈ ʕ;if(!ʫ(ɯ,out ʕ)){continue;}if(ȷ.Ƥ!=0&&ʕ
-.Ƥ!=ȷ.Ƥ){continue;}ʬ(ʕ);return;}}void ʬ(Ʈ ʕ){if(ʕ.Ʀ!=Ȫ||ʕ.Ƥ!=ʮ){Ȫ=ʕ.Ʀ;ʮ=ʕ.Ƥ;ȩ=0;Ȩ=true;ȫ=true;}ȷ.ƙ(ʕ);}bool ʫ(
-IMyShipController ɯ,out Ʈ ʕ){ʕ=null;if(ɯ==null||ɯ.Closed){return false;}string ʯ;string ʰ;string ʱ;string ʲ;string ʳ;string ʴ;if(!ʧ(ɯ.
-CustomData,ʠ,"MasterProgrammableBlockId",out ʯ)||!ʧ(ɯ.CustomData,ʠ,"ControllerId",out ʰ)||!ʧ(ɯ.CustomData,ʠ,"Sequence",out ʱ)||!ʧ(
-ɯ.CustomData,ʠ,"Demand",out ʲ)){return false;}long ʦ;long ʵ;long ʶ;Vector3D ʷ;if(!long.TryParse(ʯ,out ʦ)||!long.TryParse(
-ʰ,out ʵ)||!long.TryParse(ʱ,out ʶ)||!ʸ(ʲ,out ʷ)){return false;}ʧ(ɯ.CustomData,ʠ,"Cruise",out ʳ);ʧ(ɯ.CustomData,ʠ,
-"LevelWithGravity",out ʴ);bool ʹ;bool ʺ;bool.TryParse(ʳ,out ʹ);bool.TryParse(ʴ,out ʺ);ʕ=new Ʈ{Ƥ=ʦ,ƥ=ʵ,Ʀ=ʶ,Ƨ=n.Ŭ(ʷ,1),Ɖ=ʹ,Ʃ=ʺ};return true;
-}static int ˆ(string ǽ,string ʻ){if(string.IsNullOrEmpty(ǽ)){return-1;}string ʼ="["+ʻ+"]";int ʽ=0;while(ʽ<ǽ.Length){int ʾ
-=ǽ.IndexOf(ʼ,ʽ,StringComparison.OrdinalIgnoreCase);if(ʾ<0){return-1;}bool ʿ=ʾ==0||ǽ[ʾ-1]=='\n';int ˀ=ʾ+ʼ.Length;bool ˁ=ˀ
->=ǽ.Length||ǽ[ˀ]=='\r'||ǽ[ˀ]=='\n';if(ʿ&&ˁ){return ʾ;}ʽ=ʾ+1;}return-1;}static int ˊ(string ǽ,int ʽ){while(ʽ<ǽ.Length){int
-ˇ=ǽ.IndexOf('\n',ʽ);if(ˇ<0||ˇ+1>=ǽ.Length){return ǽ.Length;}ˇ++;int ˈ=ˇ;while(ˈ<ǽ.Length&&(ǽ[ˈ]==' '||ǽ[ˈ]=='\t'||ǽ[ˈ]==
-'\r')){ˈ++;}if(ˈ<ǽ.Length&&ǽ[ˈ]=='['){int ˉ=ǽ.IndexOf(']',ˈ+1);if(ˉ>=0){return ˇ;}}ʽ=ˇ;}return ǽ.Length;}static bool ʧ(
-string ǽ,string ʻ,string Ȕ,out string ğ){ğ=null;int ˋ=ˆ(ǽ,ʻ);if(ˋ<0){return false;}int ˌ=ˊ(ǽ,ˋ+ʻ.Length+2);int ˍ=ǽ.IndexOf(
-'\n',ˋ);if(ˍ<0||ˍ>=ˌ){return false;}string ȓ=ǽ.Substring(ˍ+1,ˌ-ˍ-1);string[]ˎ=ȓ.Replace("\r",string.Empty).Split('\n');for(
-int Į=0;Į<ˎ.Length;Į++){string ˏ=ˎ[Į];int ː=ˏ.IndexOf('=');if(ː<=0){continue;}string ˑ=ˏ.Substring(0,ː).Trim();if(!ˑ.Equals
-(Ȕ,StringComparison.OrdinalIgnoreCase)){continue;}ğ=ˏ.Substring(ː+1).Trim();return true;}return false;}static string ʤ(
-string ǽ,string ʻ,string ˠ){ǽ=ǽ??string.Empty;ˠ=ˠ.TrimEnd('\r','\n')+"\n";int ˋ=ˆ(ǽ,ʻ);if(ˋ<0){if(ǽ.Length==0){return ˠ;}
-string ː=ǽ.EndsWith("\n")?string.Empty:"\n";return ǽ+ː+ˠ;}int ˌ=ˊ(ǽ,ˋ+ʻ.Length+2);return ǽ.Substring(0,ˋ)+ˠ+ǽ.Substring(ˌ);}
-static string ʩ(string ǽ,string ʻ){if(string.IsNullOrEmpty(ǽ)){return ǽ;}int ˋ=ˆ(ǽ,ʻ);if(ˋ<0){return ǽ;}int ˌ=ˊ(ǽ,ˋ+ʻ.Length+2
-);string ˡ=ǽ.Substring(0,ˋ);string ˀ=ǽ.Substring(ˌ);if(ˡ.EndsWith("\n")&&ˀ.StartsWith("\n")){ˀ=ˀ.Substring(1);}return ˡ+ˀ
-;}static string ʣ(Vector3D ƺ){return ƺ.X.ToString("R")+";"+ƺ.Y.ToString("R")+";"+ƺ.Z.ToString("R");}static bool ʸ(string
-ˢ,out Vector3D ƺ){ƺ=Vector3D.Zero;if(string.IsNullOrWhiteSpace(ˢ)){return false;}string[]ˣ=ˢ.Split(';');if(ˣ.Length!=3){
-return false;}double ˤ;double ˬ;double ˮ;if(!double.TryParse(ˣ[0],out ˤ)||!double.TryParse(ˣ[1],out ˬ)||!double.TryParse(ˣ[2],
-out ˮ)){return false;}ƺ=new Vector3D(ˤ,ˬ,ˮ);return true;}void ȯ(bool Ő){Ͱ.Clear();Ͱ.AppendLine(Ȁ).Append("v").AppendLine(ʡ)
-.AppendLine();Ͱ.Append("Mode: ").AppendLine(ȭ.ToString());Ͱ.Append("Controller: ").AppendLine(Ȥ!=null?Ȥ.CustomName:"NONE"
-);Ͱ.Append("Dampeners: ").AppendLine(ɐ?"ON":"OFF");Ͱ.Append("Cruise: ").AppendLine(Ⱦ?"ON":"OFF");Ͱ.Append("Gear: ").
-Append(Ȍ+1).Append("/").Append(ȁ.Ǳ.Count).Append(" (").Append((ȁ.Ǳ[MathHelper.Clamp(Ȍ,0,ȁ.Ǳ.Count-1)]*100).ToString("0.##")).
-AppendLine("%)");Ͱ.Append("Nacelles: ").AppendLine(Ƀ.Count.ToString());Ͱ.Append("Controlled thrust: ").Append((ȸ/1000.0).ToString(
-"0.##")).AppendLine(" kN");Ͱ.Append("Residual: ").Append((ɘ.Length()/1000.0).ToString("0.##")).AppendLine(" kN");Ͱ.Append(
-"Gyros: ").AppendLine(ɢ.Count.ToString());if(ȭ==ƅ.ƃ){Ͱ.Append("Heartbeat age: ").Append(ȩ).AppendLine("/2");}Ͱ.Append("Runtime: "
-).Append(Runtime.LastRunTimeMs.ToString("0.###")).Append(" ms | avg ").Append(ͱ.Ƴ.ToString("0.###")).Append(" | max ").
-AppendLine(ͱ.ƴ.ToString("0.###"));Ͱ.Append("Instructions: ").Append(Runtime.CurrentInstructionCount).Append("/").AppendLine(
-Runtime.MaxInstructionCount.ToString());Echo(Ͱ.ToString());if(!Ő&&Ͳ.Count==0){return;}ͳ.Clear();ͳ.AppendLine(
-"VECTOR THRUST REDUX").Append("MODE  ").AppendLine(ȭ.ToString().ToUpperInvariant()).Append("DAMP  ").AppendLine(ɐ?"ON":"OFF").Append(
-"CRUISE ").AppendLine(Ⱦ?"ON":"OFF").Append("GEAR  ").Append(Ȍ+1).Append("/").AppendLine(ȁ.Ǳ.Count.ToString()).Append("VECTORS ").
-AppendLine(Ƀ.Count.ToString()).Append("THRUST ").Append((ȸ/1000.0).ToString("0.0")).AppendLine(" kN").Append("ERROR ").Append((ɘ.
-Length()/1000.0).ToString("0.0")).AppendLine(" kN");for(int Į=0;Į<Ͳ.Count;Į++){Ͳ[Į].ſ(ͳ.ToString());}}const string Ȁ=
-"Vector Thrust Redux",ʡ="0.2.0",Ȋ="Vector Thrust Redux",ʠ="Vector Thrust Redux Heartbeat",ʹ="VT-Redux:",Ͷ="State",ͷ="Disabled Thrusters",ͺ=
-"Park Rotor Targets",ͻ="Topology";const double p=1e-8,U=1e-3,ē=1e-4,Ð=1e-4,Ķ=1.0-1e-6,ͼ=1.0-1e-4,þ=1.0-1e-4,å=0.1,č=1.0,æ=4.0,Ğ=Math.PI,ď=
-1e-3,ͽ=0.01,µ=0.0075,ɩ=4.0,ɬ=1.5,ŭ=30.0,Ų=1e-3,ŧ=448000.0,Ũ=33600000.0,ť=4480000.0,Ŧ=201600000.0,è=1.0/120.0,Ά=0.25;readonly
-Ǻ ȁ=new Ǻ();readonly MyIni Έ=new MyIni();string Ǿ=string.Empty,Ή=string.Empty;bool Ⱦ,ɴ,ɺ;bool ɐ=true,Ȧ,Ί,Ό,ɰ=true,ȣ,ȫ,ɱ,ɲ
-,Ȩ,Ύ,Ώ=true,ΐ;int Ȍ,ȩ,Α,Β;double Γ,ȸ;readonly Dictionary<long,Ə>Δ=new Dictionary<long,Ə>();readonly Dictionary<long,
-double>ü=new Dictionary<long,double>();Ɯ Ε,Ζ;readonly Dictionary<long,bool>ʈ=new Dictionary<long,bool>();ƅ ȭ=ƅ.ƀ;
-IMyShipController Ȥ;long ʢ;long Ȫ=long.MinValue,ʮ;Ʈ ȷ=new Ʈ();Vector3D ȼ;Vector3D ɘ,Ȼ,Ɂ;double Ü,Η;int Θ;bool Ι;readonly Ɩ Κ=new Ɩ(),Λ=
-new Ɩ(),Μ=new Ɩ();readonly List<IMyShipController>ɮ=new List<IMyShipController>(),ʪ=new List<IMyShipController>();readonly
-List<g>Ν=new List<g>(),Ʉ=new List<g>(),ə=new List<g>(),ɗ=new List<g>(),Ξ=new List<g>(),Ο=new List<g>(),Π=new List<g>(),Ρ=new
-List<g>();readonly List<Ò>ʉ=new List<Ò>();readonly List<H>Ƀ=new List<H>();readonly List<ŝ>ɛ=new List<ŝ>();readonly List<ũ>ɢ=
-new List<ũ>();readonly List<Ǫ>ɼ=new List<Ǫ>();readonly List<ǫ>ɾ=new List<ǫ>();readonly List<IMyTimerBlock>ʋ=new List<
-IMyTimerBlock>(),ʌ=new List<IMyTimerBlock>();readonly List<Ž>Ͳ=new List<Ž>();readonly Dictionary<long,Ǒ>ʃ=new Dictionary<long,Ǒ>();
-readonly StringBuilder Ͱ=new StringBuilder(),ͳ=new StringBuilder();IEnumerator<int>Σ;ƶ ͱ;public
+null||ģ[Į].ġ>ķ.ġ){ķ=ģ[Į];}}if(ķ==null){ħ=Vector3D.Zero;ĩ=0;return;}ħ=ķ.Ġ;ĩ=ķ.ġ;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.P||
+!İ.c){continue;}Vector3D ĳ=n.o(n.Ĳ(İ.S,į));İ.J=Vector3D.Dot(ĳ,ħ)>=Ķ;}}public bool ň(Vector3D m,î Ĺ){if(Ĺ==null){return
+false;}Ĺ.ĺ();Ĺ.I=this;m=n.o(m);if(!Ò.P||!Ò.Ñ||m.LengthSquared()<=p){return false;}Ĥ.Clear();Ļ(0);Vector3D ļ=ß;if(ļ.
+LengthSquared()>p){Ļ(Ò.ö(m,ļ));}for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.P||!İ.c){continue;}Ļ(Ò.ö(m,İ.R));}double Õ=Ò.E.Angle;double
+Ì=Ò.E.LowerLimitRad;double Í=Ò.E.UpperLimitRad;if(!double.IsNaN(Ì)&&!double.IsInfinity(Ì)&&Ì>-1e20){Ļ(Ì-Õ);}if(!double.
+IsNaN(Í)&&!double.IsInfinity(Í)&&Í<1e20){Ļ(Í-Õ);}double ľ=Ľ(m,0);double Ŀ=-1;double ŀ=0;for(int Į=0;Į<Ĥ.Count;Į++){double Ł=Ò
+.ù(Ĥ[Į]);double ł=Ľ(m,Ł);if(ł>Ŀ+U){Ŀ=ł;ŀ=Ł;continue;}if(Math.Abs(ł-Ŀ)>U){continue;}double Ń=Math.Abs(Ł);double ė=Math.Abs
+(ŀ);if(Ń<ė-ē){ŀ=Ł;continue;}if(Math.Abs(Ń-ė)<=ē&&Ò.Ë!=0&&Math.Sign(Ł)==Ò.Ë){ŀ=Ł;}}if(Ŀ<=U){return false;}Ĺ.ð=ŀ;Ĺ.ń=Ŀ;Ĺ.Ņ=
+ľ;Vector3D ņ=n.ë(ļ,É,-ŀ);Ĺ.Ň=n.í(ņ,m);return true;}public double ŉ(Vector3D m){î ï=new î();return ň(m,ï)?ï.ń:0;}public
+double Ŋ(Vector3D Ú){Ĩ=Ú;if(Ú.LengthSquared()<=p){Ò.Ó();return 0;}î ï=new î();if(!ň(Ú,ï)){Ò.Ó();return 0;}double Ý=ï.ń>U?
+MathHelper.Clamp(Ú.Length()/ï.ń,0,1):0;Ò.ò(ï,Ý,A.Ü);return ï.Ň;}public void Ŋ(î ï,double ŋ,double Ô){if(ï==null||ï.I!=this||ï.ń<=U
+){Ĩ=Vector3D.Zero;Ò.Ó();return;}double Ý=MathHelper.Clamp(ŋ/ï.ń,0,1);Ò.ò(ï,Ý,Ô);}public double Œ(ref Vector3D s,Vector3D
+Ō,ref Vector3D ō){double Ŏ=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.J){continue;}double ŏ=İ.x(ref s);if(ŏ<=U){continue
+;}Vector3D Ő=İ.R*ŏ;Vector3D ő=İ.E.GetPosition()-Ō;ō+=Vector3D.Cross(ő,Ő);Ŏ+=ŏ;}return Ŏ;}public double œ(ref Vector3D s,
+Vector3D Ō,ref Vector3D ō){double Ŏ=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(İ.J){continue;}double ŏ=İ.x(ref s);if(ŏ<=U){
+continue;}Vector3D Ő=İ.R*ŏ;Vector3D ő=İ.E.GetPosition()-Ō;ō+=Vector3D.Cross(ő,Ő);Ŏ+=ŏ;}return Ŏ;}public Vector3D Ā(){if(Ħ.Count
+==0){return Ò.E.TopGrid!=null?Ò.E.TopGrid.WorldAABB.Center:Ò.E.GetPosition();}Vector3D Ŕ=Vector3D.Zero;int ŕ=0;for(int Į=0
+;Į<Ħ.Count;Į++){IMyCubeGrid Ŗ=Ħ[Į];if(Ŗ==null||Ŗ.Closed){continue;}Ŕ+=Ŗ.WorldAABB.Center;ŕ++;}return ŕ>0?Ŕ/ŕ:Ò.E.
+GetPosition();}void Ļ(double ñ){ñ=Ò.ù(ñ);for(int Į=0;Į<Ĥ.Count;Į++){if(Math.Abs(Ĥ[Į]-ñ)<=ē){return;}}Ĥ.Add(ñ);}double Ľ(Vector3D m,
+double ñ){double ł=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!İ.P||!İ.c){continue;}Vector3D ŗ=n.ë(İ.R,É,-ñ);double q=Vector3D.
+Dot(ŗ,m);if(q<=0){continue;}ł+=q*İ.V;}return ł;}}sealed class ŝ{public readonly List<H>Ř=new List<H>();public Vector3D É{
+get{return Ř.Count>0?n.o(Ř[0].É):Vector3D.Zero;}}public double ř{get{double ł=0;for(int Į=0;Į<Ř.Count;Į++){ł+=Ř[Į].ĩ;}
+return ł;}}public Vector3D Ś(Vector3D Ő){return n.ą(Ő,É);}public double Ŝ(Vector3D s){Vector3D ś=Ś(s);if(ś.LengthSquared()<=p)
+{return 0;}return Math.Min(ś.Length(),ř);}}sealed class ũ{readonly Program A;bool Ş;float ş=float.NaN,Š=float.NaN,š=float
+.NaN;C D;public readonly IMyGyro E;public readonly F G;public readonly double Ţ;public C L{get{return D;}}public bool P{
+get{return D!=C.M;}set{N(C.O,value);}}public bool Y{get{return(G&F.X)!=0;}}public bool a{get{return(G&F.Z)!=0;}}public
+double ř{get{if(!P||E==null||E.Closed||!E.IsFunctional||!E.Enabled){return 0;}return Ţ*MathHelper.Clamp(E.GyroPower,0,1);}}
+public ũ(IMyGyro d,Program A,F e,bool f){E=d;this.A=A;G=e;if(f&&!Y){D=C.O;}bool ţ=d.CubeGrid.GridSizeEnum==VRage.Game.
+MyCubeSize.Small;bool Ť=d.BlockDefinition.SubtypeId.IndexOf("Prototech",StringComparison.OrdinalIgnoreCase)>=0;if(Ť){Ţ=ţ?ť:Ŧ;}else
+{Ţ=ţ?ŧ:Ũ;}}public void N(C h,bool i){if(Y){D=C.M;Ū();return;}if(i){D|=h;return;}D&=~h;if(D==C.M){Ū();}}public bool k(C h)
+{return(D&h)!=0;}public void Ŵ(Vector3D ū){if(!P||E==null||E.Closed||ř<=p){Ū();return;}ū=n.Ŭ(ū,ŭ);Vector3D Ů=n.Ĳ(ū,E.
+WorldMatrix);float ů=(float)Ů.X;float Ű=(float)Ů.Y;float ű=(float)Ů.Z;bool ų=Ů.LengthSquared()>Ų*Ų;if(!ų){Ū();return;}if(!Ş||Math.
+Abs(ů-ş)>Ų){E.Pitch=ů;ş=ů;}if(!Ş||Math.Abs(Ű-Š)>Ų){E.Yaw=Ű;Š=Ű;}if(!Ş||Math.Abs(ű-š)>Ų){E.Roll=ű;š=ű;}if(!Ş||!E.
+GyroOverride){E.GyroOverride=true;}Ş=true;}public void Ū(){if(E==null||E.Closed){return;}if(E.GyroOverride){E.GyroOverride=false;}if
+(Math.Abs(E.Pitch)>Ų){E.Pitch=0;}if(Math.Abs(E.Yaw)>Ų){E.Yaw=0;}if(Math.Abs(E.Roll)>Ų){E.Roll=0;}Ş=false;ş=0;Š=0;š=0;}
+public void À(){Ū();D=C.M;}}sealed class Ž{public readonly IMyTerminalBlock ŵ;public readonly IMyTextSurface Ŷ;public readonly
+int ŷ;bool Ÿ;public string Ź{get{return ŵ.EntityId+":"+ŷ;}}public Ž(IMyTerminalBlock ź,IMyTextSurface Ż,int ż){ŵ=ź;Ŷ=Ż;ŷ=ż;
+}public void ſ(string ž){if(ŵ==null||ŵ.Closed||Ŷ==null){return;}if(!Ÿ){Ŷ.ContentType=VRage.Game.GUI.TextPanel.ContentType
+.TEXT_AND_IMAGE;Ŷ.Font="Monospace";Ŷ.FontSize=0.8f;Ŷ.Alignment=VRage.Game.GUI.TextPanel.TextAlignment.LEFT;Ÿ=true;}Ŷ.
+WriteText(ž,false);}}enum ƅ{ƀ,Ɓ,Ƃ,ƃ,Ƅ}[Flags]enum F{M=0,Z=1,X=2,Ɔ=4,Ƈ=8,ƈ=16}[Flags]enum C{M=0,O=1,Ɖ=2,ƃ=4}[Flags]enum ƌ{M=0,Ɗ=1,
+Ɖ=2,Ƌ=4}sealed class Ə{public bool ƍ;public ƌ Ǝ;}sealed class Ɩ{public double Ɛ,Ƒ,ƒ,Ɠ,Ɣ,ƕ;public void ĺ(){Ɛ=0;Ƒ=0;ƒ=0;Ɠ=0
+;Ɣ=0;ƕ=0;}public void Ƙ(Ɩ Ɨ){if(Ɨ==null){return;}Ɛ+=Ɨ.Ɛ;Ƒ+=Ɨ.Ƒ;ƒ+=Ɨ.ƒ;Ɠ+=Ɨ.Ɠ;Ɣ+=Ɨ.Ɣ;ƕ+=Ɨ.ƕ;}public void ƙ(Ɩ Ɨ){if(Ɨ==null
+){ĺ();return;}Ɛ=Ɨ.Ɛ;Ƒ=Ɨ.Ƒ;ƒ=Ɨ.ƒ;Ɠ=Ɨ.Ɠ;Ɣ=Ɨ.Ɣ;ƕ=Ɨ.ƕ;}public double ƛ(Vector3D ƚ){double ł=0;if(ƚ.X>0){ł+=Ɠ*ƚ.X;}else if(ƚ.X
+<0){ł+=ƒ*-ƚ.X;}if(ƚ.Y>0){ł+=Ɣ*ƚ.Y;}else if(ƚ.Y<0){ł+=ƕ*-ƚ.Y;}if(ƚ.Z>0){ł+=Ƒ*ƚ.Z;}else if(ƚ.Z<0){ł+=Ɛ*-ƚ.Z;}return ł;}}
+sealed class î{public H I;public double ð,ń,Ņ,Ň;public void ĺ(){I=null;ð=0;ń=0;Ņ=0;Ň=0;}}struct Ɯ:IEquatable<Ɯ>{public long Ɲ;
+public ulong ƞ,Ɵ;public bool Equals(Ɯ Ɨ){return Ɲ==Ɨ.Ɲ&&ƞ==Ɨ.ƞ&&Ɵ==Ɨ.Ɵ;}public override bool Equals(object Ơ){return Ơ is Ɯ&&
+Equals((Ɯ)Ơ);}public override int GetHashCode(){unchecked{int ơ=(int)Ɲ^(int)(Ɲ>>32);ơ=ơ*397^(int)ƞ^(int)(ƞ>>32);ơ=ơ*397^(int)Ɵ
+^(int)(Ɵ>>32);return ơ;}}public static bool operator==(Ɯ Ƣ,Ɯ ƣ){return Ƣ.Equals(ƣ);}public static bool operator!=(Ɯ Ƣ,Ɯ ƣ
+){return!Ƣ.Equals(ƣ);}}struct Ƥ:IEquatable<Ƥ>{public readonly long ƥ,Ʀ;public Ƥ(long Ƨ,long ƨ){ƥ=Math.Min(Ƨ,ƨ);Ʀ=Math.Max
+(Ƨ,ƨ);}public bool Equals(Ƥ Ɨ){return ƥ==Ɨ.ƥ&&Ʀ==Ɨ.Ʀ;}public override bool Equals(object Ơ){return Ơ is Ƥ&&Equals((Ƥ)Ơ);}
+public override int GetHashCode(){unchecked{int Ʃ=(int)ƥ^(int)(ƥ>>32);int ƪ=(int)Ʀ^(int)(Ʀ>>32);return Ʃ*397^ƪ;}}}sealed class
+Ƶ{public long ƫ,Ƭ,ƭ;public Vector3D Ʈ;public bool Ư,Ɖ,ư;public double Ʊ,Ʋ;public int Ƴ,ƴ;public void ƙ(Ƶ Ɨ){ƫ=Ɨ.ƫ;Ƭ=Ɨ.Ƭ;ƭ
+=Ɨ.ƭ;Ʈ=Ɨ.Ʈ;Ư=Ɨ.Ư;Ɖ=Ɨ.Ɖ;Ʊ=Ɨ.Ʊ;Ƴ=Ɨ.Ƴ;ƴ=Ɨ.ƴ;Ʋ=Ɨ.Ʋ;ư=Ɨ.ư;}public void ĺ(){ƫ=0;Ƭ=0;ƭ=0;Ʈ=Vector3D.Zero;Ư=true;Ɖ=false;Ʊ=0;Ƴ=0;
+ƴ=0;Ʋ=0;ư=false;}}sealed class ƽ{readonly Program A;double ƶ;double Ʒ,Ƹ;int ƹ;public double ƺ{get{return ƶ;}}public
+double ƻ{get{return Ʒ;}}public double Ƽ{get{return Ƹ;}}public ƽ(Program A){this.A=A;}public void ƾ(){Ƹ=A.Runtime.LastRunTimeMs
+;}public void ǀ(){double ƿ=A.Runtime.LastRunTimeMs;ƹ++;if(ƹ==1){ƶ=ƿ;Ʒ=ƿ;return;}ƶ+=(ƿ-ƶ)*0.05;if(ƿ>Ʒ){Ʒ=ƿ;}else if(ƹ%600
+==0){Ʒ=ƶ;}}}public static class n{public static Vector3D o(Vector3D ǁ){if(Vector3D.IsZero(ǁ)){return Vector3D.Zero;}if(
+Vector3D.IsUnit(ref ǁ)){return ǁ;}return Vector3D.Normalize(ǁ);}public static Vector3D ą(Vector3D ǂ,Vector3D ǃ){double Ǆ=ǃ.
+LengthSquared();if(ǂ.LengthSquared()<=p||Ǆ<=p){return Vector3D.Zero;}return ǂ-Vector3D.Dot(ǂ,ǃ)/Ǆ*ǃ;}public static Vector3D ǅ(
+Vector3D ǂ,Vector3D ǃ){double Ǆ=ǃ.LengthSquared();if(ǂ.LengthSquared()<=p||Ǆ<=p){return Vector3D.Zero;}return Vector3D.Dot(ǂ,ǃ)/
+Ǆ*ǃ;}public static double í(Vector3D ǂ,Vector3D ǃ){double Ǆ=Math.Sqrt(ǂ.LengthSquared()*ǃ.LengthSquared());if(Ǆ<=p){
+return 0;}return MathHelper.Clamp(Vector3D.Dot(ǂ,ǃ)/Ǆ,-1,1);}public static Vector3D Ŭ(Vector3D ǁ,double ǆ){if(ǆ<=0){return
+Vector3D.Zero;}double Ǉ=ǁ.LengthSquared();double ǈ=ǆ*ǆ;if(Ǉ<=ǈ){return ǁ;}if(Ǉ<=p){return Vector3D.Zero;}return ǁ*(ǆ/Math.Sqrt(Ǉ
+));}public static double Ø(double ǉ){while(ǉ>Math.PI){ǉ-=MathHelper.TwoPi;}while(ǉ<-Math.PI){ǉ+=MathHelper.TwoPi;}return
+ǉ;}public static Vector3D ë(Vector3D ǁ,Vector3D Ǌ,double ǉ){Ǌ=o(Ǌ);if(Ǌ.LengthSquared()<=p){return ǁ;}double ǋ=Math.Cos(ǉ
+);double ǌ=Math.Sin(ǉ);return ǁ*ǋ+Vector3D.Cross(Ǌ,ǁ)*ǌ+Ǌ*Vector3D.Dot(Ǌ,ǁ)*(1.0-ǋ);}public static double Ē(Vector3D m,
+Vector3D đ,Vector3D Ǎ){Vector3D ǎ=ą(m,Ǎ);Vector3D Ǐ=ą(đ,Ǎ);if(ǎ.LengthSquared()<=p||Ǐ.LengthSquared()<=p){return 0;}ǎ=o(ǎ);Ǐ=o(Ǐ
+);Ǎ=o(Ǎ);return Math.Atan2(Vector3D.Dot(Ǎ,Vector3D.Cross(ǎ,Ǐ)),Vector3D.Dot(ǎ,Ǐ));}public static Vector3D Ĳ(Vector3D ǐ,
+MatrixD Ǒ){return Vector3D.TransformNormal(ǐ,MatrixD.Transpose(Ǒ));}public static Vector3D Ĭ(Vector3D ƚ,MatrixD Ǒ){return
+Vector3D.TransformNormal(ƚ,Ǒ);}}static string ǒ(ƅ ğ){switch(ğ){case ƅ.ƀ:return"Initializing";case ƅ.Ɓ:return"Active";case ƅ.Ƃ:
+return"Master";case ƅ.ƃ:return"Slave";case ƅ.Ƅ:return"Parked";default:return"Unknown";}}sealed class ǘ{public readonly
+IMyCubeGrid Ǔ;public readonly List<ǔ>Ǖ=new List<ǔ>();public ǖ Ǘ;public ǘ Ǚ;public ǔ ǚ;public int Ǜ=int.MaxValue;public bool ǜ;
+public ǘ(IMyCubeGrid Ŗ){Ǔ=Ŗ;}}sealed class ǔ{public readonly ǘ ƥ,Ʀ;public readonly IMyTerminalBlock ǝ;public ǔ(ǘ ǂ,ǘ ǃ,
+IMyTerminalBlock Ǟ){ƥ=ǂ;Ʀ=ǃ;ǝ=Ǟ;}public ǘ Ǡ(ǘ ǟ){return ǟ==ƥ?Ʀ:ƥ;}}sealed class ǖ{public readonly List<ǘ>ǡ=new List<ǘ>();public readonly
+List<IMyShipController>Ǣ=new List<IMyShipController>();public readonly List<IMyProgrammableBlock>ǣ=new List<
+IMyProgrammableBlock>();public bool ǜ,Ǥ,ǥ,Ǧ,ǧ=true,Ǩ=true;public IMyProgrammableBlock ǩ;}sealed class Ǭ{public IMyShipConnector ƥ,Ʀ;public ǘ
+Ǫ,ǫ;}sealed class ǯ{public IMyShipConnector ǭ;public Ǭ Ǯ;}sealed class ǰ{public IMyLandingGear ǭ;}void Ǿ(string Ǳ){if(
+string.IsNullOrWhiteSpace(Ǳ)){return;}string[]ǲ=Ǳ.Split(new[]{';','\n','\r'},StringSplitOptions.RemoveEmptyEntries);bool ǳ=
+false;bool Ǵ=false;StringBuilder ǵ=new StringBuilder();for(int Į=0;Į<ǲ.Length;Į++){string Ƿ=Ƕ(ǲ[Į]);if(Ƿ.Length==0){continue;
+}ǳ=true;string Ǹ;bool ǹ;if(!Ǻ(Ƿ,out Ǹ,out ǹ)){Ǹ="Unknown command: \""+Ƿ+"\"";ǹ=true;}if(ǻ&&!string.IsNullOrEmpty(Ǽ)){if(Ǹ
+.Length>0){Ǹ+="\n";}Ǹ+=Ǽ;ǹ=true;}if(ǵ.Length>0){ǵ.AppendLine();}ǵ.Append(Ǹ);Ǵ|=ǹ;}if(!ǳ){return;}ǽ(ǵ.ToString(),Ǵ);Save()
+;}bool Ǻ(string Ƿ,out string Ǹ,out bool ǹ){Ǹ=string.Empty;ǹ=false;string[]ǿ=Ƿ.Split(new[]{' '},StringSplitOptions.
+RemoveEmptyEntries);if(ǿ.Length==0){return false;}int Ȁ;if(ȁ(ǿ,out Ȁ)){return Ȃ(ǿ,Ȁ,out Ǹ,out ǹ);}if(ȃ(ǿ,out Ȁ)){return Ȅ(ǿ,Ȁ,out Ǹ,out ǹ)
+;}if(ȅ(ǿ,out Ȁ)){return Ȇ(ǿ,Ȁ,out Ǹ,out ǹ);}if(ǿ[0]=="unpark"||ǿ[0]=="undock"){ȇ=false;Ȉ=false;Ǹ="Parking: OFF";return
+true;}if(ǿ[0]=="gear"){return ȉ(ǿ,1,out Ǹ,out ǹ);}if(ǿ[0]=="rescan"||ǿ[0]=="scan"||ǿ[0]=="refresh"){if(ǿ.Length!=1){Ǹ=
+"Invalid rescan command: \""+Ƿ+"\"";ǹ=true;return true;}Ȋ();Ǹ="Deep rescan requested.";return true;}return false;}bool Ȃ(string[]ǿ,int Ȁ,out string
+Ǹ,out bool ǹ){Ǹ=string.Empty;ǹ=false;bool i;if(!ȋ(ǿ,Ȁ,Ȍ,out i)){Ǹ="Expected dampeners "+"on, off, or toggle.";ǹ=true;
+return true;}ȍ(i);Ǹ="Local dampeners: "+(Ȍ?"ON":"OFF");if(Ȏ==ƅ.ƃ){Ǹ+=" (master remains effective while slaved)";}return true;}
+bool Ȅ(string[]ǿ,int Ȁ,out string Ǹ,out bool ǹ){Ǹ=string.Empty;ǹ=false;if(Ȁ>=ǿ.Length){ȏ();Ǹ=Ȑ();return true;}string ȑ=ǿ[Ȁ];
+bool Ȓ;if(ȓ(ȑ,Ȕ,out Ȓ)){if(Ȁ+1!=ǿ.Length){Ǹ="Unexpected text after "+"Cruise state.";ǹ=true;return true;}ȕ(Ȓ);Ǹ=Ȑ();return
+true;}double Ȗ;if(ȗ(ǿ,Ȁ,out Ȗ)){Ș(Ȗ);Ǹ=Ȑ();return true;}bool ș=ȑ=="increase"||ȑ=="increment"||ȑ=="up"||ȑ=="add"||ȑ=="faster"
+;bool Ț=ȑ=="decrease"||ȑ=="decrement"||ȑ=="down"||ȑ=="subtract"||ȑ=="slower";if(ș||Ț){if(Ȁ+2!=ǿ.Length){Ǹ=
+"Cruise adjustment requires "+"one speed value.";ǹ=true;return true;}double ț;if(!double.TryParse(ǿ[Ȁ+1],out ț)){Ǹ="Invalid Cruise speed: \""+ǿ[Ȁ+1]+
+"\"";ǹ=true;return true;}ț=Math.Abs(ț);Ș(ș?ț:-ț);Ǹ=Ȑ();return true;}if(ȑ=="target"||ȑ=="speed"||ȑ=="set"){if(Ȁ+2!=ǿ.Length){
+Ǹ="Cruise target requires "+"one speed value.";ǹ=true;return true;}double Ȝ;if(!double.TryParse(ǿ[Ȁ+1],out Ȝ)){Ǹ=
+"Invalid Cruise target: \""+ǿ[Ȁ+1]+"\"";ǹ=true;return true;}ȝ=Ȝ;Ȟ=true;Ǹ=Ȑ();return true;}Ǹ="Expected Cruise on, off, toggle, "+
+"+value, -value, increase value, "+"decrease value, or target value.";ǹ=true;return true;}bool Ȇ(string[]ǿ,int Ȁ,out string Ǹ,out bool ǹ){Ǹ=string.Empty;ǹ
+=false;bool i;if(!ȋ(ǿ,Ȁ,ȇ,out i)){Ǹ="Expected parking "+"on, off, or toggle.";ǹ=true;return true;}ȇ=i;Ȉ=false;Ǹ=
+"Parking: "+(ȇ?"ON":"OFF");return true;}bool ȉ(string[]ǿ,int Ȁ,out string Ǹ,out bool ǹ){Ǹ=string.Empty;ǹ=false;int ȡ=ȟ.Ƞ.Count;if(ȡ
+<=0){Ǹ="No gears are configured.";ǹ=true;return true;}if(Ȁ>=ǿ.Length){Ȣ=(Ȣ+1)%ȡ;Ǹ=ȣ();return true;}if(Ȁ+1!=ǿ.Length){Ǹ=
+"Gear accepts one argument.";ǹ=true;return true;}string ȑ=ǿ[Ȁ];if(ȑ=="next"||ȑ=="up"||ȑ=="increase"||ȑ=="increment"){Ȣ=(Ȣ+1)%ȡ;Ǹ=ȣ();return true;}if
+(ȑ=="previous"||ȑ=="prev"||ȑ=="down"||ȑ=="decrease"||ȑ=="decrement"){Ȣ--;if(Ȣ<0){Ȣ=ȡ-1;}Ǹ=ȣ();return true;}int Ȥ;if(!int.
+TryParse(ȑ,out Ȥ)){Ǹ="Invalid gear: \""+ȑ+"\"";ǹ=true;return true;}if(Ȥ<1||Ȥ>ȡ){Ǹ="Gear must be between 1 and "+ȡ+".";ǹ=true;
+return true;}Ȣ=Ȥ-1;Ǹ=ȣ();return true;}static bool ȁ(string[]ǿ,out int Ȁ){Ȁ=1;if(ǿ[0]=="dampeners"||ǿ[0]=="dampener"||ǿ[0]==
+"dampers"||ǿ[0]=="damper"||ǿ[0]=="damping"||ǿ[0]=="dampening"){return true;}if(ǿ.Length>=2&&ǿ[0]=="inertia"&&(ǿ[1]=="dampeners"||
+ǿ[1]=="dampener"||ǿ[1]=="damping")){Ȁ=2;return true;}return false;}static bool ȃ(string[]ǿ,out int Ȁ){Ȁ=1;if(ǿ.Length>=2
+&&ǿ[0]=="cruise"&&ǿ[1]=="control"){Ȁ=2;return true;}return ǿ[0]=="cruise"||ǿ[0]=="cruisecontrol";}static bool ȅ(string[]ǿ,
+out int Ȁ){Ȁ=1;return ǿ[0]=="park"||ǿ[0]=="parking";}static bool ȋ(string[]ǿ,int Ȁ,bool ȥ,out bool Ǹ){if(Ȁ>=ǿ.Length){Ǹ=!ȥ;
+return true;}if(Ȁ+1!=ǿ.Length){Ǹ=ȥ;return false;}return ȓ(ǿ[Ȁ],ȥ,out Ǹ);}static bool ȓ(string ȑ,bool ȥ,out bool Ǹ){if(ȑ=="on"
+||ȑ=="enable"||ȑ=="enabled"||ȑ=="start"){Ǹ=true;return true;}if(ȑ=="off"||ȑ=="disable"||ȑ=="disabled"||ȑ=="stop"){Ǹ=false;
+return true;}if(ȑ=="toggle"||ȑ=="switch"){Ǹ=!ȥ;return true;}Ǹ=ȥ;return false;}static bool ȗ(string[]ǿ,int Ȁ,out double Ö){Ö=0;
+if(Ȁ>=ǿ.Length){return false;}if(Ȁ+1==ǿ.Length){string Ȧ=ǿ[Ȁ];if(Ȧ.Length<2||Ȧ[0]!='+'&&Ȧ[0]!='-'){return false;}return
+double.TryParse(Ȧ,out Ö);}if(Ȁ+2==ǿ.Length&&(ǿ[Ȁ]=="+"||ǿ[Ȁ]=="-")){double ț;if(!double.TryParse(ǿ[Ȁ+1],out ț)){return false;}
+Ö=ǿ[Ȁ]=="+"?Math.Abs(ț):-Math.Abs(ț);return true;}return false;}string Ȑ(){string Ǹ="Local Cruise: "+(Ȕ?"ON":"OFF");if(Ȟ)
+{Ǹ+=" @ "+ȝ.ToString("0.###")+" m/s";}if(Ȏ==ƅ.ƃ){Ǹ+=" (master remains effective while slaved)";}return Ǹ;}string ȣ(){int
+ȡ=ȟ.Ƞ.Count;double ȧ=ȡ>0?ȟ.Ƞ[MathHelper.Clamp(Ȣ,0,ȡ-1)]*100:0;string Ǹ="Local gear: "+(Ȣ+1)+"/"+ȡ+" ("+ȧ.ToString("0.##")
++"%)";if(Ȏ==ƅ.ƃ){Ǹ+=" (master remains effective while slaved)";}return Ǹ;}static string Ƕ(string Ƿ){if(string.
+IsNullOrWhiteSpace(Ƿ)){return string.Empty;}Ƿ=Ƿ.Trim().ToLowerInvariant();StringBuilder Ȩ=new StringBuilder(Ƿ.Length);bool ȩ=false;for(int
+Į=0;Į<Ƿ.Length;Į++){char Ȫ=Ƿ[Į];bool ȫ=char.IsWhiteSpace(Ȫ);if(ȫ){if(!ȩ&&Ȩ.Length>0){Ȩ.Append(' ');}ȩ=true;continue;}Ȩ.
+Append(Ȫ);ȩ=false;}if(Ȩ.Length>0&&Ȩ[Ȩ.Length-1]==' '){Ȩ.Length--;}return Ȩ.ToString();}sealed class ȹ{public bool Ȭ=true,ȭ=
+true,Ȯ=true,ȯ,Ȱ=true;public readonly List<double>Ƞ=new List<double>{0.15,0.50,1.00};public string ȱ="[VT-use]",Ȳ=
+"[VT-ignore]",ȳ="[VT-status]",ȴ="[VT-park]",ȵ="[VT-unpark]";public int ȶ,ȷ,ȸ;}readonly MyIni Ⱥ=new MyIni();bool Ɏ(bool Ȼ){string ȼ=Me
+.CustomData??string.Empty;if(!Ȼ&&ȼ==Ƚ){return false;}Ⱥ.Clear();MyIniParseResult Ⱦ;if(!Ⱥ.TryParse(ȼ,out Ⱦ)){Echo(ȿ+
+"\n\nCustom Data could not be parsed as INI:\n"+Ⱦ);Ƚ=ȼ;return false;}bool ɀ=ȟ.Ȭ;bool Ɂ=ȟ.ȭ;bool ɂ=ȟ.Ȯ;string Ƀ=ȟ.ȱ;string Ʉ=ȟ.Ȳ;string Ʌ=ȟ.ȳ;string Ɇ=ȟ.ȴ;string ɇ=ȟ.ȵ;
+ȟ.Ȭ=Ⱥ.Get(Ɉ,"Greedy").ToBoolean(ȟ.Ȭ);ȟ.ȭ=Ⱥ.Get(Ɉ,"CanMaster").ToBoolean(ȟ.ȭ);ȟ.Ȯ=Ⱥ.Get(Ɉ,"CanSlave").ToBoolean(ȟ.Ȯ);ȟ.ȯ=Ⱥ
+.Get("Parking","ParkOnlyByCommand").ToBoolean(ȟ.ȯ);ȟ.Ȱ=Ⱥ.Get("Flight","CruiseLevelsWithGravity").ToBoolean(ȟ.Ȱ);ɉ(Ⱥ.Get(
+"Flight","GearPercentages").ToString("15; 50; 100"));if(Ȣ>=ȟ.Ƞ.Count){Ȣ=ȟ.Ƞ.Count-1;}ȟ.ȱ=Ɋ("Tags","Use",ȟ.ȱ);ȟ.Ȳ=Ɋ("Tags",
+"Ignore",ȟ.Ȳ);ȟ.ȳ=Ɋ("Tags","Status",ȟ.ȳ);ȟ.ȴ=Ɋ("Tags","ParkTimer",ȟ.ȴ);ȟ.ȵ=Ɋ("Tags","UnparkTimer",ȟ.ȵ);ȟ.ȶ=Math.Max(0,Ⱥ.Get(
+"Performance","Update1Skip").ToInt32(ȟ.ȶ));ȟ.ȷ=Math.Max(0,Ⱥ.Get("Performance","Update10Skip").ToInt32(ȟ.ȷ));ȟ.ȸ=Math.Max(0,Ⱥ.Get(
+"Performance","Update100Skip").ToInt32(ȟ.ȸ));ɋ();string Ɍ=Ⱥ.ToString();if(Ɍ!=Me.CustomData){Me.CustomData=Ɍ;}Ƚ=Me.CustomData;bool ɍ=ɀ
+!=ȟ.Ȭ||Ɂ!=ȟ.ȭ||ɂ!=ȟ.Ȯ||!Ƀ.Equals(ȟ.ȱ,StringComparison.OrdinalIgnoreCase)||!Ʉ.Equals(ȟ.Ȳ,StringComparison.OrdinalIgnoreCase
+)||!Ʌ.Equals(ȟ.ȳ,StringComparison.OrdinalIgnoreCase)||!Ɇ.Equals(ȟ.ȴ,StringComparison.OrdinalIgnoreCase)||!ɇ.Equals(ȟ.ȵ,
+StringComparison.OrdinalIgnoreCase);if(!Ȼ&&ɍ){Ȋ();}return true;}string Ɋ(string ɏ,string ɐ,string ɑ){string ğ=Ⱥ.Get(ɏ,ɐ).ToString(ɑ).
+Trim();return ğ.Length==0?ɑ:ğ;}void ɉ(string ɒ){string[]ɓ=ɒ.Split(new[]{';'},StringSplitOptions.RemoveEmptyEntries);List<
+double>ɔ=new List<double>();for(int Į=0;Į<ɓ.Length;Į++){double ȧ;if(!double.TryParse(ɓ[Į].Trim(),out ȧ)){continue;}if(ȧ>0){ɔ.
+Add(ȧ/100.0);}}if(ɔ.Count==0){return;}ȟ.Ƞ.Clear();ȟ.Ƞ.AddRange(ɔ);}void ɋ(){Ⱥ.Set(Ɉ,"Greedy",ȟ.Ȭ);Ⱥ.Set(Ɉ,"CanMaster",ȟ.ȭ);
+Ⱥ.Set(Ɉ,"CanSlave",ȟ.Ȯ);Ⱥ.SetSectionComment(Ɉ," Vector Thrust Redux ownership and coordination.\n"+
+" Greedy controls eligible mechanical-subgrid blocks unless ignored.\n"+" Main-grid player thrusters and gyros remain read-only unless explicitly tagged.");Ⱥ.Set("Parking","ParkOnlyByCommand"
+,ȟ.ȯ);Ⱥ.Set("Flight","CruiseLevelsWithGravity",ȟ.Ȱ);Ⱥ.Set("Flight","GearPercentages",ɕ());Ⱥ.Set("Tags","Use",ȟ.ȱ);Ⱥ.Set(
+"Tags","Ignore",ȟ.Ȳ);Ⱥ.Set("Tags","Status",ȟ.ȳ);Ⱥ.Set("Tags","ParkTimer",ȟ.ȴ);Ⱥ.Set("Tags","UnparkTimer",ȟ.ȵ);Ⱥ.SetComment(
+"Tags","Use"," Tag may appear in a block name, group name, or block Custom Data.");Ⱥ.SetComment("Tags","Ignore",
+" Ignore always prevents Redux from modifying the block.");Ⱥ.Set("Performance","Update1Skip",ȟ.ȶ);Ⱥ.Set("Performance","Update10Skip",ȟ.ȷ);Ⱥ.Set("Performance","Update100Skip",ȟ.ȸ
+);Ⱥ.SetSectionComment("Performance"," Number of matching update intervals skipped between executions.\n"+
+" Heartbeat publication is never skipped.");}string ɕ(){StringBuilder ɖ=new StringBuilder();for(int Į=0;Į<ȟ.Ƞ.Count;Į++){if(Į>0){ɖ.Append("; ");}ɖ.Append((ȟ.Ƞ[Į]*
+100.0).ToString("0.########"));}return ɖ.ToString();}readonly HashSet<H>ɗ=new HashSet<H>(),ɘ=new HashSet<H>();void ɚ(){Ɏ(
+false);ə();}void ɫ(){ɛ();ɜ();ɝ();ɞ();ɟ();ɠ=ȟ.ȭ&&ɡ!=null&&ɡ.IsUnderControl;ɢ();if(ȟ.Ȯ&&!ɠ&&!ȇ){ɣ();}if(ɤ){ɥ=0;}else if(ɦ!=long
+.MinValue){ɥ++;}ɧ=ɦ!=long.MinValue&&ɥ<2;ɤ=false;ɨ();if(Ȏ==ƅ.Ƅ){ɩ();}ɪ(false);}void ʁ(double Ô){ɛ();if(Ȏ==ƅ.Ƅ||Ȏ==ƅ.ƀ||ɡ==
+null){ɬ();ɭ();return;}ɮ();ɝ();ɞ();ɟ();Vector3D ɯ=ɡ.CenterOfMass;Vector3D ɰ;if(Ȏ==ƅ.ƃ){Vector3D ɲ=n.Ŭ(ɱ.Ʈ,1);Vector3D t=n.o(ɲ
+);double Ý=ɲ.Length();double ɴ=ɳ(t);ɰ=t*Ý*ɴ;}else{Vector3D ɶ=ɵ(Ô);ɶ-=ɷ();if(Ȏ==ƅ.Ƃ){Vector3D t=n.o(ɶ);double ɴ=ɳ(t);
+double ɹ=ɸ(t);double ɺ=ɴ+ɹ;double Ý=ɺ>U?MathHelper.Clamp(ɶ.Length()/ɺ,0,1):0;ɻ=t*Ý;ɰ=t*Ý*ɴ;}else{ɻ=Vector3D.Zero;ɰ=ɶ;}}ɼ=ɰ;ɽ(ɰ
+,ɯ,Ô);bool ɾ=Ȏ==ƅ.ƃ?ɱ.ư:ǻ&&ȟ.Ȱ;ɿ(ʀ,ɾ);}void ɟ(){for(int Į=0;Į<ʂ.Count;Į++){ʂ[Į].ĸ();}ʃ();ʄ();}void ʃ(){ʅ=0;for(int Į=0;Į<
+ʆ.Count;Į++){g İ=ʆ[Į];if(!İ.P||!İ.c){continue;}ʅ+=İ.V;}}void ʄ(){ʇ.ĺ();ʈ.ĺ();ʉ.ĺ();if(ɡ==null){return;}MatrixD ʊ=ɡ.
+WorldMatrix;ʇ.Ɛ=ɳ(ʊ.Forward);ʇ.Ƒ=ɳ(ʊ.Backward);ʇ.ƒ=ɳ(ʊ.Left);ʇ.Ɠ=ɳ(ʊ.Right);ʇ.Ɣ=ɳ(ʊ.Up);ʇ.ƕ=ɳ(ʊ.Down);ʈ.Ɛ=ɸ(ʊ.Forward);ʈ.Ƒ=ɸ(ʊ.
+Backward);ʈ.ƒ=ɸ(ʊ.Left);ʈ.Ɠ=ɸ(ʊ.Right);ʈ.Ɣ=ɸ(ʊ.Up);ʈ.ƕ=ɸ(ʊ.Down);ʉ.ƙ(ʇ);ʉ.Ƙ(ʈ);}double ɳ(Vector3D m){m=n.o(m);if(m.LengthSquared
+()<=p){return 0;}double ł=0;for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(!İ.P||!İ.c){continue;}if(İ.I!=null&&İ.I.Ò.P){continue;
+}ł+=İ.r(m);}for(int Į=0;Į<ʂ.Count;Į++){H ʋ=ʂ[Į];if(!ʋ.Ò.P){continue;}ł+=ʋ.ŉ(m);}return ł;}double ʌ(Vector3D m){double ł=ɳ
+(m);if(Ȏ==ƅ.Ƃ){ł+=ɸ(m);}return ł;}double ɸ(Vector3D m){m=n.o(m);if(m.LengthSquared()<=p){return 0;}double ł=ʍ(ʎ,m);for(
+int Į=0;Į<ʏ.Count;Į++){ł+=ʏ[Į].ŉ(m);}return ł;}Vector3D ɵ(double Ô){MyShipMass ʐ=ɡ.CalculateShipMass();double ʑ=ʐ.
+PhysicalMass;if(ʑ<=U){return Vector3D.Zero;}MyShipVelocities ʒ=ɡ.GetShipVelocities();Vector3D ʓ=ʒ.LinearVelocity;Vector3D ʔ=ɡ.
+GetNaturalGravity();Vector3 ʕ=ɡ.MoveIndicator;Vector3D ʖ;if(ǻ){ʖ=ʗ(ʕ,ʓ,ʑ,Ô);}else{ʖ=ʘ(ʕ,ʓ,ʑ,Ô);}return ʑ*(ʖ-ʔ);}Vector3D ʘ(Vector3 ʕ,
+Vector3D ʓ,double ʑ,double Ô){Vector3D ʙ=Vector3D.TransformNormal(ʕ,ɡ.WorldMatrix);Vector3D ʚ=n.o(ʙ);bool ʛ=ʚ.LengthSquared()>p;
+Vector3D ʖ=Vector3D.Zero;if(ʛ){double ʜ=ʌ(ʚ);double ʞ=ʜ/ʑ*ʝ;ʖ=ʚ*ʞ;}if(!ʟ){return ʠ(ʖ,ʑ);}Vector3D ʡ=ʓ;if(ʡ.Length()<=ʢ){ʡ=
+Vector3D.Zero;}if(ʛ){double ʣ=Vector3D.Dot(ʡ,ʚ);if(ʣ>0){ʡ-=ʚ*ʣ;}}if(ʡ.LengthSquared()>p){ʖ+=-ʡ/Math.Max(Ô,è);}return ʠ(ʖ,ʑ);}
+Vector3D ʗ(Vector3 ʕ,Vector3D ʓ,double ʑ,double Ô){if(Ȏ!=ƅ.ƃ){ʤ();double ʥ=-ʕ.Z;if(Math.Abs(ʥ)>p){Vector3D ʦ=ʥ>=0?ɡ.WorldMatrix.
+Forward:ɡ.WorldMatrix.Backward;double ł=ʌ(ʦ);double ʧ=ł/ʑ*ʝ;ȝ+=ʥ*ʧ*Ô;}}Vector3 ʨ=ʕ;ʨ.Z=0;Vector3D ʩ=Vector3D.TransformNormal(ʨ,
+ɡ.WorldMatrix);Vector3D ʪ=n.o(ʩ);Vector3D ʖ=Vector3D.Zero;if(ʪ.LengthSquared()>p){double ʫ=ʌ(ʪ);ʖ+=ʪ*(ʫ/ʑ*ʝ);}Vector3D ʬ=
+ɡ.WorldMatrix.Forward;Vector3D ʮ=ʬ*ʭ;Vector3D ʯ=ʮ-ʓ;if(!ʟ){ʯ=n.ǅ(ʯ,ʬ);}if(ʯ.Length()<=ʢ){ʯ=Vector3D.Zero;}if(ʯ.
+LengthSquared()>p){ʖ+=ʯ/Math.Max(Ô,è);}return ʠ(ʖ,ʑ);}Vector3D ʠ(Vector3D ʞ,double ʑ){double ʰ=ʞ.Length();if(ʰ<=p||ʑ<=U){return
+Vector3D.Zero;}Vector3D t=ʞ/ʰ;double ʱ=ʌ(t)/ʑ;return n.Ŭ(ʞ,ʱ);}Vector3D ɷ(){Vector3D Ő=Vector3D.Zero;for(int Į=0;Į<ʲ.Count;Į++){
+g İ=ʲ[Į];if(!İ.P){Ő+=İ.W;}}if(Ȏ==ƅ.Ƃ){for(int Į=0;Į<ʳ.Count;Į++){g İ=ʳ[Į];if(!İ.P){Ő+=İ.W;}}}return Ő;}Vector3D ʴ(){
+return ɷ();}void ɽ(Vector3D ɰ,Vector3D ɯ,double Ô){ʵ=ɰ;ʀ=Vector3D.Zero;for(int Į=0;Į<ʆ.Count;Į++){if(ʆ[Į].P){ʆ[Į].l();}}ɗ.
+Clear();ɘ.Clear();for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(!İ.P||İ.I!=null&&İ.I.Ò.P){continue;}ʶ(İ,ref ʵ,ɯ,ref ʀ);}for(int Į=0;
+Į<ʂ.Count;Į++){H ʋ=ʂ[Į];if(!ʋ.Ò.P){continue;}ʋ.œ(ref ʵ,ɯ,ref ʀ);ɘ.Add(ʋ);}while(ɘ.Count>0&&ʵ.LengthSquared()>U*U){
+Vector3D m=n.o(ʵ);H ʷ=null;î ʸ=null;foreach(H ʋ in ɘ){î ï=new î();if(!ʋ.ň(m,ï)){continue;}bool ʹ=ʸ==null||ï.ń>ʸ.ń+U;bool ʺ=ʸ!=
+null&&Math.Abs(ï.ń-ʸ.ń)<=U;bool ʻ=ʺ&&ʷ!=null&&ʋ.Ò.Q<ʷ.Ò.Q;if(ʹ||ʻ){ʷ=ʋ;ʸ=ï;}}if(ʷ==null){break;}ɘ.Remove(ʷ);double ʼ=
+Vector3D.Dot(ʵ,m);ʷ.Ŋ(ʸ,ʼ,Ô);ɗ.Add(ʷ);ʷ.Œ(ref ʵ,ɯ,ref ʀ);}for(int Į=0;Į<ʂ.Count;Į++){H ʋ=ʂ[Į];if(!ʋ.Ò.P){continue;}if(!ɗ.
+Contains(ʋ)){ʋ.Ò.Ó();}}ʽ();for(int Į=0;Į<ʆ.Count;Į++){if(ʆ[Į].P){ʆ[Į].º();}}}void ʶ(g İ,ref Vector3D s,Vector3D ɯ,ref Vector3D ō
+){double ŏ=İ.x(ref s);if(ŏ<=U){return;}Vector3D Ő=İ.R*ŏ;Vector3D ő=İ.E.GetPosition()-ɯ;ō+=Vector3D.Cross(ő,Ő);}void ʽ(){
+if(!ǻ){ʾ(ƌ.Ɖ);return;}for(int Į=0;Į<ʿ.Count;Į++){g İ=ʿ[Į];if(!İ.P){continue;}if(İ.K>U){ʾ(İ,ƌ.Ɖ);y(İ);continue;}ˀ(İ,ƌ.Ɖ);}}
+void ɿ(Vector3D ō,bool ɾ){if(ˁ.Count==0||ɡ==null){return;}double ˆ=0;for(int Į=0;Į<ˁ.Count;Į++){ˆ+=ˁ[Į].ř;}if(ˆ<=p){ɭ();
+return;}Vector3D ˇ=-ō/ˆ*ŭ;if(ɾ){Vector3D ʔ=ɡ.GetNaturalGravity();if(ʔ.LengthSquared()>p){Vector3D ˈ=-n.o(ʔ);Vector3D ˉ=ɡ.
+WorldMatrix.Up;Vector3D ˊ=Vector3D.Cross(ˉ,ˈ);double q=MathHelper.Clamp(Vector3D.Dot(ˉ,ˈ),-1,1);double ˋ=Math.Atan2(ˊ.Length(),q);
+if(ˊ.LengthSquared()>p){ˊ=n.o(ˊ);ˇ+=ˊ*ˋ*ˌ;}Vector3D ˍ=ɡ.GetShipVelocities().AngularVelocity;Vector3D ˎ=n.ą(ˍ,ˈ);ˇ-=ˎ*ˏ;}}
+if(ˇ.LengthSquared()<=Ų*Ų){ɭ();return;}for(int Į=0;Į<ˁ.Count;Į++){ˁ[Į].Ŵ(ˇ);}}void ɭ(){for(int Į=0;Į<ˁ.Count;Į++){ˁ[Į].Ū()
+;}}void ˮ(){if(!ȟ.ȭ){ː();return;}if(Ȏ!=ƅ.Ƃ||ɡ==null||!ɡ.IsUnderControl){ː();return;}if(ˑ!=null&&ˑ.EntityId!=ɡ.EntityId){ˠ
+(ˑ);}ˑ=ɡ;StringBuilder ɏ=new StringBuilder();ɏ.Append('[').Append(ˡ).AppendLine("]");ɏ.Append("Version=").AppendLine(ˢ);ɏ
+.Append("MasterProgrammableBlockId=").AppendLine(Me.EntityId.ToString());ɏ.Append("ControllerId=").AppendLine(ɡ.EntityId.
+ToString());ɏ.Append("Sequence=").AppendLine(ˣ.ToString());ɏ.Append("Demand=").AppendLine(ˤ(ɻ));ɏ.Append("Dampeners=").
+AppendLine(Ȍ.ToString());ɏ.Append("Cruise=").AppendLine(Ȕ.ToString());ɏ.Append("CruiseTargetSpeed=").AppendLine(ȝ.ToString("R"));ɏ
+.Append("GearIndex=").AppendLine(Ȣ.ToString());ɏ.Append("GearCount=").AppendLine(ȟ.Ƞ.Count.ToString());ɏ.Append(
+"GearFraction=").AppendLine(ʝ.ToString("R"));ɏ.Append("LevelWithGravity=").AppendLine((Ȕ&&ȟ.Ȱ).ToString());ɡ.CustomData=ˬ(ɡ.CustomData,
+ˡ,ɏ.ToString());}void ː(){if(ˑ==null){return;}ˠ(ˑ);ˑ=null;}void ˠ(IMyShipController Ͱ){if(Ͱ==null||Ͱ.Closed){return;}
+string ͱ;if(!Ͳ(Ͱ.CustomData,ˡ,"MasterProgrammableBlockId",out ͱ)){return;}long ͳ;if(!long.TryParse(ͱ,out ͳ)||ͳ!=Me.EntityId){
+return;}Ͱ.CustomData=ʹ(Ͱ.CustomData,ˡ);}void ͼ(IMyShipController Ͷ){long ͷ=Ͷ!=null?Ͷ.EntityId:0;for(int Į=0;Į<ͺ.Count;Į++){
+IMyShipController Ͱ=ͺ[Į];if(Ͱ==null||Ͱ.EntityId==ͷ){continue;}ˠ(Ͱ);}for(int Į=0;Į<ͻ.Count;Į++){IMyShipController Ͱ=ͻ[Į];if(Ͱ==null||Ͱ.
+EntityId==ͷ){continue;}ˠ(Ͱ);}}void Ά(){IMyShipController ͽ=Ȏ==ƅ.Ƃ&&ɡ!=null&&ɡ.IsUnderControl?ɡ:null;ͼ(ͽ);if(ͽ==null){ˑ=null;}
+else{ˑ=ͽ;}}void ɣ(){for(int Į=0;Į<ͻ.Count;Į++){IMyShipController Ͱ=ͻ[Į];if(Ͱ==null||Ͱ.Closed||!Ͱ.IsUnderControl){continue;}Ƶ
+Ƿ;if(!Έ(Ͱ,out Ƿ)){continue;}Ή(Ƿ);return;}}void Ί(){for(int Į=0;Į<ͻ.Count;Į++){IMyShipController Ͱ=ͻ[Į];if(Ͱ==null||Ͱ.
+Closed||!Ͱ.IsUnderControl){continue;}if(ɱ.Ƭ!=0&&Ͱ.EntityId!=ɱ.Ƭ){continue;}Ƶ Ƿ;if(!Έ(Ͱ,out Ƿ)){continue;}if(ɱ.ƫ!=0&&Ƿ.ƫ!=ɱ.ƫ){
+continue;}Ή(Ƿ);return;}}void Ή(Ƶ Ƿ){bool Ύ=Ƿ.ƭ!=ɦ||Ƿ.ƫ!=Ό||Ƿ.Ƭ!=ɱ.Ƭ;if(Ύ){ɦ=Ƿ.ƭ;Ό=Ƿ.ƫ;ɥ=0;ɤ=true;ɧ=true;}ɱ.ƙ(Ƿ);if(Ȏ==ƅ.ƃ){ɞ();ɝ
+();}}bool Έ(IMyShipController Ͱ,out Ƶ Ƿ){Ƿ=null;if(Ͱ==null||Ͱ.Closed||!Ͱ.IsUnderControl){return false;}string Ώ;if(!Ͳ(Ͱ.
+CustomData,ˡ,"Version",out Ώ)||string.IsNullOrWhiteSpace(Ώ)){return false;}if(ΐ(Ώ)!=ΐ(ˢ)){return false;}string Α;string Β;string Γ
+;string Δ;if(!Ͳ(Ͱ.CustomData,ˡ,"MasterProgrammableBlockId",out Α)||!Ͳ(Ͱ.CustomData,ˡ,"ControllerId",out Β)||!Ͳ(Ͱ.
+CustomData,ˡ,"Sequence",out Γ)||!Ͳ(Ͱ.CustomData,ˡ,"Demand",out Δ)){return false;}long ͱ;long Ε;long Ζ;Vector3D ɲ;if(!long.TryParse
+(Α,out ͱ)||!long.TryParse(Β,out Ε)||!long.TryParse(Γ,out Ζ)||!Η(Δ,out ɲ)){return false;}if(ͱ==Me.EntityId||Ε!=Ͱ.EntityId)
+{return false;}string Θ;string Ι;string Κ;string Λ;string Μ;string Ν;string Ξ;Ͳ(Ͱ.CustomData,ˡ,"Dampeners",out Θ);Ͳ(Ͱ.
+CustomData,ˡ,"Cruise",out Ι);Ͳ(Ͱ.CustomData,ˡ,"CruiseTargetSpeed",out Κ);Ͳ(Ͱ.CustomData,ˡ,"GearIndex",out Λ);Ͳ(Ͱ.CustomData,ˡ,
+"GearCount",out Μ);Ͳ(Ͱ.CustomData,ˡ,"GearFraction",out Ν);Ͳ(Ͱ.CustomData,ˡ,"LevelWithGravity",out Ξ);bool Ο=true;bool Π;bool Ρ;
+double Σ;double Τ;int Υ;int Φ;bool Χ;if(bool.TryParse(Θ,out Χ)){Ο=Χ;}bool.TryParse(Ι,out Π);bool.TryParse(Ξ,out Ρ);double.
+TryParse(Κ,out Σ);double.TryParse(Ν,out Τ);int.TryParse(Λ,out Υ);int.TryParse(Μ,out Φ);Ƿ=new Ƶ{ƫ=ͱ,Ƭ=Ε,ƭ=Ζ,Ʈ=n.Ŭ(ɲ,1),Ư=Ο,Ɖ=Π,Ʊ=
+Σ,Ƴ=Math.Max(0,Υ),ƴ=Math.Max(0,Φ),Ʋ=MathHelper.Clamp(Τ,0,1),ư=Ρ};return true;}void Ψ(){ɧ=false;ɤ=false;ɥ=0;ɦ=long.
+MinValue;Ό=0;ɱ.ĺ();}static int ΐ(string Ω){if(string.IsNullOrWhiteSpace(Ω)){return-1;}int Ϊ=Ω.IndexOf('.');string Ϋ=Ϊ>=0?Ω.
+Substring(0,Ϊ):Ω;int ά;return int.TryParse(Ϋ,out ά)?ά:-1;}static int δ(string ȼ,string έ){if(string.IsNullOrEmpty(ȼ)){return-1;}
+string ή="["+έ+"]";int ί=0;while(ί<ȼ.Length){int ΰ=ȼ.IndexOf(ή,ί,StringComparison.OrdinalIgnoreCase);if(ΰ<0){return-1;}bool α=
+ΰ==0||ȼ[ΰ-1]=='\n';int β=ΰ+ή.Length;bool γ=β>=ȼ.Length||ȼ[β]=='\r'||ȼ[β]=='\n';if(α&&γ){return ΰ;}ί=ΰ+1;}return-1;}static
+int θ(string ȼ,int ί){while(ί<ȼ.Length){int ε=ȼ.IndexOf('\n',ί);if(ε<0||ε+1>=ȼ.Length){return ȼ.Length;}ε++;int ζ=ε;while(ζ
+<ȼ.Length&&(ȼ[ζ]==' '||ȼ[ζ]=='\t'||ȼ[ζ]=='\r')){ζ++;}if(ζ<ȼ.Length&&ȼ[ζ]=='['){int η=ȼ.IndexOf(']',ζ+1);if(η>=0){return ε
+;}}ί=ε;}return ȼ.Length;}static bool Ͳ(string ȼ,string έ,string ɐ,out string ğ){ğ=null;int ι=δ(ȼ,έ);if(ι<0){return false;
+}int κ=θ(ȼ,ι+έ.Length+2);int λ=ȼ.IndexOf('\n',ι);if(λ<0||λ>=κ){return false;}string ɏ=ȼ.Substring(λ+1,κ-λ-1);string[]μ=ɏ.
+Replace("\r",string.Empty).Split('\n');for(int Į=0;Į<μ.Length;Į++){string ν=μ[Į];int Ϊ=ν.IndexOf('=');if(Ϊ<=0){continue;}string
+ξ=ν.Substring(0,Ϊ).Trim();if(!ξ.Equals(ɐ,StringComparison.OrdinalIgnoreCase)){continue;}ğ=ν.Substring(Ϊ+1).Trim();return
+true;}return false;}static string ˬ(string ȼ,string έ,string ο){ȼ=ȼ??string.Empty;ο=ο.TrimEnd('\r','\n')+"\n";int ι=δ(ȼ,έ);
+if(ι<0){if(ȼ.Length==0){return ο;}string Ϊ=ȼ.EndsWith("\n")?string.Empty:"\n";return ȼ+Ϊ+ο;}int κ=θ(ȼ,ι+έ.Length+2);return
+ȼ.Substring(0,ι)+ο+ȼ.Substring(κ);}static string ʹ(string ȼ,string έ){if(string.IsNullOrEmpty(ȼ)){return ȼ;}int ι=δ(ȼ,έ);
+if(ι<0){return ȼ;}int κ=θ(ȼ,ι+έ.Length+2);string π=ȼ.Substring(0,ι);string β=ȼ.Substring(κ);if(π.EndsWith("\n")&&β.
+StartsWith("\n")){β=β.Substring(1);}return π+β;}static string ˤ(Vector3D ǁ){return ǁ.X.ToString("R")+";"+ǁ.Y.ToString("R")+";"+ǁ.Z
+.ToString("R");}static bool Η(string Ȧ,out Vector3D ǁ){ǁ=Vector3D.Zero;if(string.IsNullOrWhiteSpace(Ȧ)){return false;}
+string[]ρ=Ȧ.Split(';');if(ρ.Length!=3){return false;}double ς;double σ;double τ;if(!double.TryParse(ρ[0],out ς)||!double.
+TryParse(ρ[1],out σ)||!double.TryParse(ρ[2],out τ)){return false;}ǁ=new Vector3D(ς,σ,τ);return true;}IMyShipController ˑ;void ɛ(
+){IMyShipController υ=ɡ;IMyShipController φ=null;for(int Į=0;Į<ͺ.Count;Į++){IMyShipController Ͱ=ͺ[Į];if(Ͱ==null||Ͱ.Closed
+||!Ͱ.IsFunctional||!Ͱ.CanControlShip){continue;}if(Ͱ.IsUnderControl){φ=Ͱ;break;}if(φ==null||Ͱ.IsMainCockpit){φ=Ͱ;}}long χ=
+υ!=null?υ.EntityId:0;long ψ=φ!=null?φ.EntityId:0;if(ˑ!=null&&ˑ.EntityId!=ψ){ˠ(ˑ);ˑ=null;}if(χ!=ψ){ɻ=Vector3D.Zero;ω();}ɡ=
+φ;ϊ=ɡ==null;ɠ=ȟ.ȭ&&ɡ!=null&&ɡ.IsUnderControl;}void ɨ(){ɛ();if(Ȏ==ƅ.ƃ&&!ɧ){Ȉ=ϋ;}ƅ ό;if(ϊ||Me.CubeGrid.IsStatic||ȇ){ό=ƅ.Ƅ;}
+else if(ȟ.Ȯ&&ɧ&&!ɠ){ό=ƅ.ƃ;}else if(ύ||Ȉ){ό=ƅ.Ƅ;}else if(ɠ){ό=ƅ.Ƃ;}else{ό=ƅ.Ɓ;}if(ό==Ȏ){ɝ();return;}ώ(ό);}void ώ(ƅ Ϗ){ƅ ϐ=Ȏ;
+if(ϐ==ƅ.Ƃ&&Ϗ!=ƅ.Ƃ){ː();ɻ=Vector3D.Zero;}if(ϐ==ƅ.Ƅ&&Ϗ!=ƅ.Ƅ){ϑ();}if(ϐ==ƅ.ƃ&&Ϗ!=ƅ.ƃ&&!ɧ){Ȉ=ϋ;}Ȏ=Ϗ;if(Ϗ==ƅ.ƃ){ϋ=ϐ==ƅ.Ƅ;Ȉ=
+false;}ϒ(ϐ,Ϗ);if(Ϗ==ƅ.Ƅ&&ϐ!=ƅ.Ƅ){Ĉ();}ϓ=true;}void ɢ(){if(ȟ.ȯ){ύ=false;return;}bool ϔ=false;for(int Į=0;Į<ϕ.Count;Į++){if(ϖ(ϕ
+[Į])){ϔ=true;break;}}if(!ϔ){for(int Į=0;Į<ϗ.Count;Į++){if(Ϙ(ϗ[Į])){ϔ=true;break;}}}ύ=ϔ;}bool ϖ(ǯ ϙ){IMyShipConnector Ϛ=ϙ.
+ǭ;if(Ϛ==null||Ϛ.Closed||Ϛ.Status!=MyShipConnectorStatus.Connected){return false;}IMyShipConnector Ɨ=Ϛ.OtherConnector;if(Ɨ
+==null){return false;}ǘ ϛ;if(!Ϝ.TryGetValue(Ɨ.CubeGrid.EntityId,out ϛ)){return Ɨ.CubeGrid.IsStatic;}ǖ Ȝ=ϛ.Ǘ;if(Ȝ==null){
+return Ɨ.CubeGrid.IsStatic;}if(Ȝ.ǥ){return true;}if(Ȝ.Ǣ.Count==0){return false;}if(ɠ&&Ȝ.Ǧ){return false;}return true;}bool Ϙ(ǰ
+ϝ){IMyLandingGear Ϟ=ϝ.ǭ;if(Ϟ==null||Ϟ.Closed||!Ϟ.IsFunctional){return false;}return Ϟ.IsLocked;}void Ĉ(){ɬ();ɭ();Vector3D
+ʔ=ɡ!=null?ɡ.GetNaturalGravity():Vector3D.Zero;Vector3D û=Me.CubeGrid.WorldAABB.Center;for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į]
+;if(!İ.P){continue;}İ.j();ˀ(İ,ƌ.Ɗ);}ü.Clear();for(int Į=0;Į<ϟ.Count;Į++){Ò Ī=ϟ[Į];if(!Ī.P){continue;}Ī.Ĉ(ʔ,û);}Ϡ(ϡ);Save(
+);}void ϑ(){ʾ(ƌ.Ɗ);Ϣ.Clear();for(int Į=0;Į<ϟ.Count;Į++){Ò Ī=ϟ[Į];Ī.Þ();Ī.Ó();}ü.Clear();ɻ=Vector3D.Zero;Ϡ(ϣ);Save();}void
+ϥ(){for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];Ϥ(İ);if(!İ.P){continue;}İ.j();ˀ(İ,ƌ.Ɗ);}ɭ();Vector3D ʔ=ɡ!=null?ɡ.
+GetNaturalGravity():Vector3D.Zero;Vector3D û=Me.CubeGrid.WorldAABB.Center;for(int Į=0;Į<ϟ.Count;Į++){Ò Ī=ϟ[Į];if(!Ī.P){Ī.Ó();continue;}
+double ĉ;if(ü.TryGetValue(Ī.Q,out ĉ)){Ī.Ċ(ĉ);}else{Ī.Ĉ(ʔ,û);}Ī.Đ();}}void ɩ(){for(int Į=0;Į<ϟ.Count;Į++){ϟ[Į].Đ();}}void ɬ(){
+for(int Į=0;Į<ʆ.Count;Į++){if(ʆ[Į].P){ʆ[Į].j();}}}void ɮ(){ʾ(ƌ.Ɗ);Ϣ.Clear();}void ϧ(long Ϧ,IMyThrust d){ʾ(Ϧ,d,ƌ.Ɗ);}void Ϡ(
+List<IMyTimerBlock>Ϩ){for(int Į=0;Į<Ϩ.Count;Į++){IMyTimerBlock ϩ=Ϩ[Į];if(ϩ==null||ϩ.Closed||!ϩ.IsFunctional){continue;}ϩ.
+Trigger();}}const string ȿ="Vector Thrust Redux",ˢ="0.2.0",Ɉ="Vector Thrust Redux",ˡ="Vector Thrust Redux Heartbeat",Ϫ=
+"VT-Redux:",ϫ="State",Ϭ="Disabled Thrusters",ϭ="Park Rotor Targets",Ϯ="Topology";const double p=1e-8,U=1e-3,ē=1e-4,Ð=1e-4,Ķ=1.0-
+1e-6,ϯ=1.0-1e-4,þ=1.0-1e-4,å=0.1,č=1.0,æ=4.0,Ğ=Math.PI,ď=1e-3,ʢ=0.01,µ=0.0075,ˌ=4.0,ˏ=1.5,ŭ=30.0,Ų=1e-3,ŧ=448000.0,Ũ=
+33600000.0,ť=4480000.0,Ŧ=201600000.0,è=1.0/120.0,ϰ=0.25;readonly ȹ ȟ=new ȹ();readonly MyIni ϱ=new MyIni();string Ƚ=string.Empty,ϲ=
+string.Empty;bool Ȕ,ύ,ϓ;bool Ȍ=true,ȇ,Ȟ,ϳ,ϊ=true,ɠ,ɧ,Ȉ,ϋ,ɤ,ϴ,ϵ=true,Ϸ;int Ȣ,ɥ,ϸ,Ϲ;double ȝ,ʅ;readonly Dictionary<long,Ə>Ϻ=new
+Dictionary<long,Ə>();readonly Dictionary<long,double>ü=new Dictionary<long,double>();Ɯ ϻ,ϼ;readonly Dictionary<long,bool>Ϣ=new
+Dictionary<long,bool>();ƅ Ȏ=ƅ.ƀ;IMyShipController ɡ;long ˣ;long ɦ=long.MinValue,Ό;Ƶ ɱ=new Ƶ();Vector3D ɼ;Vector3D ʵ,ɻ,ʀ;double Ü,Ͻ
+;int Ͼ;string Ǽ=string.Empty;bool Ͽ;readonly Ɩ ʇ=new Ɩ(),ʈ=new Ɩ(),ʉ=new Ɩ();readonly List<IMyShipController>ͺ=new List<
+IMyShipController>(),ͻ=new List<IMyShipController>();readonly List<g>ʆ=new List<g>(),Ѐ=new List<g>(),Ё=new List<g>(),Ђ=new List<g>(),ʲ=
+new List<g>(),Ѓ=new List<g>(),ʳ=new List<g>(),ʿ=new List<g>();readonly List<Ò>ϟ=new List<Ò>();readonly List<H>ʂ=new List<H>
+();readonly List<ŝ>Є=new List<ŝ>();readonly List<ũ>ˁ=new List<ũ>();readonly List<ǯ>ϕ=new List<ǯ>();readonly List<ǰ>ϗ=new
+List<ǰ>();readonly List<IMyTimerBlock>ϡ=new List<IMyTimerBlock>(),ϣ=new List<IMyTimerBlock>();readonly List<Ž>Ѕ=new List<Ž>(
+);readonly Dictionary<long,ǘ>Ϝ=new Dictionary<long,ǘ>();readonly StringBuilder І=new StringBuilder(),Ї=new StringBuilder(
+);IEnumerator<int>Ј;ƽ Љ;public
  Program
-(){ͱ=new ƶ(this);Τ();Ȓ(true);Runtime.UpdateFrequency=UpdateFrequency.Update1|UpdateFrequency.Update10|UpdateFrequency.
-Update100;ȑ();}public void
+(){Љ=new ƽ(this);Њ();Ɏ(true);Runtime.UpdateFrequency=UpdateFrequency.Update1|UpdateFrequency.Update10|UpdateFrequency.
+Update100;Ȋ();}public void
  Save
-(){Έ.Clear();Έ.Set(Ͷ,"Cruise",Ⱦ);Έ.Set(Ͷ,"Dampeners",ɐ);Έ.Set(Ͷ,"ManualPark",Ȧ);Έ.Set(Ͷ,"Gear",Ȍ);Έ.Set(Ͷ,
-"CruiseTargetSpeed",Γ);Έ.Set(Ͷ,"CruiseTargetInitialized",Ί);foreach(KeyValuePair<long,Ə>Υ in Δ){Ə Φ=Υ.Value;string ˢ=(Φ.ƍ?"1":"0")+";"+((
-int)Φ.Ǝ).ToString();Έ.Set(ͷ,Υ.Key.ToString(),ˢ);}foreach(KeyValuePair<long,double>Υ in ü){Έ.Set(ͺ,Υ.Key.ToString(),Υ.Value)
-;}if(ΐ){Έ.Set(ͻ,"Count",Ζ.Ɲ);Έ.Set(ͻ,"Xor",Ζ.ƞ.ToString());Έ.Set(ͻ,"Sum",Ζ.Ɵ.ToString());}else if(Ό){Έ.Set(ͻ,"Count",Ε.Ɲ)
-;Έ.Set(ͻ,"Xor",Ε.ƞ.ToString());Έ.Set(ͻ,"Sum",Ε.Ɵ.ToString());}Storage=Έ.ToString();}public void
+(){ϱ.Clear();ϱ.Set(ϫ,"Cruise",Ȕ);ϱ.Set(ϫ,"Dampeners",Ȍ);ϱ.Set(ϫ,"ManualPark",ȇ);ϱ.Set(ϫ,"Gear",Ȣ);ϱ.Set(ϫ,
+"CruiseTargetSpeed",ȝ);ϱ.Set(ϫ,"CruiseTargetInitialized",Ȟ);foreach(KeyValuePair<long,Ə>Ћ in Ϻ){Ə Ȓ=Ћ.Value;string Ȧ=(Ȓ.ƍ?"1":"0")+";"+((
+int)Ȓ.Ǝ).ToString();ϱ.Set(Ϭ,Ћ.Key.ToString(),Ȧ);}foreach(KeyValuePair<long,double>Ћ in ü){ϱ.Set(ϭ,Ћ.Key.ToString(),Ћ.Value)
+;}if(Ϸ){ϱ.Set(Ϯ,"Count",ϼ.Ɲ);ϱ.Set(Ϯ,"Xor",ϼ.ƞ.ToString());ϱ.Set(Ϯ,"Sum",ϼ.Ɵ.ToString());}else if(ϳ){ϱ.Set(Ϯ,"Count",ϻ.Ɲ)
+;ϱ.Set(Ϯ,"Xor",ϻ.ƞ.ToString());ϱ.Set(Ϯ,"Sum",ϻ.Ɵ.ToString());}Storage=ϱ.ToString();}public void
  Main
-(string ʓ,UpdateType Χ){ͱ.Ʒ();double Ψ=Runtime.TimeSinceLastRun.TotalSeconds;if(Ψ<è){Ψ=è;}else if(Ψ>Ά){Ψ=Ά;}Η+=Ψ;bool Ω=(
-Χ&(UpdateType.Terminal|UpdateType.Trigger|UpdateType.Script))!=0||!string.IsNullOrWhiteSpace(ʓ);Ϊ();if(Ω){Ƞ();ʖ(ʓ);}if((Χ
-&UpdateType.Update100)!=0&&Ϋ(ref Β,ȁ.ǹ)){ȟ();}if((Χ&UpdateType.Update10)!=0&&Ϋ(ref Α,ȁ.Ǹ)){Ȱ();}if((Χ&UpdateType.Update1)
-!=0){ʢ++;if(ȭ==ƅ.ƃ){ʭ();}Ȭ();if(Ϋ(ref Θ,ȁ.Ƿ)){Ü=MathHelper.Clamp(Η,è,Ά);Η=0;ɂ(Ü);}if(ȁ.ǭ||Ȟ!=null){ʥ();}}if(Ω){Ȭ();if(ȁ.ǭ
-||Ȟ!=null){ʥ();}ɺ=true;}if(ɺ){ȯ(true);ɺ=false;}ͱ.ƹ();}static bool Ϋ(ref int ά,int έ){if(ά<έ){ά++;return false;}ά=0;return
-true;}void Τ(){if(string.IsNullOrWhiteSpace(Storage)){return;}MyIniParseResult ǿ;if(!Έ.TryParse(Storage,out ǿ)){return;}Ⱦ=Έ.
-Get(Ͷ,"Cruise").ToBoolean(false);ɐ=Έ.Get(Ͷ,"Dampeners").ToBoolean(true);Ȧ=Έ.Get(Ͷ,"ManualPark").ToBoolean(false);Ȍ=Math.Max
-(0,Έ.Get(Ͷ,"Gear").ToInt32(0));Γ=Έ.Get(Ͷ,"CruiseTargetSpeed").ToDouble(0);Ί=Έ.Get(Ͷ,"CruiseTargetInitialized").ToBoolean(
-false);ή();ί();ΰ();}void ή(){List<MyIniKey>α=new List<MyIniKey>();Έ.GetKeys(ͷ,α);for(int Į=0;Į<α.Count;Į++){MyIniKey Ȕ=α[Į];
-long ʇ;if(!long.TryParse(Ȕ.Name,out ʇ)){continue;}string ˢ=Έ.Get(Ȕ).ToString();string[]ˣ=ˢ.Split(';');if(ˣ.Length!=2){
-continue;}bool β=ˣ[0]=="1";int γ;if(!int.TryParse(ˣ[1],out γ)){continue;}ƌ δ=(ƌ)γ;if(δ==ƌ.M){continue;}Δ[ʇ]=new Ə{ƍ=β,Ǝ=δ};if((δ
-&ƌ.Ɗ)!=0){ʈ[ʇ]=β;}}}void ί(){List<MyIniKey>α=new List<MyIniKey>();Έ.GetKeys(ͺ,α);for(int Į=0;Į<α.Count;Į++){MyIniKey Ȕ=α[
-Į];long ʇ;if(!long.TryParse(Ȕ.Name,out ʇ)){continue;}double ʄ=Έ.Get(Ȕ).ToDouble(double.NaN);if(double.IsNaN(ʄ)||double.
-IsInfinity(ʄ)){continue;}ü[ʇ]=ʄ;}}void ΰ(){long ε=Έ.Get(ͻ,"Count").ToInt64(-1);string ζ=Έ.Get(ͻ,"Xor").ToString();string η=Έ.Get(ͻ
-,"Sum").ToString();ulong θ;ulong ι;if(ε<0||!ulong.TryParse(ζ,out θ)||!ulong.TryParse(η,out ι)){return;}Ε=new Ɯ{Ɲ=ε,ƞ=θ,Ɵ=
-ι};Ό=true;}sealed class ϖ{public readonly List<IMyTerminalBlock>κ=new List<IMyTerminalBlock>();public readonly List<
-IMyShipController>ǝ=new List<IMyShipController>(),λ=new List<IMyShipController>(),μ=new List<IMyShipController>();public readonly List<
-IMyThrust>ν=new List<IMyThrust>();public readonly List<IMyMotorStator>ξ=new List<IMyMotorStator>();public readonly List<
-IMyPistonBase>ο=new List<IMyPistonBase>();public readonly List<IMyGyro>π=new List<IMyGyro>();public readonly List<IMyShipConnector>ρ=
-new List<IMyShipConnector>(),ς=new List<IMyShipConnector>();public readonly List<IMyLandingGear>σ=new List<IMyLandingGear>(
-);public readonly List<IMyTimerBlock>τ=new List<IMyTimerBlock>(),υ=new List<IMyTimerBlock>(),φ=new List<IMyTimerBlock>();
-public readonly List<IMyProgrammableBlock>χ=new List<IMyProgrammableBlock>();public readonly Dictionary<long,F>G=new
-Dictionary<long,F>();public readonly Dictionary<long,Ǒ>ψ=new Dictionary<long,Ǒ>();public readonly List<Ǐ>ω=new List<Ǐ>();public
-readonly List<ǧ>ϊ=new List<ǧ>();public readonly List<g>ĥ=new List<g>(),ϋ=new List<g>(),ό=new List<g>(),ύ=new List<g>();public
-readonly List<Ò>ώ=new List<Ò>();public readonly List<H>Ϗ=new List<H>();public readonly List<ŝ>ϐ=new List<ŝ>();public readonly
-List<ũ>ϑ=new List<ũ>();public readonly List<Ǫ>ϒ=new List<Ǫ>();public readonly List<ǫ>ϓ=new List<ǫ>();public readonly List<Ž>
-ϔ=new List<Ž>();public Ǐ ϕ;}readonly List<ǧ>ϗ=new List<ǧ>();readonly List<IMyShipConnector>ʘ=new List<IMyShipConnector>()
-;readonly Dictionary<long,long>ʛ=new Dictionary<long,long>();readonly Dictionary<long,bool>ʞ=new Dictionary<long,bool>();
-void ȑ(){Ώ=true;}void Ϊ(){if(Σ==null){if(!Ώ){return;}Ώ=false;Σ=Ϙ().GetEnumerator();}int ϙ=Runtime.MaxInstructionCount;int Ϛ=
-Math.Max(1000,ϙ*3/4);int ϛ=0;while(Σ!=null&&Runtime.CurrentInstructionCount<Ϛ&&ϛ<512){ϛ++;if(Σ.MoveNext()){continue;}Σ.
-Dispose();Σ=null;if(Ώ){Ώ=false;Σ=Ϙ().GetEnumerator();}}}IEnumerable<int>Ϙ(){ϖ Ϝ=new ϖ();GridTerminalSystem.GetBlocks(Ϝ.κ);List<
-IMyBlockGroup>ϝ=new List<IMyBlockGroup>();GridTerminalSystem.GetBlockGroups(ϝ);List<IMyTerminalBlock>Ϟ=new List<IMyTerminalBlock>();
-for(int Į=0;Į<ϝ.Count;Į++){IMyBlockGroup ɟ=ϝ[Į];F Ϡ=ϟ(ɟ.Name);if(Ϡ==F.M){continue;}Ϟ.Clear();ɟ.GetBlocks(Ϟ);for(int ĵ=0;ĵ<Ϟ
-.Count;ĵ++){ϡ(Ϝ.G,Ϟ[ĵ].EntityId,Ϡ);}yield return 1;}for(int Į=0;Į<Ϝ.κ.Count;Į++){IMyTerminalBlock d=Ϝ.κ[Į];F Ϣ=ϟ(d.
-CustomName)|ϟ(d.CustomData);ϡ(Ϝ.G,d.EntityId,Ϣ);ϣ(Ϝ.ψ,d.CubeGrid);IMyShipController ɯ=d as IMyShipController;if(ɯ!=null){Ϝ.ǝ.Add(ɯ
-);}IMyThrust T=d as IMyThrust;if(T!=null){Ϝ.ν.Add(T);}IMyMotorStator Ī=d as IMyMotorStator;if(Ī!=null){Ϝ.ξ.Add(Ī);}
-IMyPistonBase Ϥ=d as IMyPistonBase;if(Ϥ!=null){Ϝ.ο.Add(Ϥ);}IMyGyro ϥ=d as IMyGyro;if(ϥ!=null){Ϝ.π.Add(ϥ);}IMyShipConnector ʁ=d as
-IMyShipConnector;if(ʁ!=null){Ϝ.ρ.Add(ʁ);}IMyLandingGear ʆ=d as IMyLandingGear;if(ʆ!=null){Ϝ.σ.Add(ʆ);}IMyTimerBlock ʒ=d as IMyTimerBlock
-;if(ʒ!=null){Ϝ.τ.Add(ʒ);}IMyProgrammableBlock Ϧ=d as IMyProgrammableBlock;if(Ϧ!=null){Ϝ.χ.Add(Ϧ);}yield return 1;}Ǒ ϧ=ϣ(Ϝ
-.ψ,Me.CubeGrid);for(int Į=0;Į<Ϝ.ξ.Count;Į++){IMyMotorStator Ī=Ϝ.ξ[Į];if(Ī.TopGrid==null){continue;}Ϩ(Ϝ.ψ,Ī.CubeGrid,Ī.
-TopGrid,Ī);yield return 1;}for(int Į=0;Į<Ϝ.ο.Count;Į++){IMyPistonBase Ϥ=Ϝ.ο[Į];if(Ϥ.TopGrid==null){continue;}Ϩ(Ϝ.ψ,Ϥ.CubeGrid,Ϥ
-.TopGrid,Ϥ);yield return 1;}for(int Į=0;Į<Ϝ.ρ.Count;Į++){IMyShipConnector Ɨ=Ϝ.ρ[Į].OtherConnector;if(Ɨ!=null){ϣ(Ϝ.ψ,Ɨ.
-CubeGrid);}yield return 1;}ϩ(Ϝ);for(int Į=0;Į<Ϝ.ǝ.Count;Į++){IMyShipController ɯ=Ϝ.ǝ[Į];Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(ɯ.CubeGrid.
-EntityId,out ǚ)){continue;}ǚ.ǐ.ǝ.Add(ɯ);if(ɯ.CubeGrid==Me.CubeGrid){Ϝ.λ.Add(ɯ);}yield return 1;}for(int Į=0;Į<Ϝ.χ.Count;Į++){
-IMyProgrammableBlock Ϧ=Ϝ.χ[Į];if(!Ϫ(Ϧ)){continue;}Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(Ϧ.CubeGrid.EntityId,out ǚ)){continue;}ǚ.ǐ.Ǟ.Add(Ϧ);if(ϫ(Ϧ)){ǚ.ǐ.ǡ=
-true;}yield return 1;}HashSet<long>Ϭ=new HashSet<long>();for(int Į=0;Į<Ϝ.ρ.Count;Į++){IMyShipConnector ʁ=Ϝ.ρ[Į];
-IMyShipConnector Ɨ=ʁ.OtherConnector;if(Ɨ==null){continue;}long ϭ=Math.Min(ʁ.EntityId,Ɨ.EntityId);long Ϯ=Math.Max(ʁ.EntityId,Ɨ.EntityId);
-long ϯ=unchecked(ϭ*397L^Ϯ);if(!Ϭ.Add(ϯ)){continue;}Ǒ ϰ;Ǒ ϱ;if(!Ϝ.ψ.TryGetValue(ʁ.CubeGrid.EntityId,out ϰ)||!Ϝ.ψ.TryGetValue(
-Ɨ.CubeGrid.EntityId,out ϱ)){continue;}Ϝ.ϊ.Add(new ǧ{ǖ=ʁ,Ǘ=Ɨ,ǥ=ϰ,Ǧ=ϱ});yield return 1;}Ϝ.ϕ=ϧ.ǐ;ϲ(Ϝ);ϳ(Ϝ,ϧ);for(int Į=0;Į<Ϝ
-.ω.Count;Į++){Ǐ ϴ=Ϝ.ω[Į];if(!ϴ.ǟ||ϴ.Ǖ||ϴ.Ǟ.Count==0){continue;}for(int ĵ=0;ĵ<ϴ.ǝ.Count;ĵ++){Ϝ.μ.Add(ϴ.ǝ[ĵ]);}yield return
-1;}Dictionary<long,Ò>ϵ=new Dictionary<long,Ò>();for(int Į=0;Į<Ϝ.ξ.Count;Į++){IMyMotorStator d=Ϝ.ξ[Į];Ǒ ǚ;if(!Ϝ.ψ.
-TryGetValue(d.CubeGrid.EntityId,out ǚ)||!ǚ.Ǖ){continue;}F e=Ϸ(Ϝ.G,d.EntityId);bool f=ϸ(e);Ò Ī=new Ò(d,this,e,f);ϵ.Add(d.EntityId,Ī)
-;if(f){Ϝ.ώ.Add(Ī);}yield return 1;}Dictionary<long,H>Ϲ=new Dictionary<long,H>();for(int Į=0;Į<Ϝ.ν.Count;Į++){IMyThrust d=
-Ϝ.ν[Į];Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(d.CubeGrid.EntityId,out ǚ)){continue;}bool Ϻ=ǚ.Ǖ||ǚ.ǐ.ǟ;if(!Ϻ){continue;}F e=Ϸ(Ϝ.G,d.
-EntityId);Ò ϼ=ϻ(ǚ,ϵ);bool Ͻ=ǚ.Ǖ&&ǚ.ǔ>0;bool f=Ͼ(e,ǚ.Ǖ,Ͻ,ϼ);g İ=new g(d,this,e,f);Ϝ.ĥ.Add(İ);if(!f){Ϝ.ύ.Add(İ);yield return 1;
-continue;}Ϝ.ϋ.Add(İ);if(ϼ==null||!ϼ.P){Ϝ.ό.Add(İ);yield return 1;continue;}H ɡ;if(!Ϲ.TryGetValue(ϼ.Q,out ɡ)){ɡ=new H(ϼ,this);Ϲ.
-Add(ϼ.Q,ɡ);Ϝ.Ϗ.Add(ɡ);}İ.I=ɡ;ɡ.ĥ.Add(İ);Ͽ(ɡ,ǚ,ϼ);yield return 1;}for(int Į=0;Į<Ϝ.ώ.Count;Į++){Ò Ī=Ϝ.ώ[Į];if(Ī.I==null&&Math
-.Abs(Ī.E.TargetVelocityRad)>ď){Ī.E.TargetVelocityRad=0;}yield return 1;}for(int Į=0;Į<Ϝ.Ϗ.Count;Į++){Ϝ.Ϗ[Į].ĸ();Ѐ(Ϝ.ϐ,Ϝ.Ϗ
-[Į]);yield return 1;}for(int Į=0;Į<Ϝ.π.Count;Į++){IMyGyro d=Ϝ.π[Į];Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(d.CubeGrid.EntityId,out ǚ)||!ǚ
-.Ǖ||!Ё(d)){continue;}F e=Ϸ(Ϝ.G,d.EntityId);bool f=Ђ(e,ǚ.ǔ>0);if(!f){continue;}Ϝ.ϑ.Add(new ũ(d,this,e,true));yield return
-1;}for(int Į=0;Į<Ϝ.ρ.Count;Į++){IMyShipConnector d=Ϝ.ρ[Į];Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(d.CubeGrid.EntityId,out ǚ)||!ǚ.Ǖ){
-continue;}Ϝ.ς.Add(d);F e=Ϸ(Ϝ.G,d.EntityId);if(!Ѓ(e)){continue;}Ϝ.ϒ.Add(new Ǫ{Ǩ=d,ǩ=Є(Ϝ.ϊ,d)});yield return 1;}for(int Į=0;Į<Ϝ.σ.
-Count;Į++){IMyLandingGear d=Ϝ.σ[Į];Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(d.CubeGrid.EntityId,out ǚ)||!ǚ.Ǖ){continue;}F e=Ϸ(Ϝ.G,d.EntityId);
-if(!Ѓ(e)){continue;}Ϝ.ϓ.Add(new ǫ{Ǩ=d});yield return 1;}for(int Į=0;Į<Ϝ.τ.Count;Į++){IMyTimerBlock ʒ=Ϝ.τ[Į];if(ʒ.CubeGrid
-!=Me.CubeGrid){continue;}F e=Ϸ(Ϝ.G,ʒ.EntityId);if((e&F.Ƈ)!=0){Ϝ.υ.Add(ʒ);}if((e&F.ƈ)!=0){Ϝ.φ.Add(ʒ);}yield return 1;}Ѕ(Ϝ);
-І(Ϝ);yield return 1;}void ϩ(ϖ Ϝ){List<Ǒ>Ї=new List<Ǒ>();foreach(KeyValuePair<long,Ǒ>Υ in Ϝ.ψ){Ǒ Ј=Υ.Value;if(Ј.ǐ!=null){
-continue;}Ǐ ϴ=new Ǐ();Ϝ.ω.Add(ϴ);Ї.Clear();Ї.Add(Ј);Ј.ǐ=ϴ;for(int ʾ=0;ʾ<Ї.Count;ʾ++){Ǒ ǚ=Ї[ʾ];ϴ.ǜ.Add(ǚ);if(ǚ.ǌ.IsStatic){ϴ.Ǡ=
-true;}for(int Љ=0;Љ<ǚ.ǎ.Count;Љ++){Ǒ Њ=ǚ.ǎ[Љ].Ǜ(ǚ);if(Њ.ǐ!=null){continue;}Њ.ǐ=ϴ;Ї.Add(Њ);}}}}void ϲ(ϖ Ϝ){Ǐ Ћ=Ϝ.ϕ;if(Ћ==null
-){return;}List<Ǐ>Ї=new List<Ǐ>();Ћ.ǟ=true;Ї.Add(Ћ);for(int ʾ=0;ʾ<Ї.Count;ʾ++){Ǐ ϴ=Ї[ʾ];for(int Į=0;Į<Ϝ.ϊ.Count;Į++){ǧ Ќ=Ϝ
-.ϊ[Į];Ǐ Ɨ=null;if(Ќ.ǥ.ǐ==ϴ){Ɨ=Ќ.Ǧ.ǐ;}else if(Ќ.Ǧ.ǐ==ϴ){Ɨ=Ќ.ǥ.ǐ;}if(Ɨ==null||Ɨ.ǟ){continue;}Ɨ.ǟ=true;Ї.Add(Ɨ);}}}void ϳ(ϖ
-Ϝ,Ǒ ϧ){Ǐ Ћ=Ϝ.ϕ;if(Ћ==null){return;}Ћ.Ǖ=true;Ѝ(Ћ,ϧ,0);bool Ў;do{Ў=false;for(int Į=0;Į<Ϝ.ϊ.Count;Į++){ǧ Ќ=Ϝ.ϊ[Į];bool Џ=Ќ.ǥ
-.ǐ.Ǖ;bool А=Ќ.Ǧ.ǐ.Ǖ;if(Џ==А){continue;}Ǒ Б=Џ?Ќ.ǥ:Ќ.Ǧ;Ǒ ʄ=Џ?Ќ.Ǧ:Ќ.ǥ;Ǐ В=ʄ.ǐ;if(В.Ǟ.Count>0){continue;}if(!ȁ.ǭ){continue;}В
-.Ǖ=true;int Г=Б.ǔ==int.MaxValue?0:Б.ǔ;Ѝ(В,ʄ,Г);Ў=true;}}while(Ў);foreach(KeyValuePair<long,Ǒ>Υ in Ϝ.ψ){Υ.Value.Ǖ=Υ.Value.
-ǐ.Ǖ;}}void Ѝ(Ǐ ϴ,Ǒ ˋ,int Д){List<Ǒ>Ї=new List<Ǒ>();if(ˋ.ǔ>Д){ˋ.ǔ=Д;ˋ.ǒ=null;ˋ.Ǔ=null;}Ї.Add(ˋ);for(int ʾ=0;ʾ<Ї.Count;ʾ++)
-{Ǒ ǚ=Ї[ʾ];for(int Į=0;Į<ǚ.ǎ.Count;Į++){Ǎ Ќ=ǚ.ǎ[Į];Ǒ Њ=Ќ.Ǜ(ǚ);if(Њ.ǐ!=ϴ){continue;}int Е=ǚ.ǔ+1;if(Е>=Њ.ǔ){continue;}Њ.ǔ=Е;
-Њ.ǒ=ǚ;Њ.Ǔ=Ќ;Ї.Add(Њ);}}}Ò ϻ(Ǒ ǚ,Dictionary<long,Ò>ϵ){Ǒ Ж=ǚ;while(Ж!=null&&Ж.ǒ!=null){Ǎ Ќ=Ж.Ǔ;IMyMotorStator З=Ќ!=null?Ќ.ǘ
-as IMyMotorStator:null;if(З!=null&&З.TopGrid==Ж.ǌ){Ò Ī;if(ϵ.TryGetValue(З.EntityId,out Ī)&&Ī.Ñ){return Ī.P?Ī:null;}}Ж=Ж.ǒ;
-}return null;}void Ͽ(H ɡ,Ǒ И,Ò Ī){Ǒ Ж=И;while(Ж!=null){Й(ɡ.Ħ,Ж.ǌ);if(Ж.Ǔ!=null&&Ж.Ǔ.ǘ.EntityId==Ī.Q){break;}Ж=Ж.ǒ;}}void
-Ѐ(List<ŝ>ϝ,H ɡ){Vector3D ǃ=n.o(ɡ.É);for(int Į=0;Į<ϝ.Count;Į++){Vector3D К=ϝ[Į].É;if(Math.Abs(Vector3D.Dot(ǃ,К))<ͼ){
-continue;}ϝ[Į].Ř.Add(ɡ);return;}ŝ ɟ=new ŝ();ɟ.Ř.Add(ɡ);ϝ.Add(ɟ);}void Ѕ(ϖ Ϝ){HashSet<string>Л=new HashSet<string>(StringComparer
-.Ordinal);List<int>М=new List<int>();for(int Į=0;Į<Ϝ.κ.Count;Į++){IMyTerminalBlock d=Ϝ.κ[Į];Ǒ ǚ;if(!Ϝ.ψ.TryGetValue(d.
-CubeGrid.EntityId,out ǚ)||ǚ.ǐ!=Ϝ.ϕ){continue;}F e=Ϸ(Ϝ.G,d.EntityId);IMyTextPanel Н=d as IMyTextPanel;if(Н!=null&&(e&F.Ɔ)!=0){О(Ϝ
-.ϔ,Л,d,Н,0);}IMyTextSurfaceProvider П=d as IMyTextSurfaceProvider;if(П==null||П.SurfaceCount<=0){continue;}М.Clear();Р(d.
-CustomData,П.SurfaceCount,М);if((e&F.Ɔ)!=0&&М.Count==0){М.Add(0);}for(int ʾ=0;ʾ<М.Count;ʾ++){int ż=М[ʾ];О(Ϝ.ϔ,Л,d,П.GetSurface(ż),
-ż);}}}void І(ϖ Ϝ){HashSet<long>С=new HashSet<long>();HashSet<long>Т=new HashSet<long>();HashSet<long>У=new HashSet<long>(
-);for(int Į=0;Į<Ϝ.ϋ.Count;Į++){С.Add(Ϝ.ϋ[Į].Q);}for(int Į=0;Į<Ϝ.ώ.Count;Į++){Т.Add(Ϝ.ώ[Į].Q);}for(int Į=0;Į<Ϝ.ϑ.Count;Į++
-){У.Add(Ϝ.ϑ[Į].E.EntityId);}for(int Į=0;Į<Ʉ.Count;Į++){g Ф=Ʉ[Į];if(!С.Contains(Ф.Q)){Ф.À();ʏ(Ф.Q,Ф.E);}}for(int Į=0;Į<ʉ.
-Count;Į++){Ò Х=ʉ[Į];if(!Т.Contains(Х.Q)){Х.À();}}for(int Į=0;Į<ɢ.Count;Į++){ũ Ц=ɢ[Į];if(!У.Contains(Ц.E.EntityId)){Ц.À();}}Ч(
-ɮ,Ϝ.λ);Ч(ʪ,Ϝ.μ);Ч(Ν,Ϝ.ĥ);Ч(Ʉ,Ϝ.ϋ);Ч(ə,Ϝ.ό);Ч(ɗ,Ϝ.ύ);Ч(ʉ,Ϝ.ώ);Ч(Ƀ,Ϝ.Ϗ);Ч(ɛ,Ϝ.ϐ);Ч(ɢ,Ϝ.ϑ);Ч(ɼ,Ϝ.ϒ);Ч(ɾ,Ϝ.ϓ);Ч(ϗ,Ϝ.ϊ);Ч(ʘ,Ϝ.
-ς);Ч(ʋ,Ϝ.υ);Ч(ʌ,Ϝ.φ);Ч(Ͳ,Ϝ.ϔ);ʃ.Clear();foreach(KeyValuePair<long,Ǒ>Υ in Ϝ.ψ){ʃ.Add(Υ.Key,Υ.Value);}Ƞ();if(ȭ==ƅ.Ƅ){ʍ();}ɺ
-=true;}F ϟ(string ž){if(string.IsNullOrEmpty(ž)){return F.M;}F Ш=F.M;if(Щ(ž,ȁ.ǲ)){Ш|=F.Z;}if(Щ(ž,ȁ.ǳ)){Ш|=F.X;}if(Щ(ž,ȁ.Ǵ
-)){Ш|=F.Ɔ;}if(Щ(ž,ȁ.ǵ)){Ш|=F.Ƈ;}if(Щ(ž,ȁ.Ƕ)){Ш|=F.ƈ;}return Ш;}bool ϸ(F e){if((e&F.X)!=0){return false;}return ȁ.Ǭ||(e&F.
-Z)!=0;}bool Ͼ(F e,bool Ъ,bool Ͻ,Ò ϼ){if(!Ъ||(e&F.X)!=0){return false;}bool Ы=(e&F.Z)!=0;if(!ȁ.Ǭ){return Ы;}return Ы||Ͻ||ϼ
-!=null;}bool Ђ(F e,bool Ͻ){if((e&F.X)!=0){return false;}bool Ы=(e&F.Z)!=0;if(!ȁ.Ǭ){return Ы;}return Ы||Ͻ;}bool Ѓ(F e){if((
-e&F.X)!=0){return false;}return ȁ.Ǭ||(e&F.Z)!=0;}bool Ё(IMyGyro ϥ){string Ь=ϥ.BlockDefinition.SubtypeId;if(Ь.Equals(
-"SmallBlockGyro",StringComparison.OrdinalIgnoreCase)||Ь.Equals("LargeBlockGyro",StringComparison.OrdinalIgnoreCase)){return true;}return
-Ь.Equals("SmallPrototechGyro",StringComparison.OrdinalIgnoreCase)||Ь.Equals("LargePrototechGyro",StringComparison.
-OrdinalIgnoreCase)||Ь.Equals("SmallPrototechGyroscope",StringComparison.OrdinalIgnoreCase)||Ь.Equals("LargePrototechGyroscope",
-StringComparison.OrdinalIgnoreCase);}bool Ϫ(IMyProgrammableBlock Ϧ){if(Ϧ==null){return false;}return ˆ(Ϧ.CustomData,Ȋ)>=0;}bool ϫ(
-IMyProgrammableBlock Ϧ){string ˢ;if(!ʧ(Ϧ.CustomData,Ȋ,"CanSlave",out ˢ)){return true;}bool ğ;return bool.TryParse(ˢ,out ğ)?ğ:true;}void Р(
-string ǽ,int Э,List<int>Ĺ){if(string.IsNullOrEmpty(ǽ)){return;}string[]ˎ=ǽ.Replace("\r",string.Empty).Split('\n');for(int Į=0;
-Į<ˎ.Length;Į++){string ˏ=ˎ[Į].Trim();if(!ˏ.StartsWith(ʹ,StringComparison.OrdinalIgnoreCase)){continue;}string Ю=ˏ.
-Substring(ʹ.Length).Trim();int ʾ;if(!int.TryParse(Ю,out ʾ)||ʾ<0||ʾ>=Э||Ĺ.Contains(ʾ)){continue;}Ĺ.Add(ʾ);}}static void О(List<Ž>Ĺ
-,HashSet<string>w,IMyTerminalBlock ź,IMyTextSurface Ż,int ż){string Ȕ=ź.EntityId+":"+ż;if(!w.Add(Ȕ)){return;}Ĺ.Add(new Ž(
-ź,Ż,ż));}static void Й(List<IMyCubeGrid>Я,IMyCubeGrid Ŗ){for(int Į=0;Į<Я.Count;Į++){if(Я[Į].EntityId==Ŗ.EntityId){return;
-}}Я.Add(Ŗ);}static ǧ Є(List<ǧ>а,IMyShipConnector ʁ){for(int Į=0;Į<а.Count;Į++){if(а[Į].ǖ.EntityId==ʁ.EntityId||а[Į].Ǘ.
-EntityId==ʁ.EntityId){return а[Į];}}return null;}static Ǒ ϣ(Dictionary<long,Ǒ>б,IMyCubeGrid Ŗ){Ǒ ǚ;if(!б.TryGetValue(Ŗ.EntityId,
-out ǚ)){ǚ=new Ǒ(Ŗ);б.Add(Ŗ.EntityId,ǚ);}return ǚ;}static void Ϩ(Dictionary<long,Ǒ>б,IMyCubeGrid в,IMyCubeGrid г,
-IMyTerminalBlock Ǚ){Ǒ ƻ=ϣ(б,в);Ǒ Ƽ=ϣ(б,г);Ǎ Ќ=new Ǎ(ƻ,Ƽ,Ǚ);ƻ.ǎ.Add(Ќ);Ƽ.ǎ.Add(Ќ);}static void ϡ(Dictionary<long,F>e,long ʇ,F д){if(д==F.
-M){return;}F е;e.TryGetValue(ʇ,out е);e[ʇ]=е|д;}static F Ϸ(Dictionary<long,F>e,long ʇ){F Ш;return e.TryGetValue(ʇ,out Ш)?
-Ш:F.M;}static bool Щ(string ž,string ж){return!string.IsNullOrEmpty(ž)&&!string.IsNullOrEmpty(ж)&&ž.IndexOf(ж,
-StringComparison.OrdinalIgnoreCase)>=0;}static void Ч<з>(List<з>ʄ,List<з>Б){ʄ.Clear();ʄ.AddRange(Б);}bool и{get{return ȭ==ƅ.ƃ?ȷ.ƨ:ɐ;}}
-bool й{get{return ȭ==ƅ.ƃ?ȷ.Ɖ:Ⱦ;}}double к{get{return ȭ==ƅ.ƃ?ȷ.ƪ:Γ;}}double л{get{if(ȭ==ƅ.ƃ){return MathHelper.Clamp(ȷ.ƫ,0,1)
-;}if(ȁ.Ǳ.Count==0){return 0;}return MathHelper.Clamp(ȁ.Ǳ[MathHelper.Clamp(Ȍ,0,ȁ.Ǳ.Count-1)],0,1);}}void н(string Ш,bool м
-){Ή=Ш??string.Empty;Ύ=м;ɺ=true;}void о(){Ή=string.Empty;Ύ=false;}void р(bool i){ɐ=i;п(i);}void п(bool i){for(int Į=0;Į<ɮ.
-Count;Į++){IMyShipController ɯ=ɮ[Į];if(ɯ==null||ɯ.Closed||!ɯ.IsFunctional){continue;}if(ɯ.DampenersOverride==i){continue;}ɯ.
-DampenersOverride=i;}}void т(){if(ȭ==ƅ.ƃ){п(ȷ.ƨ);return;}if(!Ι){п(ɐ);return;}if(Ȥ==null||Ȥ.Closed){return;}bool с=Ȥ.DampenersOverride;if(
-с==ɐ){return;}ɐ=с;п(ɐ);}void ш(bool i){if(i&&!Ⱦ){у();}Ⱦ=i;if(!Ⱦ){ф(ƌ.Ɖ);х(C.Ɖ);}ц();ч();}void щ(){ш(!Ⱦ);}void у(){if(Ȥ==
-null||Ȥ.Closed){Γ=0;Ί=false;return;}Vector3D Ɉ=Ȥ.GetShipVelocities().LinearVelocity;Γ=Vector3D.Dot(Ɉ,Ȥ.WorldMatrix.Forward);
-Ί=true;}void ъ(){if(Ί){return;}у();}void ы(double Ö){ъ();Γ+=Ö;н("Cruise target: "+Γ.ToString("0.###")+" m/s",false);}bool
-b(long ʇ){Ə Φ;if(!Δ.TryGetValue(ʇ,out Φ)){return false;}return Φ.ƍ&&Φ.Ǝ!=ƌ.M;}bool ь(long ʇ,out Ə Φ){return Δ.TryGetValue
-(ʇ,out Φ);}void ю(g İ,ƌ э){if(İ==null){return;}ю(İ.E,э);}void ю(IMyThrust d,ƌ э){if(d==null||d.Closed||э==ƌ.M){return;}Ə
-Φ;if(!Δ.TryGetValue(d.EntityId,out Φ)){Φ=new Ə{ƍ=d.Enabled,Ǝ=ƌ.M};Δ.Add(d.EntityId,Φ);}Φ.Ǝ|=э;if(d.Enabled){d.Enabled=
-false;}if((Φ.Ǝ&ƌ.Ɗ)!=0){ʈ[d.EntityId]=Φ.ƍ;}}void y(g İ){if(İ==null){return;}y(İ.E);}void y(IMyThrust d){if(d==null||d.Closed)
-{return;}Ə Φ;if(!Δ.TryGetValue(d.EntityId,out Φ)){return;}if(Φ.ƍ&&!d.Enabled){d.Enabled=true;}}void ф(g İ,ƌ э){if(İ==null
-){return;}ф(İ.Q,İ.E,э);}void ф(long ʇ,IMyThrust d,ƌ э){Ə Φ;if(!Δ.TryGetValue(ʇ,out Φ)){return;}Φ.Ǝ&=~э;if((э&ƌ.Ɗ)!=0){ʈ.
-Remove(ʇ);}if(Φ.Ǝ!=ƌ.M){if(d!=null&&!d.Closed&&d.Enabled){d.Enabled=false;}return;}if(d!=null&&!d.Closed){d.Enabled=Φ.ƍ;}Δ.
-Remove(ʇ);}void ф(ƌ э){if(Δ.Count==0){return;}List<long>я=new List<long>(Δ.Keys);for(int Į=0;Į<я.Count;Į++){long ʇ=я[Į];
-IMyThrust d=ѐ(ʇ);ф(ʇ,d,э);}}IMyThrust ѐ(long ʇ){for(int Į=0;Į<Ν.Count;Į++){g İ=Ν[Į];if(İ.Q==ʇ){return İ.E;}}return null;}void ё(g
-İ){if(İ==null){return;}Ə Φ;if(!Δ.TryGetValue(İ.Q,out Φ)){return;}if(Φ.Ǝ==ƌ.M){Δ.Remove(İ.Q);return;}if(İ.E.Enabled){İ.E.
-Enabled=false;}}void є(HashSet<long>ђ){if(Δ.Count==0){return;}List<long>ѓ=new List<long>();foreach(KeyValuePair<long,Ə>Υ in Δ){
-if(!ђ.Contains(Υ.Key)){ѓ.Add(Υ.Key);}}for(int Į=0;Į<ѓ.Count;Į++){long ʇ=ѓ[Į];Δ.Remove(ʇ);ʈ.Remove(ʇ);}}void ц(){bool ѕ=ȭ==
-ƅ.ƃ;bool і=й;for(int Į=0;Į<Ν.Count;Į++){g İ=Ν[Į];bool ї=İ.E.CubeGrid==Me.CubeGrid;bool ј=!İ.Y&&(ȁ.Ǭ||İ.a);bool љ=ѕ&&ї&&ј;
-bool ћ=і&&ї&&њ(İ)&&ј;İ.N(C.ƃ,љ);İ.N(C.Ɖ,ћ);if(!ћ){ф(İ,ƌ.Ɖ);}}for(int Į=0;Į<ɢ.Count;Į++){ũ ϥ=ɢ[Į];bool ї=ϥ.E.CubeGrid==Me.
-CubeGrid;bool ќ=!ϥ.Y&&(ȁ.Ǭ||ϥ.a);ϥ.N(C.ƃ,ѕ&&ї&&ќ);}ѝ();}void х(C h){for(int Į=0;Į<Ν.Count;Į++){Ν[Į].N(h,false);}for(int Į=0;Į<ɢ.
-Count;Į++){ɢ[Į].N(h,false);}}bool њ(g İ){if(İ==null||Ȥ==null||İ.E.CubeGrid!=Me.CubeGrid){return false;}return Vector3D.Dot(n.
-o(İ.R),Ȥ.WorldMatrix.Backward)>=Ķ;}void ѝ(){Ρ.Clear();if(Ȥ==null){return;}for(int Į=0;Į<Ν.Count;Į++){g İ=Ν[Į];if(њ(İ)){Ρ.
-Add(İ);}}}void ў(){Ι=false;for(int Į=0;Į<Ν.Count;Į++){g İ=Ν[Į];if(İ.E.CubeGrid==Me.CubeGrid){Ι=true;break;}}ѝ();}void ч(){
-if(!й||Ρ.Count==0){return;}if(ȁ.Ǭ){bool џ=true;for(int Į=0;Į<Ρ.Count;Į++){if(!Ρ[Į].Y){џ=false;break;}}if(џ){н(
-"WARNING: Cruise cannot control "+"main-grid reverse thrusters; "+"all are "+ȁ.ǳ+".",true);}return;}bool Ѡ=false;for(int Į=0;Į<Ρ.Count;Į++){g İ=Ρ[Į];if(!
-İ.Y&&İ.a){Ѡ=true;break;}}if(!Ѡ){н("WARNING: Cruise cannot control "+"main-grid reverse thrusters; "+"add "+ȁ.ǲ+".",true);
-}}void ѡ(ƅ ɷ,ƅ ɶ){if(ɷ==ƅ.ƃ&&ɶ!=ƅ.ƃ){х(C.ƃ);п(ɐ);}if(ɷ!=ƅ.ƃ&&ɶ==ƅ.ƃ){п(ȷ.ƨ);}ц();}}
+(string Ǳ,UpdateType Ќ){Љ.ƾ();double Ѝ=Runtime.TimeSinceLastRun.TotalSeconds;if(Ѝ<è){Ѝ=è;}else if(Ѝ>ϰ){Ѝ=ϰ;}Ͻ+=Ѝ;bool Ў=(
+Ќ&(UpdateType.Terminal|UpdateType.Trigger|UpdateType.Script))!=0||!string.IsNullOrWhiteSpace(Ǳ);Џ();if(Ў){ɛ();Ǿ(Ǳ);}if((Ќ
+&UpdateType.Update100)!=0&&А(ref Ϲ,ȟ.ȸ)){ɚ();}if((Ќ&UpdateType.Update10)!=0&&А(ref ϸ,ȟ.ȷ)){ɫ();}if((Ќ&UpdateType.Update1)
+!=0){ˣ++;if(Ȏ==ƅ.ƃ){Ί();}ɨ();if(А(ref Ͼ,ȟ.ȶ)){Ü=MathHelper.Clamp(Ͻ,è,ϰ);Ͻ=0;ʁ(Ü);}if(ȟ.ȭ||ˑ!=null){ˮ();}}if(Ў){ɨ();if(ȟ.ȭ
+||ˑ!=null){ˮ();}ϓ=true;}if(ϓ){ɪ(true);ϓ=false;}Љ.ǀ();}static bool А(ref int Б,int В){if(Б<В){Б++;return false;}Б=0;return
+true;}void Њ(){if(string.IsNullOrWhiteSpace(Storage)){return;}MyIniParseResult Ⱦ;if(!ϱ.TryParse(Storage,out Ⱦ)){return;}Ȕ=ϱ.
+Get(ϫ,"Cruise").ToBoolean(false);Ȍ=ϱ.Get(ϫ,"Dampeners").ToBoolean(true);ȇ=ϱ.Get(ϫ,"ManualPark").ToBoolean(false);Ȣ=Math.Max
+(0,ϱ.Get(ϫ,"Gear").ToInt32(0));ȝ=ϱ.Get(ϫ,"CruiseTargetSpeed").ToDouble(0);Ȟ=ϱ.Get(ϫ,"CruiseTargetInitialized").ToBoolean(
+false);Г();Д();Е();}void Г(){List<MyIniKey>Ж=new List<MyIniKey>();ϱ.GetKeys(Ϭ,Ж);for(int Į=0;Į<Ж.Count;Į++){MyIniKey ɐ=Ж[Į];
+long Ϧ;if(!long.TryParse(ɐ.Name,out Ϧ)){continue;}string Ȧ=ϱ.Get(ɐ).ToString();string[]ρ=Ȧ.Split(';');if(ρ.Length!=2){
+continue;}bool З=ρ[0]=="1";int И;if(!int.TryParse(ρ[1],out И)){continue;}ƌ Й=(ƌ)И;if(Й==ƌ.M){continue;}Ϻ[Ϧ]=new Ə{ƍ=З,Ǝ=Й};if((Й
+&ƌ.Ɗ)!=0){Ϣ[Ϧ]=З;}}}void Д(){List<MyIniKey>Ж=new List<MyIniKey>();ϱ.GetKeys(ϭ,Ж);for(int Į=0;Į<Ж.Count;Į++){MyIniKey ɐ=Ж[
+Į];long Ϧ;if(!long.TryParse(ɐ.Name,out Ϧ)){continue;}double Ȝ=ϱ.Get(ɐ).ToDouble(double.NaN);if(double.IsNaN(Ȝ)||double.
+IsInfinity(Ȝ)){continue;}ü[Ϧ]=Ȝ;}}void Е(){long К=ϱ.Get(Ϯ,"Count").ToInt64(-1);string Л=ϱ.Get(Ϯ,"Xor").ToString();string М=ϱ.Get(Ϯ
+,"Sum").ToString();ulong Н;ulong О;if(К<0||!ulong.TryParse(Л,out Н)||!ulong.TryParse(М,out О)){return;}ϻ=new Ɯ{Ɲ=К,ƞ=Н,Ɵ=
+О};ϳ=true;}IEnumerable<int>Я(П Р){for(int Į=0;Į<Р.С.Count;Į++){IMyShipConnector d=Р.С[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.
+CubeGrid.EntityId,out ǟ)||!ǟ.ǜ){continue;}Р.У.Add(d);F e=Ф(Р.G,d.EntityId);if(!Х(e)){continue;}Р.Ц.Add(new ǯ{ǭ=d,Ǯ=Ч(Р.Ш,d)});
+yield return 1;}for(int Į=0;Į<Р.Щ.Count;Į++){IMyLandingGear d=Р.Щ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)||!ǟ.ǜ
+){continue;}F e=Ф(Р.G,d.EntityId);if(!Х(e)){continue;}Р.Ъ.Add(new ǰ{ǭ=d});yield return 1;}for(int Į=0;Į<Р.Ы.Count;Į++){
+IMyTimerBlock ϩ=Р.Ы[Į];if(ϩ.CubeGrid!=Me.CubeGrid){continue;}F e=Ф(Р.G,ϩ.EntityId);if((e&F.Ƈ)!=0){Р.Ь.Add(ϩ);}if((e&F.ƈ)!=0){Р.Э.Add(
+ϩ);}yield return 1;}Ю(Р);}void ы(П Р){HashSet<long>а=new HashSet<long>();HashSet<long>б=new HashSet<long>();HashSet<long>
+в=new HashSet<long>();for(int Į=0;Į<Р.ĥ.Count;Į++){а.Add(Р.ĥ[Į].Q);}for(int Į=0;Į<Р.г.Count;Į++){б.Add(Р.г[Į].Q);}for(int
+Į=0;Į<Р.д.Count;Į++){в.Add(Р.д[Į].E.EntityId);}for(int Į=0;Į<ʆ.Count;Į++){g е=ʆ[Į];if(а.Contains(е.Q)){continue;}е.À();ϧ(
+е.Q,е.E);ʾ(е.Q,е.E,ƌ.Ɖ);ʾ(е.Q,е.E,ƌ.Ƌ);}for(int Į=0;Į<ϟ.Count;Į++){Ò ж=ϟ[Į];if(!б.Contains(ж.Q)){ж.À();}}for(int Į=0;Į<ˁ.
+Count;Į++){ũ з=ˁ[Į];if(!в.Contains(з.E.EntityId)){з.À();}}и(ͺ,Р.й);и(ͻ,Р.к);if(ͻ.Count==0){Ψ();}и(ʆ,Р.ĥ);и(Ѐ,Р.л);и(Ё,Р.м);и(
+Ђ,Р.н);и(ʲ,Р.о);и(Ѓ,Р.п);и(ʳ,Р.р);и(ʎ,Р.с);и(ϟ,Р.г);и(ʂ,Р.т);и(Є,Р.у);и(ʏ,Р.ф);и(ˁ,Р.д);и(ϕ,Р.Ц);и(ϗ,Р.Ъ);и(х,Р.Ш);и(ц,Р.
+У);и(ϡ,Р.Ь);и(ϣ,Р.Э);и(Ѕ,Р.ч);Ϝ.Clear();foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){Ϝ.Add(Ћ.Key,Ћ.Value);}for(int Į=0;Į<ʆ.Count
+;Į++){Ϥ(ʆ[Į]);}ш(а);ɛ();щ();ɝ();for(int Į=0;Į<ʆ.Count;Į++){if(!ʆ[Į].P){ʆ[Į].j();}}for(int Į=0;Į<ˁ.Count;Į++){if(!ˁ[Į].P){
+ˁ[Į].Ū();}}if(Ȏ==ƅ.Ƅ){ϥ();}Ά();ϼ=ъ();Ϸ=true;ϓ=true;}void Ю(П Р){HashSet<string>ь=new HashSet<string>(StringComparer.
+Ordinal);List<int>э=new List<int>();for(int Į=0;Į<Р.ю.Count;Į++){IMyTerminalBlock d=Р.ю[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.
+EntityId,out ǟ)||ǟ.Ǘ!=Р.я){continue;}F e=Ф(Р.G,d.EntityId);IMyTextPanel ѐ=d as IMyTextPanel;if(ѐ!=null&&(e&F.Ɔ)!=0){ё(Р.ч,ь,d,ѐ,
+0);}IMyTextSurfaceProvider ђ=d as IMyTextSurfaceProvider;if(ђ==null||ђ.SurfaceCount<=0){continue;}э.Clear();ѓ(d.
+CustomData,ђ.SurfaceCount,э);if((e&F.Ɔ)!=0&&э.Count==0){э.Add(0);}for(int ΰ=0;ΰ<э.Count;ΰ++){int ż=э[ΰ];ё(Р.ч,ь,d,ђ.GetSurface(ż),
+ż);}}}void ѓ(string ȼ,int є,List<int>Ĺ){if(string.IsNullOrEmpty(ȼ)){return;}string[]μ=ȼ.Replace("\r",string.Empty).Split(
+'\n');for(int Į=0;Į<μ.Length;Į++){string ν=μ[Į].Trim();if(!ν.StartsWith(Ϫ,StringComparison.OrdinalIgnoreCase)){continue;}
+string ѕ=ν.Substring(Ϫ.Length).Trim();int ΰ;if(!int.TryParse(ѕ,out ΰ)||ΰ<0||ΰ>=є||Ĺ.Contains(ΰ)){continue;}Ĺ.Add(ΰ);}}static
+void ё(List<Ž>Ĺ,HashSet<string>w,IMyTerminalBlock ź,IMyTextSurface Ż,int ż){string ɐ=ź.EntityId+":"+ż;if(!w.Add(ɐ)){return;}
+Ĺ.Add(new Ž(ź,Ż,ż));}bool Х(F e){if((e&F.X)!=0){return false;}return ȟ.Ȭ||(e&F.Z)!=0;}bool ї(IMyProgrammableBlock і){if(і
+==null){return false;}return δ(і.CustomData,Ɉ)>=0;}bool ј(IMyProgrammableBlock і){string Ȧ;if(!Ͳ(і.CustomData,Ɉ,"CanSlave"
+,out Ȧ)){return true;}bool ğ;return bool.TryParse(Ȧ,out ğ)?ğ:true;}F њ(string ž){if(string.IsNullOrEmpty(ž)){return F.M;}
+F Ǹ=F.M;if(љ(ž,ȟ.ȱ)){Ǹ|=F.Z;}if(љ(ž,ȟ.Ȳ)){Ǹ|=F.X;}if(љ(ž,ȟ.ȳ)){Ǹ|=F.Ɔ;}if(љ(ž,ȟ.ȴ)){Ǹ|=F.Ƈ;}if(љ(ž,ȟ.ȵ)){Ǹ|=F.ƈ;}return Ǹ
+;}static bool љ(string ž,string ћ){return!string.IsNullOrEmpty(ž)&&!string.IsNullOrEmpty(ћ)&&ž.IndexOf(ћ,StringComparison
+.OrdinalIgnoreCase)>=0;}static void ў(Dictionary<long,F>e,long Ϧ,F ќ){if(ќ==F.M){return;}F ѝ;e.TryGetValue(Ϧ,out ѝ);e[Ϧ]=
+ѝ|ќ;}static F Ф(Dictionary<long,F>e,long Ϧ){F Ǹ;return e.TryGetValue(Ϧ,out Ǹ)?Ǹ:F.M;}static Ǭ Ч(List<Ǭ>џ,IMyShipConnector
+Ϛ){for(int Į=0;Į<џ.Count;Į++){if(џ[Į].ƥ.EntityId==Ϛ.EntityId||џ[Į].Ʀ.EntityId==Ϛ.EntityId){return џ[Į];}}return null;}
+static void ѡ(List<IMyCubeGrid>Ѡ,IMyCubeGrid Ŗ){for(int Į=0;Į<Ѡ.Count;Į++){if(Ѡ[Į].EntityId==Ŗ.EntityId){return;}}Ѡ.Add(Ŗ);}
+static void и<Ѣ>(List<Ѣ>Ȝ,List<Ѣ>ѣ){Ȝ.Clear();Ȝ.AddRange(ѣ);}IEnumerable<int>Ѳ(П Р){Dictionary<long,Ò>Ѥ=new Dictionary<long,Ò>
+();Dictionary<long,IMyMotorStator>ѥ=new Dictionary<long,IMyMotorStator>();Dictionary<long,List<g>>Ѧ=new Dictionary<long,
+List<g>>();Dictionary<long,List<g>>ѧ=new Dictionary<long,List<g>>();for(int Į=0;Į<Р.Ѩ.Count;Į++){IMyMotorStator d=Р.Ѩ[Į];ǘ ǟ
+;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)){continue;}F e=Ф(Р.G,d.EntityId);if(ǟ.ǜ){Ò Ī=new Ò(d,this,e,false);Ѥ.Add(
+d.EntityId,Ī);Р.ѩ.Add(Ī);}else if(Ѫ(Р,ǟ.Ǘ)){ѥ.Add(d.EntityId,d);}yield return 1;}for(int Į=0;Į<Р.ѫ.Count;Į++){IMyThrust d
+=Р.ѫ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)){continue;}F e=Ф(Р.G,d.EntityId);if(ǟ.ǜ){Ѭ(Р,ǟ,d,e,Ѥ,Ѧ);}else
+if(Ѫ(Р,ǟ.Ǘ)){ѭ(Р,ǟ,d,e,ѥ,ѧ);}else if(ǟ.Ǘ.Ǥ){g İ=new g(d,this,e,false);Р.р.Add(İ);Р.н.Add(İ);}yield return 1;}Ѯ(Р,Ѧ);ѯ(Р,ѥ,
+ѧ);foreach(int ѱ in Ѱ(Р)){yield return ѱ;}}void Ѭ(П Р,ǘ ǟ,IMyThrust d,F e,Dictionary<long,Ò>ѳ,Dictionary<long,List<g>>Ѵ){
+Ò Ѷ=ѵ(ǟ,ѳ);bool ѷ=ǟ.Ǜ>0;bool Ѹ=(e&F.Z)!=0;bool ѹ=(e&F.X)!=0;bool Ѻ=!ѹ&&(ȟ.Ȭ?Ѹ||ѷ||Ѷ!=null:Ѹ);g İ=new g(d,this,e,Ѻ);Р.ĥ.
+Add(İ);if(Ѻ){Р.л.Add(İ);}else{Р.о.Add(İ);Р.н.Add(İ);}if(Ѷ==null){if(Ѻ){Р.м.Add(İ);}return;}List<g>ѻ;if(!Ѵ.TryGetValue(Ѷ.Q,
+out ѻ)){ѻ=new List<g>();Ѵ.Add(Ѷ.Q,ѻ);}ѻ.Add(İ);}void Ѯ(П Р,Dictionary<long,List<g>>Ѵ){for(int Į=0;Į<Р.ѩ.Count;Į++){Ò Ī=Р.ѩ[
+Į];List<g>ѻ;bool Ѽ=Ѵ.TryGetValue(Ī.Q,out ѻ);bool ѽ=false;if(Ѽ){for(int ĵ=0;ĵ<ѻ.Count;ĵ++){if(ѻ[ĵ].P){ѽ=true;break;}}}bool
+f=!Ī.Y&&(Ī.a||ȟ.Ȭ&&ѽ);Ī.N(C.O,f);if(!f){if(Ѽ){for(int ĵ=0;ĵ<ѻ.Count;ĵ++){g İ=ѻ[ĵ];if(İ.P&&!Р.м.Contains(İ)){Р.м.Add(İ);}}
+}continue;}Р.г.Add(Ī);if(!ѽ){continue;}H ʋ=new H(Ī,this);Р.т.Add(ʋ);for(int ĵ=0;ĵ<ѻ.Count;ĵ++){g İ=ѻ[ĵ];if(!İ.P){continue
+;}İ.I=ʋ;ʋ.ĥ.Add(İ);ǘ Ѿ;if(Р.Т.TryGetValue(İ.E.CubeGrid.EntityId,out Ѿ)){ѿ(ʋ,Ѿ,Ī);}}ʋ.ĸ();}}void ѭ(П Р,ǘ ǟ,IMyThrust d,F e
+,Dictionary<long,IMyMotorStator>ѳ,Dictionary<long,List<g>>Ѵ){ǖ Ҁ=ǟ.Ǘ;IMyMotorStator Ѷ=ҁ(ǟ,ѳ);bool Ѹ=(e&F.Z)!=0;bool ѹ=(e&
+F.X)!=0;bool Ҋ=!ѹ&&Ҁ.Ǩ&&(Ҁ.ǧ||Ѹ);g İ=new g(d,this,e,false);if(!Ҋ){Р.р.Add(İ);Р.н.Add(İ);return;}Р.п.Add(İ);if(Ѷ==null){Р.
+с.Add(İ);return;}List<g>ѻ;if(!Ѵ.TryGetValue(Ѷ.EntityId,out ѻ)){ѻ=new List<g>();Ѵ.Add(Ѷ.EntityId,ѻ);}ѻ.Add(İ);}void ѯ(П Р,
+Dictionary<long,IMyMotorStator>ѳ,Dictionary<long,List<g>>Ѵ){foreach(KeyValuePair<long,List<g>>Ћ in Ѵ){IMyMotorStator ҋ;if(!ѳ.
+TryGetValue(Ћ.Key,out ҋ)){Ҍ(Р,Ћ.Value);continue;}ǘ ҍ;if(!Р.Т.TryGetValue(ҋ.CubeGrid.EntityId,out ҍ)){Ҍ(Р,Ћ.Value);continue;}F Ҏ=Ф(Р
+.G,ҋ.EntityId);bool ѹ=(Ҏ&F.X)!=0;bool Ѹ=(Ҏ&F.Z)!=0;ǖ Ҁ=ҍ.Ǘ;bool Ҋ=!ѹ&&Ҁ.Ǩ&&(Ѹ||Ҁ.ǧ&&Ћ.Value.Count>0);if(!Ҋ||ҋ.TopGrid==
+null||!ҋ.IsFunctional||!ҋ.Enabled||ҋ.RotorLock){Ҍ(Р,Ћ.Value);continue;}ҏ Ґ=new ҏ(ҋ);Ґ.ĥ.AddRange(Ћ.Value);Р.ф.Add(Ґ);}}
+static void Ҍ(П Р,List<g>ʆ){for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(!Р.с.Contains(İ)){Р.с.Add(İ);}}}IEnumerable<int>Ѱ(П Р){for(
+int Į=0;Į<Р.ґ.Count;Į++){IMyGyro d=Р.ґ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)||!ǟ.ǜ||!Ғ(d)){continue;}F e=Ф(
+Р.G,d.EntityId);bool ѹ=(e&F.X)!=0;if(ѹ){continue;}bool ѷ=ǟ.Ǜ>0;bool Ѹ=(e&F.Z)!=0;bool ғ=ȟ.Ȭ?Ѹ||ѷ:Ѹ;bool Ҕ=d.CubeGrid==Me.
+CubeGrid;if(!ғ&&!Ҕ){continue;}ũ ҕ=new ũ(d,this,e,ғ);Р.д.Add(ҕ);yield return 1;}}Ò ѵ(ǘ ǟ,Dictionary<long,Ò>ѳ){ǘ Җ=ǟ;while(Җ!=null
+&&Җ.Ǚ!=null){ǔ җ=Җ.ǚ;IMyMotorStator Ҙ=җ!=null?җ.ǝ as IMyMotorStator:null;if(Ҙ!=null&&Ҙ.TopGrid==Җ.Ǔ){Ò Ī;if(ѳ.TryGetValue(
+Ҙ.EntityId,out Ī)){return Ī;}}Җ=Җ.Ǚ;}return null;}IMyMotorStator ҁ(ǘ ǟ,Dictionary<long,IMyMotorStator>ѳ){ǘ Җ=ǟ;while(Җ!=
+null&&Җ.Ǚ!=null){ǔ җ=Җ.ǚ;IMyMotorStator Ҙ=җ!=null?җ.ǝ as IMyMotorStator:null;if(Ҙ!=null&&Ҙ.TopGrid==Җ.Ǔ){IMyMotorStator Ī;if
+(ѳ.TryGetValue(Ҙ.EntityId,out Ī)){return Ī;}}Җ=Җ.Ǚ;}return null;}void ѿ(H ʋ,ǘ Ѿ,Ò Ī){ǘ Җ=Ѿ;while(Җ!=null){ѡ(ʋ.Ħ,Җ.Ǔ);if(Җ
+.ǚ!=null&&Җ.ǚ.ǝ.EntityId==Ī.Q){break;}Җ=Җ.Ǚ;}}static bool Ѫ(П Р,ǖ Ҁ){return Ҁ!=null&&Ҁ!=Р.я&&!Ҁ.ǜ&&Ҁ.Ǥ&&Ҁ.ǩ!=null;}bool Ғ
+(IMyGyro ҕ){string ҙ=ҕ.BlockDefinition.SubtypeId;if(ҙ.Equals("SmallBlockGyro",StringComparison.OrdinalIgnoreCase)||ҙ.
+Equals("LargeBlockGyro",StringComparison.OrdinalIgnoreCase)){return true;}return ҙ.Equals("SmallPrototechGyro",
+StringComparison.OrdinalIgnoreCase)||ҙ.Equals("LargePrototechGyro",StringComparison.OrdinalIgnoreCase)||ҙ.Equals(
+"SmallPrototechGyroscope",StringComparison.OrdinalIgnoreCase)||ҙ.Equals("LargePrototechGyroscope",StringComparison.OrdinalIgnoreCase);}
+IEnumerable<int>ҥ(){П Р=new П();foreach(int ѱ in Қ(Р)){yield return ѱ;}foreach(int ѱ in қ(Р)){yield return ѱ;}Ҝ(Р);foreach(int ѱ in
+ҝ(Р)){yield return ѱ;}foreach(int ѱ in Ҟ(Р)){yield return ѱ;}ǘ Ҡ=ҟ(Р.Т,Me.CubeGrid);Р.я=Ҡ.Ǘ;ҡ(Р);Ң(Р,Ҡ);ң(Р);foreach(int
+ѱ in Ҥ(Р)){yield return ѱ;}foreach(int ѱ in Ѳ(Р)){yield return ѱ;}foreach(int ѱ in Я(Р)){yield return ѱ;}ы(Р);yield
+return 1;}IEnumerable<int>Қ(П Р){GridTerminalSystem.GetBlocks(Р.ю);List<IMyBlockGroup>Ҧ=new List<IMyBlockGroup>();
+GridTerminalSystem.GetBlockGroups(Ҧ);List<IMyTerminalBlock>ҧ=new List<IMyTerminalBlock>();for(int Į=0;Į<Ҧ.Count;Į++){IMyBlockGroup Ҩ=Ҧ[Į];
+F ҩ=њ(Ҩ.Name);if(ҩ==F.M){continue;}ҧ.Clear();Ҩ.GetBlocks(ҧ);for(int ĵ=0;ĵ<ҧ.Count;ĵ++){ў(Р.G,ҧ[ĵ].EntityId,ҩ);}yield
+return 1;}for(int Į=0;Į<Р.ю.Count;Į++){IMyTerminalBlock d=Р.ю[Į];F Ҫ=њ(d.CustomName)|њ(d.CustomData);ў(Р.G,d.EntityId,Ҫ);ҟ(Р.Т
+,d.CubeGrid);IMyShipController Ͱ=d as IMyShipController;if(Ͱ!=null){Р.Ǣ.Add(Ͱ);}IMyThrust T=d as IMyThrust;if(T!=null){Р.
+ѫ.Add(T);}IMyMotorStator Ī=d as IMyMotorStator;if(Ī!=null){Р.Ѩ.Add(Ī);}IMyPistonBase ҫ=d as IMyPistonBase;if(ҫ!=null){Р.Ҭ
+.Add(ҫ);}IMyGyro ҕ=d as IMyGyro;if(ҕ!=null){Р.ґ.Add(ҕ);}IMyShipConnector Ϛ=d as IMyShipConnector;if(Ϛ!=null){Р.С.Add(Ϛ);}
+IMyLandingGear Ϟ=d as IMyLandingGear;if(Ϟ!=null){Р.Щ.Add(Ϟ);}IMyTimerBlock ϩ=d as IMyTimerBlock;if(ϩ!=null){Р.Ы.Add(ϩ);}
+IMyProgrammableBlock і=d as IMyProgrammableBlock;if(і!=null){Р.ҭ.Add(і);}yield return 1;}ҟ(Р.Т,Me.CubeGrid);}IEnumerable<int>қ(П Р){for(int
+Į=0;Į<Р.Ѩ.Count;Į++){IMyMotorStator Ī=Р.Ѩ[Į];if(Ī.TopGrid==null){continue;}Ү(Р.Т,Ī.CubeGrid,Ī.TopGrid,Ī);yield return 1;}
+for(int Į=0;Į<Р.Ҭ.Count;Į++){IMyPistonBase ҫ=Р.Ҭ[Į];if(ҫ.TopGrid==null){continue;}Ү(Р.Т,ҫ.CubeGrid,ҫ.TopGrid,ҫ);yield
+return 1;}for(int Į=0;Į<Р.С.Count;Į++){IMyShipConnector Ɨ=Р.С[Į].OtherConnector;if(Ɨ!=null){ҟ(Р.Т,Ɨ.CubeGrid);}yield return 1;
+}}void Ҝ(П Р){List<ǘ>ү=new List<ǘ>();foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){ǘ Ұ=Ћ.Value;if(Ұ.Ǘ!=null){continue;}ǖ Ҁ=new ǖ(
+);Р.ұ.Add(Ҁ);ү.Clear();ү.Add(Ұ);Ұ.Ǘ=Ҁ;for(int ΰ=0;ΰ<ү.Count;ΰ++){ǘ ǟ=ү[ΰ];Ҁ.ǡ.Add(ǟ);if(ǟ.Ǔ.IsStatic){Ҁ.ǥ=true;}for(int Ҳ
+=0;Ҳ<ǟ.Ǖ.Count;Ҳ++){ǘ ҳ=ǟ.Ǖ[Ҳ].Ǡ(ǟ);if(ҳ.Ǘ!=null){continue;}ҳ.Ǘ=Ҁ;ү.Add(ҳ);}}}}IEnumerable<int>ҝ(П Р){for(int Į=0;Į<Р.Ǣ.
+Count;Į++){IMyShipController Ͱ=Р.Ǣ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(Ͱ.CubeGrid.EntityId,out ǟ)){continue;}ǟ.Ǘ.Ǣ.Add(Ͱ);if(Ͱ.
+CubeGrid==Me.CubeGrid){Р.й.Add(Ͱ);}yield return 1;}for(int Į=0;Į<Р.ҭ.Count;Į++){IMyProgrammableBlock і=Р.ҭ[Į];if(!ї(і)){continue
+;}ǘ ǟ;if(!Р.Т.TryGetValue(і.CubeGrid.EntityId,out ǟ)){continue;}ǖ Ҁ=ǟ.Ǘ;Ҁ.ǣ.Add(і);bool Ҵ=ј(і);if(Ҵ){Ҁ.Ǧ=true;}if(Ҁ.ǩ==
+null||і.EntityId<Ҁ.ǩ.EntityId){Ҁ.ǩ=і;Ҁ.ǧ=ҵ(і);Ҁ.Ǩ=Ҵ;}yield return 1;}}bool ҵ(IMyProgrammableBlock і){string Ȧ;if(!Ͳ(і.
+CustomData,Ɉ,"Greedy",out Ȧ)){return true;}bool ğ;return bool.TryParse(Ȧ,out ğ)?ğ:true;}IEnumerable<int>Ҟ(П Р){HashSet<Ƥ>Ҷ=new
+HashSet<Ƥ>();for(int Į=0;Į<Р.С.Count;Į++){IMyShipConnector Ϛ=Р.С[Į];IMyShipConnector Ɨ=Ϛ.OtherConnector;if(Ɨ==null){continue;}Ƥ
+Ћ=new Ƥ(Ϛ.EntityId,Ɨ.EntityId);if(!Ҷ.Add(Ћ)){continue;}ǘ ҷ;ǘ Ҹ;if(!Р.Т.TryGetValue(Ϛ.CubeGrid.EntityId,out ҷ)||!Р.Т.
+TryGetValue(Ɨ.CubeGrid.EntityId,out Ҹ)){continue;}Р.Ш.Add(new Ǭ{ƥ=Ϛ,Ʀ=Ɨ,Ǫ=ҷ,ǫ=Ҹ});yield return 1;}}void ҡ(П Р){ǖ ҹ=Р.я;if(ҹ==null){
+return;}List<ǖ>ү=new List<ǖ>();ҹ.Ǥ=true;ү.Add(ҹ);for(int ΰ=0;ΰ<ү.Count;ΰ++){ǖ Ҁ=ү[ΰ];for(int Į=0;Į<Р.Ш.Count;Į++){Ǭ җ=Р.Ш[Į];ǖ
+Ɨ=null;if(җ.Ǫ.Ǘ==Ҁ){Ɨ=җ.ǫ.Ǘ;}else if(җ.ǫ.Ǘ==Ҁ){Ɨ=җ.Ǫ.Ǘ;}if(Ɨ==null||Ɨ.Ǥ){continue;}Ɨ.Ǥ=true;ү.Add(Ɨ);}}}void Ң(П Р,ǘ Ҡ){ǖ
+ҹ=Р.я;if(ҹ==null){return;}ҹ.ǜ=true;Һ(ҹ,Ҡ,0);bool һ;do{һ=false;for(int Į=0;Į<Р.Ш.Count;Į++){Ǭ җ=Р.Ш[Į];bool Ҽ=җ.Ǫ.Ǘ.ǜ;bool
+ҽ=җ.ǫ.Ǘ.ǜ;if(Ҽ==ҽ){continue;}ǘ ѣ=Ҽ?җ.Ǫ:җ.ǫ;ǘ Ȝ=Ҽ?җ.ǫ:җ.Ǫ;ǖ Ҿ=Ȝ.Ǘ;if(Ҿ.ǣ.Count>0){continue;}if(!ȟ.ȭ){continue;}Ҿ.ǜ=true;
+int ҿ=ѣ.Ǜ==int.MaxValue?0:ѣ.Ǜ;Һ(Ҿ,Ȝ,ҿ);һ=true;}}while(һ);foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){Ћ.Value.ǜ=Ћ.Value.Ǘ.ǜ;}}void
+ң(П Р){for(int Į=0;Į<Р.ұ.Count;Į++){ǖ Ҁ=Р.ұ[Į];if(Ҁ==Р.я||Ҁ.ǜ||!Ҁ.Ǥ||Ҁ.ǩ==null){continue;}ǘ Ҡ;if(!Р.Т.TryGetValue(Ҁ.ǩ.
+CubeGrid.EntityId,out Ҡ)){continue;}Һ(Ҁ,Ҡ,0);}}void Һ(ǖ Ҁ,ǘ ι,int Ӏ){List<ǘ>ү=new List<ǘ>();if(ι.Ǜ>Ӏ){ι.Ǜ=Ӏ;ι.Ǚ=null;ι.ǚ=null;}ү
+.Add(ι);for(int ΰ=0;ΰ<ү.Count;ΰ++){ǘ ǟ=ү[ΰ];for(int Į=0;Į<ǟ.Ǖ.Count;Į++){ǔ җ=ǟ.Ǖ[Į];ǘ ҳ=җ.Ǡ(ǟ);if(ҳ.Ǘ!=Ҁ){continue;}int Ӂ
+=ǟ.Ǜ+1;if(Ӂ>=ҳ.Ǜ){continue;}ҳ.Ǜ=Ӂ;ҳ.Ǚ=ǟ;ҳ.ǚ=җ;ү.Add(ҳ);}}}IEnumerable<int>Ҥ(П Р){for(int Į=0;Į<Р.ұ.Count;Į++){ǖ Ҁ=Р.ұ[Į];
+if(!Ҁ.Ǥ||Ҁ.ǜ||Ҁ.ǣ.Count==0){continue;}for(int ĵ=0;ĵ<Ҁ.Ǣ.Count;ĵ++){Р.к.Add(Ҁ.Ǣ[ĵ]);}yield return 1;}}static ǘ ҟ(Dictionary
+<long,ǘ>ӂ,IMyCubeGrid Ŗ){ǘ ǟ;if(!ӂ.TryGetValue(Ŗ.EntityId,out ǟ)){ǟ=new ǘ(Ŗ);ӂ.Add(Ŗ.EntityId,ǟ);}return ǟ;}static void Ү
+(Dictionary<long,ǘ>ӂ,IMyCubeGrid Ӄ,IMyCubeGrid ӄ,IMyTerminalBlock Ǟ){ǘ ǂ=ҟ(ӂ,Ӄ);ǘ ǃ=ҟ(ӂ,ӄ);ǔ җ=new ǔ(ǂ,ǃ,Ǟ);ǂ.Ǖ.Add(җ);ǃ.
+Ǖ.Add(җ);}sealed class П{public readonly List<IMyTerminalBlock>ю=new List<IMyTerminalBlock>();public readonly List<
+IMyShipController>Ǣ=new List<IMyShipController>(),й=new List<IMyShipController>(),к=new List<IMyShipController>();public readonly List<
+IMyThrust>ѫ=new List<IMyThrust>();public readonly List<IMyMotorStator>Ѩ=new List<IMyMotorStator>();public readonly List<
+IMyPistonBase>Ҭ=new List<IMyPistonBase>();public readonly List<IMyGyro>ґ=new List<IMyGyro>();public readonly List<IMyShipConnector>С=
+new List<IMyShipConnector>(),У=new List<IMyShipConnector>();public readonly List<IMyLandingGear>Щ=new List<IMyLandingGear>(
+);public readonly List<IMyTimerBlock>Ы=new List<IMyTimerBlock>(),Ь=new List<IMyTimerBlock>(),Э=new List<IMyTimerBlock>();
+public readonly List<IMyProgrammableBlock>ҭ=new List<IMyProgrammableBlock>();public readonly Dictionary<long,F>G=new
+Dictionary<long,F>();public readonly Dictionary<long,ǘ>Т=new Dictionary<long,ǘ>();public readonly List<ǖ>ұ=new List<ǖ>();public
+readonly List<Ǭ>Ш=new List<Ǭ>();public readonly List<g>ĥ=new List<g>(),л=new List<g>(),м=new List<g>(),н=new List<g>(),о=new
+List<g>(),п=new List<g>(),р=new List<g>(),с=new List<g>();public readonly List<Ò>ѩ=new List<Ò>(),г=new List<Ò>();public
+readonly List<H>т=new List<H>();public readonly List<ҏ>ф=new List<ҏ>();public readonly List<ŝ>у=new List<ŝ>();public readonly
+List<ũ>д=new List<ũ>();public readonly List<ǯ>Ц=new List<ǯ>();public readonly List<ǰ>Ъ=new List<ǰ>();public readonly List<Ž>
+ч=new List<Ž>();public ǖ я;}sealed class ҏ{readonly List<double>Ĥ=new List<double>();public readonly IMyMotorStator Ò;
+public readonly List<g>ĥ=new List<g>();public ҏ(IMyMotorStator Ī){Ò=Ī;}public Vector3D É{get{return Ò.WorldMatrix.Up;}}public
+double ŉ(Vector3D m){m=n.o(m);if(Ò==null||Ò.Closed||Ò.TopGrid==null||!Ò.IsFunctional||m.LengthSquared()<=p){return 0;}Ĥ.Clear(
+);Ӆ(0);for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!ӆ(İ)){continue;}double ñ=n.Ē(m,İ.R,É);Ӆ(ã(ñ));}double Õ=Ò.Angle;if(Î(Ò.
+LowerLimitRad)){Ӆ(Ò.LowerLimitRad-Õ);}if(Ï(Ò.UpperLimitRad)){Ӆ(Ò.UpperLimitRad-Õ);}double Ŀ=0;double Ӈ=double.MaxValue;for(int Į=0;Į<
+Ĥ.Count;Į++){double Ł=ã(Ĥ[Į]);double ł=Ľ(m,Ł);double ӈ=Math.Abs(Ł);if(ł>Ŀ+U||Math.Abs(ł-Ŀ)<=U&&ӈ<Ӈ){Ŀ=ł;Ӈ=ӈ;}}return Ŀ;}
+void Ӆ(double ñ){ñ=ã(ñ);for(int Į=0;Į<Ĥ.Count;Į++){if(Math.Abs(Ĥ[Į]-ñ)<=ē){return;}}Ĥ.Add(ñ);}double Ľ(Vector3D m,double ñ){
+double ł=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!ӆ(İ)){continue;}Vector3D ŗ=n.ë(İ.R,É,-ñ);double q=Vector3D.Dot(ŗ,m);if(q<=0
+){continue;}ł+=q*İ.V;}return ł;}static bool ӆ(g İ){if(İ==null||İ.Y||İ.E==null||İ.E.Closed||!İ.E.IsFunctional){return
+false;}return İ.V>U;}double ã(double ø){ø=n.Ø(ø);bool Ĕ=Î(Ò.LowerLimitRad);bool ĕ=Ï(Ò.UpperLimitRad);if(!Ĕ&&!ĕ){return ø;}
+double Õ=Ò.Angle;double Ė=double.NaN;double ė=double.MaxValue;for(int Ę=-2;Ę<=2;Ę++){double ę=ø+Ę*MathHelper.TwoPi;double Ě=Õ+
+ę;if(Ĕ&&Ě<Ò.LowerLimitRad-ē){continue;}if(ĕ&&Ě>Ò.UpperLimitRad+ē){continue;}double ě=Math.Abs(ę);if(ě<ė){ė=ě;Ė=ę;}}if(!
+double.IsNaN(Ė)){return Ė;}double Ĝ=Õ+ø;if(Ĕ){Ĝ=Math.Max(Ĝ,Ò.LowerLimitRad);}if(ĕ){Ĝ=Math.Min(Ĝ,Ò.UpperLimitRad);}return Ĝ-Õ;}
+static bool Î(double ğ){return!double.IsNaN(ğ)&&!double.IsInfinity(ğ)&&ğ>-1e20;}static bool Ï(double ğ){return!double.IsNaN(ğ)
+&&!double.IsInfinity(ğ)&&ğ<1e20;}}readonly List<Ǭ>х=new List<Ǭ>();readonly List<IMyShipConnector>ц=new List<
+IMyShipConnector>();readonly Dictionary<long,long>Ӊ=new Dictionary<long,long>();readonly Dictionary<long,bool>ӊ=new Dictionary<long,bool
+>();readonly List<ҏ>ʏ=new List<ҏ>();readonly List<g>ʎ=new List<g>();void Ȋ(){ϵ=true;}void Џ(){if(Ј==null){if(!ϵ){return;}
+ϵ=false;Ј=ҥ().GetEnumerator();}int Ӌ=Runtime.MaxInstructionCount;int ӌ=Math.Max(1000,Ӌ*3/4);int Ӎ=0;while(Ј!=null&&
+Runtime.CurrentInstructionCount<ӌ&&Ӎ<512){Ӎ++;if(Ј.MoveNext()){continue;}Ј.Dispose();Ј=null;if(ϵ){ϵ=false;Ј=ҥ().GetEnumerator()
+;}}}static double ʍ(List<g>ӎ,Vector3D m){m=n.o(m);if(m.LengthSquared()<=p){return 0;}double ł=0;for(int Į=0;Į<ӎ.Count;Į++
+){g İ=ӎ[Į];if(İ==null||İ.Y||İ.E==null||İ.E.Closed||!İ.E.IsFunctional){continue;}double q=Vector3D.Dot(İ.R,m);if(q<=0){
+continue;}ł+=q*İ.V;}return ł;}bool ʟ{get{return Ȏ==ƅ.ƃ?ɱ.Ư:Ȍ;}}bool ǻ{get{return Ȏ==ƅ.ƃ?ɱ.Ɖ:Ȕ;}}double ʭ{get{return Ȏ==ƅ.ƃ?ɱ.Ʊ:ȝ
+;}}double ʝ{get{if(Ȏ==ƅ.ƃ){return MathHelper.Clamp(ɱ.Ʋ,0,1);}if(ȟ.Ƞ.Count==0){return 0;}return MathHelper.Clamp(ȟ.Ƞ[
+MathHelper.Clamp(Ȣ,0,ȟ.Ƞ.Count-1)],0,1);}}void ǽ(string Ǹ,bool ǹ){ϲ=Ǹ??string.Empty;ϴ=ǹ;ϓ=true;}void ӏ(){ϲ=string.Empty;ϴ=false;}
+void ȍ(bool i){Ȍ=i;Ӑ(i);}void Ӑ(bool i){for(int Į=0;Į<ͺ.Count;Į++){IMyShipController Ͱ=ͺ[Į];if(Ͱ==null||Ͱ.Closed||!Ͱ.
+IsFunctional){continue;}if(Ͱ.DampenersOverride==i){continue;}Ͱ.DampenersOverride=i;}}void ɞ(){if(Ȏ==ƅ.ƃ){Ӑ(ɱ.Ư);return;}if(!Ͽ){Ӑ(Ȍ);
+return;}if(ɡ==null||ɡ.Closed){return;}bool ӑ=ɡ.DampenersOverride;if(ӑ==Ȍ){return;}Ȍ=ӑ;Ӑ(Ȍ);}void ȕ(bool i){if(i&&!Ȕ){Ӓ();}Ȕ=i;
+if(!Ȕ){ʾ(ƌ.Ɖ);ӓ(C.Ɖ);}ɝ();Ӕ();}void ȏ(){ȕ(!Ȕ);}void Ӓ(){if(ɡ==null||ɡ.Closed){ȝ=0;Ȟ=false;return;}Vector3D ʓ=ɡ.
+GetShipVelocities().LinearVelocity;ȝ=Vector3D.Dot(ʓ,ɡ.WorldMatrix.Forward);Ȟ=true;}void ʤ(){if(Ȟ){return;}Ӓ();}void Ș(double Ö){ʤ();ȝ+=Ö;
+ǽ("Cruise target: "+ȝ.ToString("0.###")+" m/s",false);}bool b(long Ϧ){Ə Ȓ;if(!Ϻ.TryGetValue(Ϧ,out Ȓ)){return false;}
+return Ȓ.ƍ&&Ȓ.Ǝ!=ƌ.M;}bool ӕ(long Ϧ,out Ə Ȓ){return Ϻ.TryGetValue(Ϧ,out Ȓ);}void ˀ(g İ,ƌ Ӗ){if(İ==null){return;}ˀ(İ.E,Ӗ);}void
+ˀ(IMyThrust d,ƌ Ӗ){if(d==null||d.Closed||Ӗ==ƌ.M){return;}Ə Ȓ;if(!Ϻ.TryGetValue(d.EntityId,out Ȓ)){Ȓ=new Ə{ƍ=d.Enabled,Ǝ=ƌ
+.M};Ϻ.Add(d.EntityId,Ȓ);}Ȓ.Ǝ|=Ӗ;if(d.Enabled){d.Enabled=false;}if((Ȓ.Ǝ&ƌ.Ɗ)!=0){Ϣ[d.EntityId]=Ȓ.ƍ;}}void y(g İ){if(İ==
+null){return;}y(İ.E);}void y(IMyThrust d){if(d==null||d.Closed){return;}Ə Ȓ;if(!Ϻ.TryGetValue(d.EntityId,out Ȓ)){return;}if(
+Ȓ.ƍ&&!d.Enabled){d.Enabled=true;}}void ʾ(g İ,ƌ Ӗ){if(İ==null){return;}ʾ(İ.Q,İ.E,Ӗ);}void ʾ(long Ϧ,IMyThrust d,ƌ Ӗ){Ə Ȓ;if
+(!Ϻ.TryGetValue(Ϧ,out Ȓ)){return;}Ȓ.Ǝ&=~Ӗ;if((Ӗ&ƌ.Ɗ)!=0){Ϣ.Remove(Ϧ);}if(Ȓ.Ǝ!=ƌ.M){if(d!=null&&!d.Closed&&d.Enabled){d.
+Enabled=false;}return;}if(d!=null&&!d.Closed){d.Enabled=Ȓ.ƍ;}Ϻ.Remove(Ϧ);}void ʾ(ƌ Ӗ){if(Ϻ.Count==0){return;}List<long>ӗ=new
+List<long>(Ϻ.Keys);for(int Į=0;Į<ӗ.Count;Į++){long Ϧ=ӗ[Į];IMyThrust d=Ә(Ϧ);ʾ(Ϧ,d,Ӗ);}}IMyThrust Ә(long Ϧ){for(int Į=0;Į<ʆ.
+Count;Į++){g İ=ʆ[Į];if(İ.Q==Ϧ){return İ.E;}}return null;}void Ϥ(g İ){if(İ==null){return;}Ə Ȓ;if(!Ϻ.TryGetValue(İ.Q,out Ȓ)){
+return;}if(Ȓ.Ǝ==ƌ.M){Ϻ.Remove(İ.Q);return;}if(İ.E.Enabled){İ.E.Enabled=false;}}void ш(HashSet<long>ә){if(Ϻ.Count==0){return;}
+List<long>Ӛ=new List<long>();foreach(KeyValuePair<long,Ə>Ћ in Ϻ){if(!ә.Contains(Ћ.Key)){Ӛ.Add(Ћ.Key);}}for(int Į=0;Į<Ӛ.Count
+;Į++){long Ϧ=Ӛ[Į];Ϻ.Remove(Ϧ);Ϣ.Remove(Ϧ);}}void ɝ(){bool ӛ=Ȏ==ƅ.ƃ;bool Ӝ=ǻ;for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];bool ӝ=İ.
+E.CubeGrid==Me.CubeGrid;bool Ӟ=!İ.Y&&(ȟ.Ȭ||İ.a);bool ӟ=ӛ&&ӝ&&Ӟ;bool ӡ=Ӝ&&ӝ&&Ӡ(İ)&&Ӟ;İ.N(C.ƃ,ӟ);İ.N(C.Ɖ,ӡ);if(!ӡ){ʾ(İ,ƌ.Ɖ)
+;}}for(int Į=0;Į<ˁ.Count;Į++){ũ ҕ=ˁ[Į];bool ӝ=ҕ.E.CubeGrid==Me.CubeGrid;bool Ӣ=!ҕ.Y&&(ȟ.Ȭ||ҕ.a);ҕ.N(C.ƃ,ӛ&&ӝ&&Ӣ);}ω();}
+void ӓ(C h){for(int Į=0;Į<ʆ.Count;Į++){ʆ[Į].N(h,false);}for(int Į=0;Į<ˁ.Count;Į++){ˁ[Į].N(h,false);}}bool Ӡ(g İ){if(İ==null
+||ɡ==null||İ.E.CubeGrid!=Me.CubeGrid){return false;}return Vector3D.Dot(n.o(İ.R),ɡ.WorldMatrix.Backward)>=Ķ;}void ω(){ʿ.
+Clear();if(ɡ==null){return;}for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(Ӡ(İ)){ʿ.Add(İ);}}Ӕ();}void щ(){Ͽ=false;for(int Į=0;Į<ʆ.
+Count;Į++){g İ=ʆ[Į];if(İ.E.CubeGrid==Me.CubeGrid){Ͽ=true;break;}}ω();}void Ӕ(){Ǽ=string.Empty;if(!ǻ||ʿ.Count==0){return;}if(ȟ
+.Ȭ){bool ӣ=true;for(int Į=0;Į<ʿ.Count;Į++){if(!ʿ[Į].Y){ӣ=false;break;}}if(ӣ){Ǽ="Cruise cannot control main-grid "+
+"reverse thrusters; all are "+ȟ.Ȳ+".";}return;}bool Ӥ=false;for(int Į=0;Į<ʿ.Count;Į++){g İ=ʿ[Į];if(!İ.Y&&İ.a){Ӥ=true;break;}}if(!Ӥ){Ǽ=
+"Cruise cannot control main-grid "+"reverse thrusters; add "+ȟ.ȱ+".";}}void ϒ(ƅ ϐ,ƅ Ϗ){if(ϐ==ƅ.ƃ&&Ϗ!=ƅ.ƃ){ӓ(C.ƃ);Ӑ(Ȍ);}if(ϐ!=ƅ.ƃ&&Ϗ==ƅ.ƃ){Ӑ(ɱ.Ư);}ɝ();}
+void ɪ(bool Ő){І.Clear();І.AppendLine(ȿ).Append("v").AppendLine(ˢ).AppendLine();І.Append("Mode: ").AppendLine(ǒ(Ȏ));І.Append
+("Controller: ").AppendLine(ɡ!=null?ɡ.CustomName:"NONE");ӥ(І);І.Append("Nacelles: ").AppendLine(ʂ.Count.ToString());І.
+Append("Controlled thrust: ").Append((ʅ/1000.0).ToString("0.##")).AppendLine(" kN");І.Append("Capacity F/B: ").Append((ʇ.Ɛ/
+1000.0).ToString("0.##")).Append("/").Append((ʇ.Ƒ/1000.0).ToString("0.##")).AppendLine(" kN");І.Append("Residual: ").Append((ʵ
+.Length()/1000.0).ToString("0.##")).AppendLine(" kN");І.Append("Gyros: ").AppendLine(ˁ.Count.ToString());if(Ȏ==ƅ.ƃ){І.
+Append("Heartbeat age: ").Append(ɥ).AppendLine("/2");}if(!string.IsNullOrEmpty(Ǽ)){І.AppendLine().Append("WARNING: ").
+AppendLine(Ǽ);}if(!string.IsNullOrEmpty(ϲ)){І.AppendLine().Append(ϴ?"WARNING: ":"Command: ").AppendLine(ϲ);}І.Append("Runtime: ").
+Append(Runtime.LastRunTimeMs.ToString("0.###")).Append(" ms | avg ").Append(Љ.ƺ.ToString("0.###")).Append(" | max ").
+AppendLine(Љ.ƻ.ToString("0.###"));І.Append("Instructions: ").Append(Runtime.CurrentInstructionCount).Append("/").AppendLine(
+Runtime.MaxInstructionCount.ToString());Echo(І.ToString());if(!Ő&&Ѕ.Count==0){return;}Ї.Clear();Ї.AppendLine(
+"VECTOR THRUST REDUX").Append("MODE  ").AppendLine(ǒ(Ȏ).ToUpperInvariant());Ӧ(Ї);Ї.Append("VECTORS ").AppendLine(ʂ.Count.ToString()).Append(
+"THRUST ").Append((ʅ/1000.0).ToString("0.0")).AppendLine(" kN").Append("ERROR ").Append((ʵ.Length()/1000.0).ToString("0.0")).
+AppendLine(" kN");if(!string.IsNullOrEmpty(Ǽ)){Ї.Append("WARN ").AppendLine(Ǽ);}if(!string.IsNullOrEmpty(ϲ)){Ї.Append(ϴ?"WARN ":
+"CMD  ").AppendLine(ϲ);}string ӧ=Ї.ToString();for(int Į=0;Į<Ѕ.Count;Į++){Ѕ[Į].ſ(ӧ);}}void ӥ(StringBuilder ɖ){if(Ȏ!=ƅ.ƃ){ɖ.
+Append("Dampeners: ").AppendLine(Ȍ?"ON":"OFF");ɖ.Append("Cruise: ").Append(Ȕ?"ON":"OFF");if(Ȟ){ɖ.Append(" @ ").Append(ȝ.
+ToString("0.###")).Append(" m/s");}ɖ.AppendLine();Ө(ɖ);return;}ɖ.Append("Dampeners: local ").Append(Ȍ?"ON":"OFF").Append(
+" | master ").Append(ɱ.Ư?"ON":"OFF").Append(" | effective ").AppendLine(ʟ?"ON":"OFF");ɖ.Append("Cruise: local ").Append(Ȕ?"ON":"OFF"
+);if(Ȟ){ɖ.Append(" @ ").Append(ȝ.ToString("0.###"));}ɖ.Append(" | master ").Append(ɱ.Ɖ?"ON":"OFF").Append(" @ ").Append(ɱ
+.Ʊ.ToString("0.###")).AppendLine(" m/s");ɖ.Append("Gear: local ").Append(Ȣ+1).Append("/").Append(ȟ.Ƞ.Count).Append(
+" | master ").Append(ɱ.Ƴ+1).Append("/").Append(ɱ.ƴ).Append(" (").Append((ɱ.Ʋ*100).ToString("0.##")).AppendLine("%)");}void Ӧ(
+StringBuilder ɖ){if(Ȏ!=ƅ.ƃ){ɖ.Append("DAMP  ").AppendLine(Ȍ?"ON":"OFF").Append("CRUISE ").Append(Ȕ?"ON":"OFF");if(Ȟ){ɖ.Append(" ").
+Append(ȝ.ToString("0.##")).Append("m/s");}ɖ.AppendLine().Append("GEAR  ").Append(Ȣ+1).Append("/").AppendLine(ȟ.Ƞ.Count.
+ToString());return;}ɖ.Append("DAMP  L:").Append(Ȍ?"ON":"OFF").Append(" M:").AppendLine(ɱ.Ư?"ON":"OFF").Append("CRUISE L:").
+Append(Ȕ?"ON":"OFF").Append(" M:").Append(ɱ.Ɖ?"ON":"OFF").Append(" ").Append(ɱ.Ʊ.ToString("0.##")).AppendLine("m/s").Append(
+"GEAR  L:").Append(Ȣ+1).Append("/").Append(ȟ.Ƞ.Count).Append(" M:").Append(ɱ.Ƴ+1).Append("/").AppendLine(ɱ.ƴ.ToString());}void Ө(
+StringBuilder ɖ){int ȡ=ȟ.Ƞ.Count;int ө=ȡ>0?MathHelper.Clamp(Ȣ,0,ȡ-1):0;double ȧ=ȡ>0?ȟ.Ƞ[ө]*100:0;ɖ.Append("Gear: ").Append(ө+1).
+Append("/").Append(ȡ).Append(" (").Append(ȧ.ToString("0.##")).AppendLine("%)");}readonly List<IMyTerminalBlock>Ӫ=new List<
+IMyTerminalBlock>(),ӫ=new List<IMyTerminalBlock>();readonly List<IMyBlockGroup>Ӭ=new List<IMyBlockGroup>();void ə(){Ɯ ӭ=ъ();if(!Ϸ){ϼ=ӭ;Ϸ
+=true;return;}if(ӭ==ϼ){return;}ϼ=ӭ;Ȋ();}Ɯ ъ(){Ɯ ӭ=new Ɯ();Ӫ.Clear();GridTerminalSystem.GetBlocks(Ӫ);for(int Į=0;Į<Ӫ.Count
+;Į++){IMyTerminalBlock d=Ӫ[Į];int ӯ=Ӯ(d);if(ӯ==0){continue;}ulong ӱ=Ӱ;ӱ=Ӳ(ӱ,unchecked((ulong)d.EntityId));ӱ=Ӳ(ӱ,unchecked
+((ulong)d.CubeGrid.EntityId));ӱ=Ӳ(ӱ,unchecked((ulong)ӯ));ӱ=Ӳ(ӱ,d.CubeGrid.IsStatic?1UL:0UL);F e=њ(d.CustomName)|њ(d.
+CustomData);ӱ=Ӳ(ӱ,unchecked((ulong)(int)e));IMyMotorStator Ī=d as IMyMotorStator;if(Ī!=null){ӱ=Ӳ(ӱ,Ī.TopGrid!=null?unchecked((
+ulong)Ī.TopGrid.EntityId):0UL);ӱ=Ӳ(ӱ,ӳ(Ī.LowerLimitRad));ӱ=Ӳ(ӱ,ӳ(Ī.UpperLimitRad));}IMyPistonBase ҫ=d as IMyPistonBase;if(ҫ!=
+null){ӱ=Ӳ(ӱ,ҫ.TopGrid!=null?unchecked((ulong)ҫ.TopGrid.EntityId):0UL);}IMyShipConnector Ϛ=d as IMyShipConnector;if(Ϛ!=null){
+ӱ=Ӳ(ӱ,Ϛ.OtherConnector!=null?unchecked((ulong)Ϛ.OtherConnector.EntityId):0UL);}IMyProgrammableBlock і=d as
+IMyProgrammableBlock;if(і!=null){bool Ӵ=ї(і);ӱ=Ӳ(ӱ,Ӵ?1UL:0UL);if(Ӵ){ӱ=Ӳ(ӱ,ј(і)?1UL:0UL);ӱ=Ӳ(ӱ,ҵ(і)?1UL:0UL);}}ӵ(ref ӭ,ӱ,d.EntityId);}Ӷ(ref ӭ
+);return ӭ;}void Ӷ(ref Ɯ ӭ){Ӭ.Clear();GridTerminalSystem.GetBlockGroups(Ӭ);for(int Į=0;Į<Ӭ.Count;Į++){IMyBlockGroup Ҩ=Ӭ[Į
+];F ҩ=њ(Ҩ.Name);if(ҩ==F.M){continue;}ӫ.Clear();Ҩ.GetBlocks(ӫ);ulong ӷ=Ӱ;ӷ=Ӳ(ӷ,Ӹ(Ҩ.Name));ӷ=Ӳ(ӷ,unchecked((ulong)(int)ҩ));
+ulong ӹ=0;ulong Ӻ=0;for(int ĵ=0;ĵ<ӫ.Count;ĵ++){ulong ӻ=Ӳ(Ӱ,unchecked((ulong)ӫ[ĵ].EntityId));ӹ^=Ӽ(ӻ,(int)(ӫ[ĵ].EntityId&63));Ӻ
++=ӻ*ӽ;}ӷ=Ӳ(ӷ,ӹ);ӷ=Ӳ(ӷ,Ӻ);long Ӿ=unchecked((long)Ӹ(Ҩ.Name));ӵ(ref ӭ,ӷ,Ӿ);}}static void ӵ(ref Ɯ ӭ,ulong ӱ,long ӿ){ӭ.Ɲ++;ӭ.ƞ
+^=Ӽ(ӱ,(int)(ӿ&63));ӭ.Ɵ+=ӱ*ӽ;}static int Ӯ(IMyTerminalBlock d){if(d is IMyMotorStator){return 1;}if(d is IMyPistonBase){
+return 2;}if(d is IMyThrust){return 3;}if(d is IMyGyro){return 4;}if(d is IMyShipController){return 5;}if(d is
+IMyShipConnector){return 6;}if(d is IMyLandingGear){return 7;}if(d is IMyProgrammableBlock){return 8;}if(d is IMyTimerBlock){return 9;}
+if(d is IMyTextPanel||d is IMyTextSurfaceProvider){return 10;}return 0;}static ulong ӳ(double ğ){if(double.IsNaN(ğ)){
+return ulong.MaxValue;}if(double.IsPositiveInfinity(ğ)){return ulong.MaxValue-1;}if(double.IsNegativeInfinity(ğ)){return ulong
+.MaxValue-2;}return unchecked((ulong)(uint)ğ.GetHashCode());}static ulong Ӹ(string ž){ulong ơ=Ӱ;if(string.IsNullOrEmpty(ž
+)){return ơ;}for(int Į=0;Į<ž.Length;Į++){char Ȫ=char.ToUpperInvariant(ž[Į]);ơ^=Ȫ;ơ*=ӽ;}return ơ;}static ulong Ӳ(ulong ơ,
+ulong ğ){ơ^=ğ;ơ*=ӽ;ơ^=ğ>>32;ơ*=ӽ;return ơ;}static ulong Ӽ(ulong ğ,int К){К&=63;if(К==0){return ğ;}return ğ<<К|ğ>>(64-К);}
+const ulong Ӱ=14695981039346656037UL,ӽ=1099511628211UL;void ɜ(){HashSet<long>Ԁ=new HashSet<long>();for(int Į=0;Į<ц.Count;Į++)
+{IMyShipConnector Ϛ=ц[Į];if(Ϛ==null||Ϛ.Closed){continue;}long ԁ=Ϛ.OtherConnector!=null?Ϛ.OtherConnector.EntityId:0;long Ԃ
+;if(!Ӊ.TryGetValue(Ϛ.EntityId,out Ԃ)||Ԃ!=ԁ){Ӊ[Ϛ.EntityId]=ԁ;Ȋ();}Ԁ.Add(Ϛ.EntityId);}ԃ(Ԁ);HashSet<long>Ԅ=new HashSet<long>
+();for(int Į=0;Į<ϗ.Count;Į++){IMyLandingGear ԅ=ϗ[Į].ǭ;if(ԅ==null||ԅ.Closed){continue;}bool Ԇ;if(!ӊ.TryGetValue(ԅ.EntityId
+,out Ԇ)||Ԇ!=ԅ.IsLocked){ӊ[ԅ.EntityId]=ԅ.IsLocked;Ȋ();}Ԅ.Add(ԅ.EntityId);}ԇ(Ԅ);}void ԃ(HashSet<long>Ԉ){if(Ӊ.Count==0){
+return;}List<long>ԉ=new List<long>();foreach(KeyValuePair<long,long>Ћ in Ӊ){if(!Ԉ.Contains(Ћ.Key)){ԉ.Add(Ћ.Key);}}for(int Į=0;
+Į<ԉ.Count;Į++){Ӊ.Remove(ԉ[Į]);}}void ԇ(HashSet<long>Ԉ){if(ӊ.Count==0){return;}List<long>ԉ=new List<long>();foreach(
+KeyValuePair<long,bool>Ћ in ӊ){if(!Ԉ.Contains(Ћ.Key)){ԉ.Add(Ћ.Key);}}for(int Į=0;Į<ԉ.Count;Į++){ӊ.Remove(ԉ[Į]);}}}
