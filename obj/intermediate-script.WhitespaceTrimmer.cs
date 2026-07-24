@@ -16,9 +16,9 @@ return E.EntityId;}}public Vector3D R{get{return E.WorldMatrix.Backward;}}public
 public Vector3D W{get{if(E==null||E.Closed||!E.IsFunctional){return Vector3D.Zero;}return R*E.CurrentThrust;}}public bool Y{
 get{return(G&F.X)!=0;}}public bool a{get{return(G&F.Z)!=0;}}public bool c{get{if(E==null||E.Closed||!E.IsFunctional||Y||V<=
 U){return false;}return E.Enabled||A.b(Q);}}public g(IMyThrust d,Program A,F e,bool f){E=d;this.A=A;G=e;if(f&&!Y){D=C.O;}
-}public void N(C h,bool i){if(Y){D=C.M;return;}if(i){D|=h;return;}D&=~h;if(D==C.M){j();}}public bool k(C h){return(D&h)!=
-0;}public void l(){K=0;}public double r(Vector3D m){if(!c){return 0;}m=n.o(m);if(m.LengthSquared()<=p){return 0;}double q
-=Vector3D.Dot(R,m);return q>0?q*V:0;}public double x(ref Vector3D s){if(!P||!c){return 0;}Vector3D t=n.o(R);double u=
+}public void N(C h,bool i){if(Y){D=C.M;j();return;}if(i){D|=h;return;}D&=~h;if(D==C.M){j();}}public bool k(C h){return(D&
+h)!=0;}public void l(){K=0;}public double r(Vector3D m){if(!c){return 0;}m=n.o(m);if(m.LengthSquared()<=p){return 0;}
+double q=Vector3D.Dot(R,m);return q>0?q*V:0;}public double x(ref Vector3D s){if(!P||!c){return 0;}Vector3D t=n.o(R);double u=
 Vector3D.Dot(s,t);if(u<=U){return 0;}double v=V-K;if(v<=U){return 0;}double w=Math.Min(u,v);K+=w;s-=t*w;return w;}public void º(
 ){if(!P||E==null||E.Closed){return;}if(K>U){A.y(this);}double z=V;float ª=z>U?(float)MathHelper.Clamp(K/z,0,1):0;if(!
 float.IsNaN(B)&&Math.Abs(ª-B)<µ&&Math.Abs(E.ThrustOverridePercentage-ª)<µ){return;}E.ThrustOverridePercentage=ª;B=ª;}public
@@ -357,7 +357,7 @@ CubeGrid.EntityId,out ǟ)||!ǟ.ǜ){continue;}Р.У.Add(d);F e=Ф(Р.G,d.EntityId
 yield return 1;}for(int Į=0;Į<Р.Щ.Count;Į++){IMyLandingGear d=Р.Щ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)||!ǟ.ǜ
 ){continue;}F e=Ф(Р.G,d.EntityId);if(!Х(e)){continue;}Р.Ъ.Add(new ǰ{ǭ=d});yield return 1;}for(int Į=0;Į<Р.Ы.Count;Į++){
 IMyTimerBlock ϩ=Р.Ы[Į];if(ϩ.CubeGrid!=Me.CubeGrid){continue;}F e=Ф(Р.G,ϩ.EntityId);if((e&F.Ƈ)!=0){Р.Ь.Add(ϩ);}if((e&F.ƈ)!=0){Р.Э.Add(
-ϩ);}yield return 1;}Ю(Р);}void ы(П Р){HashSet<long>а=new HashSet<long>();HashSet<long>б=new HashSet<long>();HashSet<long>
+ϩ);}yield return 1;}Ю(Р);}void ъ(П Р){HashSet<long>а=new HashSet<long>();HashSet<long>б=new HashSet<long>();HashSet<long>
 в=new HashSet<long>();for(int Į=0;Į<Р.ĥ.Count;Į++){а.Add(Р.ĥ[Į].Q);}for(int Į=0;Į<Р.г.Count;Į++){б.Add(Р.г[Į].Q);}for(int
 Į=0;Į<Р.д.Count;Į++){в.Add(Р.д[Į].E.EntityId);}for(int Į=0;Į<ʆ.Count;Į++){g е=ʆ[Į];if(а.Contains(е.Q)){continue;}е.À();ϧ(
 е.Q,е.E);ʾ(е.Q,е.E,ƌ.Ɖ);ʾ(е.Q,е.E,ƌ.Ƌ);}for(int Į=0;Į<ϟ.Count;Į++){Ò ж=ϟ[Į];if(!б.Contains(ж.Q)){ж.À();}}for(int Į=0;Į<ˁ.
@@ -365,162 +365,162 @@ Count;Į++){ũ з=ˁ[Į];if(!в.Contains(з.E.EntityId)){з.À();}}и(ͺ,Р.й);
 Ђ,Р.н);и(ʲ,Р.о);и(Ѓ,Р.п);и(ʳ,Р.р);и(ʎ,Р.с);и(ϟ,Р.г);и(ʂ,Р.т);и(Є,Р.у);и(ʏ,Р.ф);и(ˁ,Р.д);и(ϕ,Р.Ц);и(ϗ,Р.Ъ);и(х,Р.Ш);и(ц,Р.
 У);и(ϡ,Р.Ь);и(ϣ,Р.Э);и(Ѕ,Р.ч);Ϝ.Clear();foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){Ϝ.Add(Ћ.Key,Ћ.Value);}for(int Į=0;Į<ʆ.Count
 ;Į++){Ϥ(ʆ[Į]);}ш(а);ɛ();щ();ɝ();for(int Į=0;Į<ʆ.Count;Į++){if(!ʆ[Į].P){ʆ[Į].j();}}for(int Į=0;Į<ˁ.Count;Į++){if(!ˁ[Į].P){
-ˁ[Į].Ū();}}if(Ȏ==ƅ.Ƅ){ϥ();}Ά();ϼ=ъ();Ϸ=true;ϓ=true;}void Ю(П Р){HashSet<string>ь=new HashSet<string>(StringComparer.
-Ordinal);List<int>э=new List<int>();for(int Į=0;Į<Р.ю.Count;Į++){IMyTerminalBlock d=Р.ю[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.
-EntityId,out ǟ)||ǟ.Ǘ!=Р.я){continue;}F e=Ф(Р.G,d.EntityId);IMyTextPanel ѐ=d as IMyTextPanel;if(ѐ!=null&&(e&F.Ɔ)!=0){ё(Р.ч,ь,d,ѐ,
-0);}IMyTextSurfaceProvider ђ=d as IMyTextSurfaceProvider;if(ђ==null||ђ.SurfaceCount<=0){continue;}э.Clear();ѓ(d.
-CustomData,ђ.SurfaceCount,э);if((e&F.Ɔ)!=0&&э.Count==0){э.Add(0);}for(int ΰ=0;ΰ<э.Count;ΰ++){int ż=э[ΰ];ё(Р.ч,ь,d,ђ.GetSurface(ż),
-ż);}}}void ѓ(string ȼ,int є,List<int>Ĺ){if(string.IsNullOrEmpty(ȼ)){return;}string[]μ=ȼ.Replace("\r",string.Empty).Split(
-'\n');for(int Į=0;Į<μ.Length;Į++){string ν=μ[Į].Trim();if(!ν.StartsWith(Ϫ,StringComparison.OrdinalIgnoreCase)){continue;}
-string ѕ=ν.Substring(Ϫ.Length).Trim();int ΰ;if(!int.TryParse(ѕ,out ΰ)||ΰ<0||ΰ>=є||Ĺ.Contains(ΰ)){continue;}Ĺ.Add(ΰ);}}static
-void ё(List<Ž>Ĺ,HashSet<string>w,IMyTerminalBlock ź,IMyTextSurface Ż,int ż){string ɐ=ź.EntityId+":"+ż;if(!w.Add(ɐ)){return;}
-Ĺ.Add(new Ž(ź,Ż,ż));}bool Х(F e){if((e&F.X)!=0){return false;}return ȟ.Ȭ||(e&F.Z)!=0;}bool ї(IMyProgrammableBlock і){if(і
-==null){return false;}return δ(і.CustomData,Ɉ)>=0;}bool ј(IMyProgrammableBlock і){string Ȧ;if(!Ͳ(і.CustomData,Ɉ,"CanSlave"
-,out Ȧ)){return true;}bool ğ;return bool.TryParse(Ȧ,out ğ)?ğ:true;}F њ(string ž){if(string.IsNullOrEmpty(ž)){return F.M;}
-F Ǹ=F.M;if(љ(ž,ȟ.ȱ)){Ǹ|=F.Z;}if(љ(ž,ȟ.Ȳ)){Ǹ|=F.X;}if(љ(ž,ȟ.ȳ)){Ǹ|=F.Ɔ;}if(љ(ž,ȟ.ȴ)){Ǹ|=F.Ƈ;}if(љ(ž,ȟ.ȵ)){Ǹ|=F.ƈ;}return Ǹ
-;}static bool љ(string ž,string ћ){return!string.IsNullOrEmpty(ž)&&!string.IsNullOrEmpty(ћ)&&ž.IndexOf(ћ,StringComparison
-.OrdinalIgnoreCase)>=0;}static void ў(Dictionary<long,F>e,long Ϧ,F ќ){if(ќ==F.M){return;}F ѝ;e.TryGetValue(Ϧ,out ѝ);e[Ϧ]=
-ѝ|ќ;}static F Ф(Dictionary<long,F>e,long Ϧ){F Ǹ;return e.TryGetValue(Ϧ,out Ǹ)?Ǹ:F.M;}static Ǭ Ч(List<Ǭ>џ,IMyShipConnector
-Ϛ){for(int Į=0;Į<џ.Count;Į++){if(џ[Į].ƥ.EntityId==Ϛ.EntityId||џ[Į].Ʀ.EntityId==Ϛ.EntityId){return џ[Į];}}return null;}
-static void ѡ(List<IMyCubeGrid>Ѡ,IMyCubeGrid Ŗ){for(int Į=0;Į<Ѡ.Count;Į++){if(Ѡ[Į].EntityId==Ŗ.EntityId){return;}}Ѡ.Add(Ŗ);}
-static void и<Ѣ>(List<Ѣ>Ȝ,List<Ѣ>ѣ){Ȝ.Clear();Ȝ.AddRange(ѣ);}IEnumerable<int>Ѳ(П Р){Dictionary<long,Ò>Ѥ=new Dictionary<long,Ò>
-();Dictionary<long,IMyMotorStator>ѥ=new Dictionary<long,IMyMotorStator>();Dictionary<long,List<g>>Ѧ=new Dictionary<long,
-List<g>>();Dictionary<long,List<g>>ѧ=new Dictionary<long,List<g>>();for(int Į=0;Į<Р.Ѩ.Count;Į++){IMyMotorStator d=Р.Ѩ[Į];ǘ ǟ
-;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)){continue;}F e=Ф(Р.G,d.EntityId);if(ǟ.ǜ){Ò Ī=new Ò(d,this,e,false);Ѥ.Add(
-d.EntityId,Ī);Р.ѩ.Add(Ī);}else if(Ѫ(Р,ǟ.Ǘ)){ѥ.Add(d.EntityId,d);}yield return 1;}for(int Į=0;Į<Р.ѫ.Count;Į++){IMyThrust d
-=Р.ѫ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)){continue;}F e=Ф(Р.G,d.EntityId);if(ǟ.ǜ){Ѭ(Р,ǟ,d,e,Ѥ,Ѧ);}else
-if(Ѫ(Р,ǟ.Ǘ)){ѭ(Р,ǟ,d,e,ѥ,ѧ);}else if(ǟ.Ǘ.Ǥ){g İ=new g(d,this,e,false);Р.р.Add(İ);Р.н.Add(İ);}yield return 1;}Ѯ(Р,Ѧ);ѯ(Р,ѥ,
-ѧ);foreach(int ѱ in Ѱ(Р)){yield return ѱ;}}void Ѭ(П Р,ǘ ǟ,IMyThrust d,F e,Dictionary<long,Ò>ѳ,Dictionary<long,List<g>>Ѵ){
-Ò Ѷ=ѵ(ǟ,ѳ);bool ѷ=ǟ.Ǜ>0;bool Ѹ=(e&F.Z)!=0;bool ѹ=(e&F.X)!=0;bool Ѻ=!ѹ&&(ȟ.Ȭ?Ѹ||ѷ||Ѷ!=null:Ѹ);g İ=new g(d,this,e,Ѻ);Р.ĥ.
-Add(İ);if(Ѻ){Р.л.Add(İ);}else{Р.о.Add(İ);Р.н.Add(İ);}if(Ѷ==null){if(Ѻ){Р.м.Add(İ);}return;}List<g>ѻ;if(!Ѵ.TryGetValue(Ѷ.Q,
-out ѻ)){ѻ=new List<g>();Ѵ.Add(Ѷ.Q,ѻ);}ѻ.Add(İ);}void Ѯ(П Р,Dictionary<long,List<g>>Ѵ){for(int Į=0;Į<Р.ѩ.Count;Į++){Ò Ī=Р.ѩ[
-Į];List<g>ѻ;bool Ѽ=Ѵ.TryGetValue(Ī.Q,out ѻ);bool ѽ=false;if(Ѽ){for(int ĵ=0;ĵ<ѻ.Count;ĵ++){if(ѻ[ĵ].P){ѽ=true;break;}}}bool
-f=!Ī.Y&&(Ī.a||ȟ.Ȭ&&ѽ);Ī.N(C.O,f);if(!f){if(Ѽ){for(int ĵ=0;ĵ<ѻ.Count;ĵ++){g İ=ѻ[ĵ];if(İ.P&&!Р.м.Contains(İ)){Р.м.Add(İ);}}
-}continue;}Р.г.Add(Ī);if(!ѽ){continue;}H ʋ=new H(Ī,this);Р.т.Add(ʋ);for(int ĵ=0;ĵ<ѻ.Count;ĵ++){g İ=ѻ[ĵ];if(!İ.P){continue
-;}İ.I=ʋ;ʋ.ĥ.Add(İ);ǘ Ѿ;if(Р.Т.TryGetValue(İ.E.CubeGrid.EntityId,out Ѿ)){ѿ(ʋ,Ѿ,Ī);}}ʋ.ĸ();}}void ѭ(П Р,ǘ ǟ,IMyThrust d,F e
-,Dictionary<long,IMyMotorStator>ѳ,Dictionary<long,List<g>>Ѵ){ǖ Ҁ=ǟ.Ǘ;IMyMotorStator Ѷ=ҁ(ǟ,ѳ);bool Ѹ=(e&F.Z)!=0;bool ѹ=(e&
-F.X)!=0;bool Ҋ=!ѹ&&Ҁ.Ǩ&&(Ҁ.ǧ||Ѹ);g İ=new g(d,this,e,false);if(!Ҋ){Р.р.Add(İ);Р.н.Add(İ);return;}Р.п.Add(İ);if(Ѷ==null){Р.
-с.Add(İ);return;}List<g>ѻ;if(!Ѵ.TryGetValue(Ѷ.EntityId,out ѻ)){ѻ=new List<g>();Ѵ.Add(Ѷ.EntityId,ѻ);}ѻ.Add(İ);}void ѯ(П Р,
-Dictionary<long,IMyMotorStator>ѳ,Dictionary<long,List<g>>Ѵ){foreach(KeyValuePair<long,List<g>>Ћ in Ѵ){IMyMotorStator ҋ;if(!ѳ.
-TryGetValue(Ћ.Key,out ҋ)){Ҍ(Р,Ћ.Value);continue;}ǘ ҍ;if(!Р.Т.TryGetValue(ҋ.CubeGrid.EntityId,out ҍ)){Ҍ(Р,Ћ.Value);continue;}F Ҏ=Ф(Р
-.G,ҋ.EntityId);bool ѹ=(Ҏ&F.X)!=0;bool Ѹ=(Ҏ&F.Z)!=0;ǖ Ҁ=ҍ.Ǘ;bool Ҋ=!ѹ&&Ҁ.Ǩ&&(Ѹ||Ҁ.ǧ&&Ћ.Value.Count>0);if(!Ҋ||ҋ.TopGrid==
-null||!ҋ.IsFunctional||!ҋ.Enabled||ҋ.RotorLock){Ҍ(Р,Ћ.Value);continue;}ҏ Ґ=new ҏ(ҋ);Ґ.ĥ.AddRange(Ћ.Value);Р.ф.Add(Ґ);}}
-static void Ҍ(П Р,List<g>ʆ){for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(!Р.с.Contains(İ)){Р.с.Add(İ);}}}IEnumerable<int>Ѱ(П Р){for(
-int Į=0;Į<Р.ґ.Count;Į++){IMyGyro d=Р.ґ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)||!ǟ.ǜ||!Ғ(d)){continue;}F e=Ф(
-Р.G,d.EntityId);bool ѹ=(e&F.X)!=0;if(ѹ){continue;}bool ѷ=ǟ.Ǜ>0;bool Ѹ=(e&F.Z)!=0;bool ғ=ȟ.Ȭ?Ѹ||ѷ:Ѹ;bool Ҕ=d.CubeGrid==Me.
-CubeGrid;if(!ғ&&!Ҕ){continue;}ũ ҕ=new ũ(d,this,e,ғ);Р.д.Add(ҕ);yield return 1;}}Ò ѵ(ǘ ǟ,Dictionary<long,Ò>ѳ){ǘ Җ=ǟ;while(Җ!=null
-&&Җ.Ǚ!=null){ǔ җ=Җ.ǚ;IMyMotorStator Ҙ=җ!=null?җ.ǝ as IMyMotorStator:null;if(Ҙ!=null&&Ҙ.TopGrid==Җ.Ǔ){Ò Ī;if(ѳ.TryGetValue(
-Ҙ.EntityId,out Ī)){return Ī;}}Җ=Җ.Ǚ;}return null;}IMyMotorStator ҁ(ǘ ǟ,Dictionary<long,IMyMotorStator>ѳ){ǘ Җ=ǟ;while(Җ!=
-null&&Җ.Ǚ!=null){ǔ җ=Җ.ǚ;IMyMotorStator Ҙ=җ!=null?җ.ǝ as IMyMotorStator:null;if(Ҙ!=null&&Ҙ.TopGrid==Җ.Ǔ){IMyMotorStator Ī;if
-(ѳ.TryGetValue(Ҙ.EntityId,out Ī)){return Ī;}}Җ=Җ.Ǚ;}return null;}void ѿ(H ʋ,ǘ Ѿ,Ò Ī){ǘ Җ=Ѿ;while(Җ!=null){ѡ(ʋ.Ħ,Җ.Ǔ);if(Җ
-.ǚ!=null&&Җ.ǚ.ǝ.EntityId==Ī.Q){break;}Җ=Җ.Ǚ;}}static bool Ѫ(П Р,ǖ Ҁ){return Ҁ!=null&&Ҁ!=Р.я&&!Ҁ.ǜ&&Ҁ.Ǥ&&Ҁ.ǩ!=null;}bool Ғ
-(IMyGyro ҕ){string ҙ=ҕ.BlockDefinition.SubtypeId;if(ҙ.Equals("SmallBlockGyro",StringComparison.OrdinalIgnoreCase)||ҙ.
-Equals("LargeBlockGyro",StringComparison.OrdinalIgnoreCase)){return true;}return ҙ.Equals("SmallPrototechGyro",
-StringComparison.OrdinalIgnoreCase)||ҙ.Equals("LargePrototechGyro",StringComparison.OrdinalIgnoreCase)||ҙ.Equals(
-"SmallPrototechGyroscope",StringComparison.OrdinalIgnoreCase)||ҙ.Equals("LargePrototechGyroscope",StringComparison.OrdinalIgnoreCase);}
-IEnumerable<int>ҥ(){П Р=new П();foreach(int ѱ in Қ(Р)){yield return ѱ;}foreach(int ѱ in қ(Р)){yield return ѱ;}Ҝ(Р);foreach(int ѱ in
-ҝ(Р)){yield return ѱ;}foreach(int ѱ in Ҟ(Р)){yield return ѱ;}ǘ Ҡ=ҟ(Р.Т,Me.CubeGrid);Р.я=Ҡ.Ǘ;ҡ(Р);Ң(Р,Ҡ);ң(Р);foreach(int
-ѱ in Ҥ(Р)){yield return ѱ;}foreach(int ѱ in Ѳ(Р)){yield return ѱ;}foreach(int ѱ in Я(Р)){yield return ѱ;}ы(Р);yield
-return 1;}IEnumerable<int>Қ(П Р){GridTerminalSystem.GetBlocks(Р.ю);List<IMyBlockGroup>Ҧ=new List<IMyBlockGroup>();
-GridTerminalSystem.GetBlockGroups(Ҧ);List<IMyTerminalBlock>ҧ=new List<IMyTerminalBlock>();for(int Į=0;Į<Ҧ.Count;Į++){IMyBlockGroup Ҩ=Ҧ[Į];
-F ҩ=њ(Ҩ.Name);if(ҩ==F.M){continue;}ҧ.Clear();Ҩ.GetBlocks(ҧ);for(int ĵ=0;ĵ<ҧ.Count;ĵ++){ў(Р.G,ҧ[ĵ].EntityId,ҩ);}yield
-return 1;}for(int Į=0;Į<Р.ю.Count;Į++){IMyTerminalBlock d=Р.ю[Į];F Ҫ=њ(d.CustomName)|њ(d.CustomData);ў(Р.G,d.EntityId,Ҫ);ҟ(Р.Т
-,d.CubeGrid);IMyShipController Ͱ=d as IMyShipController;if(Ͱ!=null){Р.Ǣ.Add(Ͱ);}IMyThrust T=d as IMyThrust;if(T!=null){Р.
-ѫ.Add(T);}IMyMotorStator Ī=d as IMyMotorStator;if(Ī!=null){Р.Ѩ.Add(Ī);}IMyPistonBase ҫ=d as IMyPistonBase;if(ҫ!=null){Р.Ҭ
-.Add(ҫ);}IMyGyro ҕ=d as IMyGyro;if(ҕ!=null){Р.ґ.Add(ҕ);}IMyShipConnector Ϛ=d as IMyShipConnector;if(Ϛ!=null){Р.С.Add(Ϛ);}
-IMyLandingGear Ϟ=d as IMyLandingGear;if(Ϟ!=null){Р.Щ.Add(Ϟ);}IMyTimerBlock ϩ=d as IMyTimerBlock;if(ϩ!=null){Р.Ы.Add(ϩ);}
-IMyProgrammableBlock і=d as IMyProgrammableBlock;if(і!=null){Р.ҭ.Add(і);}yield return 1;}ҟ(Р.Т,Me.CubeGrid);}IEnumerable<int>қ(П Р){for(int
-Į=0;Į<Р.Ѩ.Count;Į++){IMyMotorStator Ī=Р.Ѩ[Į];if(Ī.TopGrid==null){continue;}Ү(Р.Т,Ī.CubeGrid,Ī.TopGrid,Ī);yield return 1;}
-for(int Į=0;Į<Р.Ҭ.Count;Į++){IMyPistonBase ҫ=Р.Ҭ[Į];if(ҫ.TopGrid==null){continue;}Ү(Р.Т,ҫ.CubeGrid,ҫ.TopGrid,ҫ);yield
-return 1;}for(int Į=0;Į<Р.С.Count;Į++){IMyShipConnector Ɨ=Р.С[Į].OtherConnector;if(Ɨ!=null){ҟ(Р.Т,Ɨ.CubeGrid);}yield return 1;
-}}void Ҝ(П Р){List<ǘ>ү=new List<ǘ>();foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){ǘ Ұ=Ћ.Value;if(Ұ.Ǘ!=null){continue;}ǖ Ҁ=new ǖ(
-);Р.ұ.Add(Ҁ);ү.Clear();ү.Add(Ұ);Ұ.Ǘ=Ҁ;for(int ΰ=0;ΰ<ү.Count;ΰ++){ǘ ǟ=ү[ΰ];Ҁ.ǡ.Add(ǟ);if(ǟ.Ǔ.IsStatic){Ҁ.ǥ=true;}for(int Ҳ
-=0;Ҳ<ǟ.Ǖ.Count;Ҳ++){ǘ ҳ=ǟ.Ǖ[Ҳ].Ǡ(ǟ);if(ҳ.Ǘ!=null){continue;}ҳ.Ǘ=Ҁ;ү.Add(ҳ);}}}}IEnumerable<int>ҝ(П Р){for(int Į=0;Į<Р.Ǣ.
-Count;Į++){IMyShipController Ͱ=Р.Ǣ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(Ͱ.CubeGrid.EntityId,out ǟ)){continue;}ǟ.Ǘ.Ǣ.Add(Ͱ);if(Ͱ.
-CubeGrid==Me.CubeGrid){Р.й.Add(Ͱ);}yield return 1;}for(int Į=0;Į<Р.ҭ.Count;Į++){IMyProgrammableBlock і=Р.ҭ[Į];if(!ї(і)){continue
-;}ǘ ǟ;if(!Р.Т.TryGetValue(і.CubeGrid.EntityId,out ǟ)){continue;}ǖ Ҁ=ǟ.Ǘ;Ҁ.ǣ.Add(і);bool Ҵ=ј(і);if(Ҵ){Ҁ.Ǧ=true;}if(Ҁ.ǩ==
-null||і.EntityId<Ҁ.ǩ.EntityId){Ҁ.ǩ=і;Ҁ.ǧ=ҵ(і);Ҁ.Ǩ=Ҵ;}yield return 1;}}bool ҵ(IMyProgrammableBlock і){string Ȧ;if(!Ͳ(і.
-CustomData,Ɉ,"Greedy",out Ȧ)){return true;}bool ğ;return bool.TryParse(Ȧ,out ğ)?ğ:true;}IEnumerable<int>Ҟ(П Р){HashSet<Ƥ>Ҷ=new
-HashSet<Ƥ>();for(int Į=0;Į<Р.С.Count;Į++){IMyShipConnector Ϛ=Р.С[Į];IMyShipConnector Ɨ=Ϛ.OtherConnector;if(Ɨ==null){continue;}Ƥ
-Ћ=new Ƥ(Ϛ.EntityId,Ɨ.EntityId);if(!Ҷ.Add(Ћ)){continue;}ǘ ҷ;ǘ Ҹ;if(!Р.Т.TryGetValue(Ϛ.CubeGrid.EntityId,out ҷ)||!Р.Т.
-TryGetValue(Ɨ.CubeGrid.EntityId,out Ҹ)){continue;}Р.Ш.Add(new Ǭ{ƥ=Ϛ,Ʀ=Ɨ,Ǫ=ҷ,ǫ=Ҹ});yield return 1;}}void ҡ(П Р){ǖ ҹ=Р.я;if(ҹ==null){
-return;}List<ǖ>ү=new List<ǖ>();ҹ.Ǥ=true;ү.Add(ҹ);for(int ΰ=0;ΰ<ү.Count;ΰ++){ǖ Ҁ=ү[ΰ];for(int Į=0;Į<Р.Ш.Count;Į++){Ǭ җ=Р.Ш[Į];ǖ
-Ɨ=null;if(җ.Ǫ.Ǘ==Ҁ){Ɨ=җ.ǫ.Ǘ;}else if(җ.ǫ.Ǘ==Ҁ){Ɨ=җ.Ǫ.Ǘ;}if(Ɨ==null||Ɨ.Ǥ){continue;}Ɨ.Ǥ=true;ү.Add(Ɨ);}}}void Ң(П Р,ǘ Ҡ){ǖ
-ҹ=Р.я;if(ҹ==null){return;}ҹ.ǜ=true;Һ(ҹ,Ҡ,0);bool һ;do{һ=false;for(int Į=0;Į<Р.Ш.Count;Į++){Ǭ җ=Р.Ш[Į];bool Ҽ=җ.Ǫ.Ǘ.ǜ;bool
-ҽ=җ.ǫ.Ǘ.ǜ;if(Ҽ==ҽ){continue;}ǘ ѣ=Ҽ?җ.Ǫ:җ.ǫ;ǘ Ȝ=Ҽ?җ.ǫ:җ.Ǫ;ǖ Ҿ=Ȝ.Ǘ;if(Ҿ.ǣ.Count>0){continue;}if(!ȟ.ȭ){continue;}Ҿ.ǜ=true;
-int ҿ=ѣ.Ǜ==int.MaxValue?0:ѣ.Ǜ;Һ(Ҿ,Ȝ,ҿ);һ=true;}}while(һ);foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){Ћ.Value.ǜ=Ћ.Value.Ǘ.ǜ;}}void
-ң(П Р){for(int Į=0;Į<Р.ұ.Count;Į++){ǖ Ҁ=Р.ұ[Į];if(Ҁ==Р.я||Ҁ.ǜ||!Ҁ.Ǥ||Ҁ.ǩ==null){continue;}ǘ Ҡ;if(!Р.Т.TryGetValue(Ҁ.ǩ.
-CubeGrid.EntityId,out Ҡ)){continue;}Һ(Ҁ,Ҡ,0);}}void Һ(ǖ Ҁ,ǘ ι,int Ӏ){List<ǘ>ү=new List<ǘ>();if(ι.Ǜ>Ӏ){ι.Ǜ=Ӏ;ι.Ǚ=null;ι.ǚ=null;}ү
-.Add(ι);for(int ΰ=0;ΰ<ү.Count;ΰ++){ǘ ǟ=ү[ΰ];for(int Į=0;Į<ǟ.Ǖ.Count;Į++){ǔ җ=ǟ.Ǖ[Į];ǘ ҳ=җ.Ǡ(ǟ);if(ҳ.Ǘ!=Ҁ){continue;}int Ӂ
-=ǟ.Ǜ+1;if(Ӂ>=ҳ.Ǜ){continue;}ҳ.Ǜ=Ӂ;ҳ.Ǚ=ǟ;ҳ.ǚ=җ;ү.Add(ҳ);}}}IEnumerable<int>Ҥ(П Р){for(int Į=0;Į<Р.ұ.Count;Į++){ǖ Ҁ=Р.ұ[Į];
-if(!Ҁ.Ǥ||Ҁ.ǜ||Ҁ.ǣ.Count==0){continue;}for(int ĵ=0;ĵ<Ҁ.Ǣ.Count;ĵ++){Р.к.Add(Ҁ.Ǣ[ĵ]);}yield return 1;}}static ǘ ҟ(Dictionary
-<long,ǘ>ӂ,IMyCubeGrid Ŗ){ǘ ǟ;if(!ӂ.TryGetValue(Ŗ.EntityId,out ǟ)){ǟ=new ǘ(Ŗ);ӂ.Add(Ŗ.EntityId,ǟ);}return ǟ;}static void Ү
-(Dictionary<long,ǘ>ӂ,IMyCubeGrid Ӄ,IMyCubeGrid ӄ,IMyTerminalBlock Ǟ){ǘ ǂ=ҟ(ӂ,Ӄ);ǘ ǃ=ҟ(ӂ,ӄ);ǔ җ=new ǔ(ǂ,ǃ,Ǟ);ǂ.Ǖ.Add(җ);ǃ.
-Ǖ.Add(җ);}sealed class П{public readonly List<IMyTerminalBlock>ю=new List<IMyTerminalBlock>();public readonly List<
-IMyShipController>Ǣ=new List<IMyShipController>(),й=new List<IMyShipController>(),к=new List<IMyShipController>();public readonly List<
-IMyThrust>ѫ=new List<IMyThrust>();public readonly List<IMyMotorStator>Ѩ=new List<IMyMotorStator>();public readonly List<
-IMyPistonBase>Ҭ=new List<IMyPistonBase>();public readonly List<IMyGyro>ґ=new List<IMyGyro>();public readonly List<IMyShipConnector>С=
-new List<IMyShipConnector>(),У=new List<IMyShipConnector>();public readonly List<IMyLandingGear>Щ=new List<IMyLandingGear>(
-);public readonly List<IMyTimerBlock>Ы=new List<IMyTimerBlock>(),Ь=new List<IMyTimerBlock>(),Э=new List<IMyTimerBlock>();
-public readonly List<IMyProgrammableBlock>ҭ=new List<IMyProgrammableBlock>();public readonly Dictionary<long,F>G=new
-Dictionary<long,F>();public readonly Dictionary<long,ǘ>Т=new Dictionary<long,ǘ>();public readonly List<ǖ>ұ=new List<ǖ>();public
-readonly List<Ǭ>Ш=new List<Ǭ>();public readonly List<g>ĥ=new List<g>(),л=new List<g>(),м=new List<g>(),н=new List<g>(),о=new
-List<g>(),п=new List<g>(),р=new List<g>(),с=new List<g>();public readonly List<Ò>ѩ=new List<Ò>(),г=new List<Ò>();public
-readonly List<H>т=new List<H>();public readonly List<ҏ>ф=new List<ҏ>();public readonly List<ŝ>у=new List<ŝ>();public readonly
-List<ũ>д=new List<ũ>();public readonly List<ǯ>Ц=new List<ǯ>();public readonly List<ǰ>Ъ=new List<ǰ>();public readonly List<Ž>
-ч=new List<Ž>();public ǖ я;}sealed class ҏ{readonly List<double>Ĥ=new List<double>();public readonly IMyMotorStator Ò;
-public readonly List<g>ĥ=new List<g>();public ҏ(IMyMotorStator Ī){Ò=Ī;}public Vector3D É{get{return Ò.WorldMatrix.Up;}}public
-double ŉ(Vector3D m){m=n.o(m);if(Ò==null||Ò.Closed||Ò.TopGrid==null||!Ò.IsFunctional||m.LengthSquared()<=p){return 0;}Ĥ.Clear(
-);Ӆ(0);for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!ӆ(İ)){continue;}double ñ=n.Ē(m,İ.R,É);Ӆ(ã(ñ));}double Õ=Ò.Angle;if(Î(Ò.
-LowerLimitRad)){Ӆ(Ò.LowerLimitRad-Õ);}if(Ï(Ò.UpperLimitRad)){Ӆ(Ò.UpperLimitRad-Õ);}double Ŀ=0;double Ӈ=double.MaxValue;for(int Į=0;Į<
-Ĥ.Count;Į++){double Ł=ã(Ĥ[Į]);double ł=Ľ(m,Ł);double ӈ=Math.Abs(Ł);if(ł>Ŀ+U||Math.Abs(ł-Ŀ)<=U&&ӈ<Ӈ){Ŀ=ł;Ӈ=ӈ;}}return Ŀ;}
-void Ӆ(double ñ){ñ=ã(ñ);for(int Į=0;Į<Ĥ.Count;Į++){if(Math.Abs(Ĥ[Į]-ñ)<=ē){return;}}Ĥ.Add(ñ);}double Ľ(Vector3D m,double ñ){
-double ł=0;for(int Į=0;Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!ӆ(İ)){continue;}Vector3D ŗ=n.ë(İ.R,É,-ñ);double q=Vector3D.Dot(ŗ,m);if(q<=0
-){continue;}ł+=q*İ.V;}return ł;}static bool ӆ(g İ){if(İ==null||İ.Y||İ.E==null||İ.E.Closed||!İ.E.IsFunctional){return
-false;}return İ.V>U;}double ã(double ø){ø=n.Ø(ø);bool Ĕ=Î(Ò.LowerLimitRad);bool ĕ=Ï(Ò.UpperLimitRad);if(!Ĕ&&!ĕ){return ø;}
-double Õ=Ò.Angle;double Ė=double.NaN;double ė=double.MaxValue;for(int Ę=-2;Ę<=2;Ę++){double ę=ø+Ę*MathHelper.TwoPi;double Ě=Õ+
-ę;if(Ĕ&&Ě<Ò.LowerLimitRad-ē){continue;}if(ĕ&&Ě>Ò.UpperLimitRad+ē){continue;}double ě=Math.Abs(ę);if(ě<ė){ė=ě;Ė=ę;}}if(!
-double.IsNaN(Ė)){return Ė;}double Ĝ=Õ+ø;if(Ĕ){Ĝ=Math.Max(Ĝ,Ò.LowerLimitRad);}if(ĕ){Ĝ=Math.Min(Ĝ,Ò.UpperLimitRad);}return Ĝ-Õ;}
-static bool Î(double ğ){return!double.IsNaN(ğ)&&!double.IsInfinity(ğ)&&ğ>-1e20;}static bool Ï(double ğ){return!double.IsNaN(ğ)
-&&!double.IsInfinity(ğ)&&ğ<1e20;}}readonly List<Ǭ>х=new List<Ǭ>();readonly List<IMyShipConnector>ц=new List<
-IMyShipConnector>();readonly Dictionary<long,long>Ӊ=new Dictionary<long,long>();readonly Dictionary<long,bool>ӊ=new Dictionary<long,bool
->();readonly List<ҏ>ʏ=new List<ҏ>();readonly List<g>ʎ=new List<g>();void Ȋ(){ϵ=true;}void Џ(){if(Ј==null){if(!ϵ){return;}
-ϵ=false;Ј=ҥ().GetEnumerator();}int Ӌ=Runtime.MaxInstructionCount;int ӌ=Math.Max(1000,Ӌ*3/4);int Ӎ=0;while(Ј!=null&&
-Runtime.CurrentInstructionCount<ӌ&&Ӎ<512){Ӎ++;if(Ј.MoveNext()){continue;}Ј.Dispose();Ј=null;if(ϵ){ϵ=false;Ј=ҥ().GetEnumerator()
-;}}}static double ʍ(List<g>ӎ,Vector3D m){m=n.o(m);if(m.LengthSquared()<=p){return 0;}double ł=0;for(int Į=0;Į<ӎ.Count;Į++
-){g İ=ӎ[Į];if(İ==null||İ.Y||İ.E==null||İ.E.Closed||!İ.E.IsFunctional){continue;}double q=Vector3D.Dot(İ.R,m);if(q<=0){
-continue;}ł+=q*İ.V;}return ł;}bool ʟ{get{return Ȏ==ƅ.ƃ?ɱ.Ư:Ȍ;}}bool ǻ{get{return Ȏ==ƅ.ƃ?ɱ.Ɖ:Ȕ;}}double ʭ{get{return Ȏ==ƅ.ƃ?ɱ.Ʊ:ȝ
-;}}double ʝ{get{if(Ȏ==ƅ.ƃ){return MathHelper.Clamp(ɱ.Ʋ,0,1);}if(ȟ.Ƞ.Count==0){return 0;}return MathHelper.Clamp(ȟ.Ƞ[
-MathHelper.Clamp(Ȣ,0,ȟ.Ƞ.Count-1)],0,1);}}void ǽ(string Ǹ,bool ǹ){ϲ=Ǹ??string.Empty;ϴ=ǹ;ϓ=true;}void ӏ(){ϲ=string.Empty;ϴ=false;}
-void ȍ(bool i){Ȍ=i;Ӑ(i);}void Ӑ(bool i){for(int Į=0;Į<ͺ.Count;Į++){IMyShipController Ͱ=ͺ[Į];if(Ͱ==null||Ͱ.Closed||!Ͱ.
-IsFunctional){continue;}if(Ͱ.DampenersOverride==i){continue;}Ͱ.DampenersOverride=i;}}void ɞ(){if(Ȏ==ƅ.ƃ){Ӑ(ɱ.Ư);return;}if(!Ͽ){Ӑ(Ȍ);
-return;}if(ɡ==null||ɡ.Closed){return;}bool ӑ=ɡ.DampenersOverride;if(ӑ==Ȍ){return;}Ȍ=ӑ;Ӑ(Ȍ);}void ȕ(bool i){if(i&&!Ȕ){Ӓ();}Ȕ=i;
-if(!Ȕ){ʾ(ƌ.Ɖ);ӓ(C.Ɖ);}ɝ();Ӕ();}void ȏ(){ȕ(!Ȕ);}void Ӓ(){if(ɡ==null||ɡ.Closed){ȝ=0;Ȟ=false;return;}Vector3D ʓ=ɡ.
-GetShipVelocities().LinearVelocity;ȝ=Vector3D.Dot(ʓ,ɡ.WorldMatrix.Forward);Ȟ=true;}void ʤ(){if(Ȟ){return;}Ӓ();}void Ș(double Ö){ʤ();ȝ+=Ö;
-ǽ("Cruise target: "+ȝ.ToString("0.###")+" m/s",false);}bool b(long Ϧ){Ə Ȓ;if(!Ϻ.TryGetValue(Ϧ,out Ȓ)){return false;}
-return Ȓ.ƍ&&Ȓ.Ǝ!=ƌ.M;}bool ӕ(long Ϧ,out Ə Ȓ){return Ϻ.TryGetValue(Ϧ,out Ȓ);}void ˀ(g İ,ƌ Ӗ){if(İ==null){return;}ˀ(İ.E,Ӗ);}void
-ˀ(IMyThrust d,ƌ Ӗ){if(d==null||d.Closed||Ӗ==ƌ.M){return;}Ə Ȓ;if(!Ϻ.TryGetValue(d.EntityId,out Ȓ)){Ȓ=new Ə{ƍ=d.Enabled,Ǝ=ƌ
-.M};Ϻ.Add(d.EntityId,Ȓ);}Ȓ.Ǝ|=Ӗ;if(d.Enabled){d.Enabled=false;}if((Ȓ.Ǝ&ƌ.Ɗ)!=0){Ϣ[d.EntityId]=Ȓ.ƍ;}}void y(g İ){if(İ==
-null){return;}y(İ.E);}void y(IMyThrust d){if(d==null||d.Closed){return;}Ə Ȓ;if(!Ϻ.TryGetValue(d.EntityId,out Ȓ)){return;}if(
-Ȓ.ƍ&&!d.Enabled){d.Enabled=true;}}void ʾ(g İ,ƌ Ӗ){if(İ==null){return;}ʾ(İ.Q,İ.E,Ӗ);}void ʾ(long Ϧ,IMyThrust d,ƌ Ӗ){Ə Ȓ;if
-(!Ϻ.TryGetValue(Ϧ,out Ȓ)){return;}Ȓ.Ǝ&=~Ӗ;if((Ӗ&ƌ.Ɗ)!=0){Ϣ.Remove(Ϧ);}if(Ȓ.Ǝ!=ƌ.M){if(d!=null&&!d.Closed&&d.Enabled){d.
-Enabled=false;}return;}if(d!=null&&!d.Closed){d.Enabled=Ȓ.ƍ;}Ϻ.Remove(Ϧ);}void ʾ(ƌ Ӗ){if(Ϻ.Count==0){return;}List<long>ӗ=new
-List<long>(Ϻ.Keys);for(int Į=0;Į<ӗ.Count;Į++){long Ϧ=ӗ[Į];IMyThrust d=Ә(Ϧ);ʾ(Ϧ,d,Ӗ);}}IMyThrust Ә(long Ϧ){for(int Į=0;Į<ʆ.
-Count;Į++){g İ=ʆ[Į];if(İ.Q==Ϧ){return İ.E;}}return null;}void Ϥ(g İ){if(İ==null){return;}Ə Ȓ;if(!Ϻ.TryGetValue(İ.Q,out Ȓ)){
-return;}if(Ȓ.Ǝ==ƌ.M){Ϻ.Remove(İ.Q);return;}if(İ.E.Enabled){İ.E.Enabled=false;}}void ш(HashSet<long>ә){if(Ϻ.Count==0){return;}
-List<long>Ӛ=new List<long>();foreach(KeyValuePair<long,Ə>Ћ in Ϻ){if(!ә.Contains(Ћ.Key)){Ӛ.Add(Ћ.Key);}}for(int Į=0;Į<Ӛ.Count
-;Į++){long Ϧ=Ӛ[Į];Ϻ.Remove(Ϧ);Ϣ.Remove(Ϧ);}}void ɝ(){bool ӛ=Ȏ==ƅ.ƃ;bool Ӝ=ǻ;for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];bool ӝ=İ.
-E.CubeGrid==Me.CubeGrid;bool Ӟ=!İ.Y&&(ȟ.Ȭ||İ.a);bool ӟ=ӛ&&ӝ&&Ӟ;bool ӡ=Ӝ&&ӝ&&Ӡ(İ)&&Ӟ;İ.N(C.ƃ,ӟ);İ.N(C.Ɖ,ӡ);if(!ӡ){ʾ(İ,ƌ.Ɖ)
-;}}for(int Į=0;Į<ˁ.Count;Į++){ũ ҕ=ˁ[Į];bool ӝ=ҕ.E.CubeGrid==Me.CubeGrid;bool Ӣ=!ҕ.Y&&(ȟ.Ȭ||ҕ.a);ҕ.N(C.ƃ,ӛ&&ӝ&&Ӣ);}ω();}
-void ӓ(C h){for(int Į=0;Į<ʆ.Count;Į++){ʆ[Į].N(h,false);}for(int Į=0;Į<ˁ.Count;Į++){ˁ[Į].N(h,false);}}bool Ӡ(g İ){if(İ==null
-||ɡ==null||İ.E.CubeGrid!=Me.CubeGrid){return false;}return Vector3D.Dot(n.o(İ.R),ɡ.WorldMatrix.Backward)>=Ķ;}void ω(){ʿ.
-Clear();if(ɡ==null){return;}for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(Ӡ(İ)){ʿ.Add(İ);}}Ӕ();}void щ(){Ͽ=false;for(int Į=0;Į<ʆ.
-Count;Į++){g İ=ʆ[Į];if(İ.E.CubeGrid==Me.CubeGrid){Ͽ=true;break;}}ω();}void Ӕ(){Ǽ=string.Empty;if(!ǻ||ʿ.Count==0){return;}if(ȟ
-.Ȭ){bool ӣ=true;for(int Į=0;Į<ʿ.Count;Į++){if(!ʿ[Į].Y){ӣ=false;break;}}if(ӣ){Ǽ="Cruise cannot control main-grid "+
-"reverse thrusters; all are "+ȟ.Ȳ+".";}return;}bool Ӥ=false;for(int Į=0;Į<ʿ.Count;Į++){g İ=ʿ[Į];if(!İ.Y&&İ.a){Ӥ=true;break;}}if(!Ӥ){Ǽ=
-"Cruise cannot control main-grid "+"reverse thrusters; add "+ȟ.ȱ+".";}}void ϒ(ƅ ϐ,ƅ Ϗ){if(ϐ==ƅ.ƃ&&Ϗ!=ƅ.ƃ){ӓ(C.ƃ);Ӑ(Ȍ);}if(ϐ!=ƅ.ƃ&&Ϗ==ƅ.ƃ){Ӑ(ɱ.Ư);}ɝ();}
+ˁ[Į].Ū();}}if(Ȏ==ƅ.Ƅ){ϥ();}Ά();ϓ=true;}void Ю(П Р){HashSet<string>ы=new HashSet<string>(StringComparer.Ordinal);List<int>
+ь=new List<int>();for(int Į=0;Į<Р.э.Count;Į++){IMyTerminalBlock d=Р.э[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out
+ǟ)||ǟ.Ǘ!=Р.ю){continue;}F e=Ф(Р.G,d.EntityId);IMyTextPanel я=d as IMyTextPanel;if(я!=null&&(e&F.Ɔ)!=0){ѐ(Р.ч,ы,d,я,0);}
+IMyTextSurfaceProvider ё=d as IMyTextSurfaceProvider;if(ё==null||ё.SurfaceCount<=0){continue;}ь.Clear();ђ(d.CustomData,ё.SurfaceCount,ь);if((e
+&F.Ɔ)!=0&&ь.Count==0){ь.Add(0);}for(int ΰ=0;ΰ<ь.Count;ΰ++){int ż=ь[ΰ];ѐ(Р.ч,ы,d,ё.GetSurface(ż),ż);}}}void ђ(string ȼ,int
+ѓ,List<int>Ĺ){if(string.IsNullOrEmpty(ȼ)){return;}string[]μ=ȼ.Replace("\r",string.Empty).Split('\n');for(int Į=0;Į<μ.
+Length;Į++){string ν=μ[Į].Trim();if(!ν.StartsWith(Ϫ,StringComparison.OrdinalIgnoreCase)){continue;}string є=ν.Substring(Ϫ.
+Length).Trim();int ΰ;if(!int.TryParse(є,out ΰ)||ΰ<0||ΰ>=ѓ||Ĺ.Contains(ΰ)){continue;}Ĺ.Add(ΰ);}}static void ѐ(List<Ž>Ĺ,HashSet<
+string>w,IMyTerminalBlock ź,IMyTextSurface Ż,int ż){string ɐ=ź.EntityId+":"+ż;if(!w.Add(ɐ)){return;}Ĺ.Add(new Ž(ź,Ż,ż));}bool
+Х(F e){if((e&F.X)!=0){return false;}return ȟ.Ȭ||(e&F.Z)!=0;}bool і(IMyProgrammableBlock ѕ){if(ѕ==null){return false;}
+return δ(ѕ.CustomData,Ɉ)>=0;}bool ї(IMyProgrammableBlock ѕ){string Ȧ;if(!Ͳ(ѕ.CustomData,Ɉ,"CanSlave",out Ȧ)){return true;}bool
+ğ;return bool.TryParse(Ȧ,out ğ)?ğ:true;}F љ(string ž){if(string.IsNullOrEmpty(ž)){return F.M;}F Ǹ=F.M;if(ј(ž,ȟ.ȱ)){Ǹ|=F.Z
+;}if(ј(ž,ȟ.Ȳ)){Ǹ|=F.X;}if(ј(ž,ȟ.ȳ)){Ǹ|=F.Ɔ;}if(ј(ž,ȟ.ȴ)){Ǹ|=F.Ƈ;}if(ј(ž,ȟ.ȵ)){Ǹ|=F.ƈ;}return Ǹ;}static bool ј(string ž,
+string њ){return!string.IsNullOrEmpty(ž)&&!string.IsNullOrEmpty(њ)&&ž.IndexOf(њ,StringComparison.OrdinalIgnoreCase)>=0;}static
+void ѝ(Dictionary<long,F>e,long Ϧ,F ћ){if(ћ==F.M){return;}F ќ;e.TryGetValue(Ϧ,out ќ);e[Ϧ]=ќ|ћ;}static F Ф(Dictionary<long,F>
+e,long Ϧ){F Ǹ;return e.TryGetValue(Ϧ,out Ǹ)?Ǹ:F.M;}static Ǭ Ч(List<Ǭ>ў,IMyShipConnector Ϛ){for(int Į=0;Į<ў.Count;Į++){if(
+ў[Į].ƥ.EntityId==Ϛ.EntityId||ў[Į].Ʀ.EntityId==Ϛ.EntityId){return ў[Į];}}return null;}static void Ѡ(List<IMyCubeGrid>џ,
+IMyCubeGrid Ŗ){for(int Į=0;Į<џ.Count;Į++){if(џ[Į].EntityId==Ŗ.EntityId){return;}}џ.Add(Ŗ);}static void и<ѡ>(List<ѡ>Ȝ,List<ѡ>Ѣ){Ȝ.
+Clear();Ȝ.AddRange(Ѣ);}IEnumerable<int>ѱ(П Р){Dictionary<long,Ò>ѣ=new Dictionary<long,Ò>();Dictionary<long,IMyMotorStator>Ѥ=
+new Dictionary<long,IMyMotorStator>();Dictionary<long,List<g>>ѥ=new Dictionary<long,List<g>>();Dictionary<long,List<g>>Ѧ=
+new Dictionary<long,List<g>>();for(int Į=0;Į<Р.ѧ.Count;Į++){IMyMotorStator d=Р.ѧ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.
+EntityId,out ǟ)){continue;}F e=Ф(Р.G,d.EntityId);if(ǟ.ǜ){Ò Ī=new Ò(d,this,e,false);ѣ.Add(d.EntityId,Ī);Р.Ѩ.Add(Ī);}else if(ѩ(Р,ǟ
+.Ǘ)){Ѥ.Add(d.EntityId,d);}yield return 1;}for(int Į=0;Į<Р.Ѫ.Count;Į++){IMyThrust d=Р.Ѫ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.
+CubeGrid.EntityId,out ǟ)){continue;}F e=Ф(Р.G,d.EntityId);if(ǟ.ǜ){ѫ(Р,ǟ,d,e,ѣ,ѥ);}else if(ѩ(Р,ǟ.Ǘ)){Ѭ(Р,ǟ,d,e,Ѥ,Ѧ);}else if(ǟ.Ǘ.
+Ǥ){g İ=new g(d,this,e,false);Р.р.Add(İ);Р.н.Add(İ);}yield return 1;}ѭ(Р,ѥ);Ѯ(Р,Ѥ,Ѧ);foreach(int Ѱ in ѯ(Р)){yield return Ѱ
+;}}void ѫ(П Р,ǘ ǟ,IMyThrust d,F e,Dictionary<long,Ò>Ѳ,Dictionary<long,List<g>>ѳ){Ò ѵ=Ѵ(ǟ,Ѳ);bool Ѷ=ǟ.Ǜ>0;bool ѷ=(e&F.Z)!=
+0;bool Ѹ=(e&F.X)!=0;bool ѹ=!Ѹ&&(ȟ.Ȭ?ѷ||Ѷ||ѵ!=null:ѷ);g İ=new g(d,this,e,ѹ);Р.ĥ.Add(İ);if(ѹ){Р.л.Add(İ);}else{Р.о.Add(İ);Р
+.н.Add(İ);}if(ѵ==null){if(ѹ){Р.м.Add(İ);}return;}List<g>Ѻ;if(!ѳ.TryGetValue(ѵ.Q,out Ѻ)){Ѻ=new List<g>();ѳ.Add(ѵ.Q,Ѻ);}Ѻ.
+Add(İ);}void ѭ(П Р,Dictionary<long,List<g>>ѳ){for(int Į=0;Į<Р.Ѩ.Count;Į++){Ò Ī=Р.Ѩ[Į];List<g>Ѻ;bool ѻ=ѳ.TryGetValue(Ī.Q,out
+Ѻ);bool Ѽ=false;if(ѻ){for(int ĵ=0;ĵ<Ѻ.Count;ĵ++){if(Ѻ[ĵ].P){Ѽ=true;break;}}}bool f=!Ī.Y&&(Ī.a||ȟ.Ȭ&&Ѽ);Ī.N(C.O,f);if(!f){
+if(ѻ){for(int ĵ=0;ĵ<Ѻ.Count;ĵ++){g İ=Ѻ[ĵ];if(İ.P&&!Р.м.Contains(İ)){Р.м.Add(İ);}}}continue;}Р.г.Add(Ī);if(!Ѽ){if(Ī.a){Ī.Ó(
+);}continue;}H ʋ=new H(Ī,this);Р.т.Add(ʋ);for(int ĵ=0;ĵ<Ѻ.Count;ĵ++){g İ=Ѻ[ĵ];if(!İ.P){continue;}İ.I=ʋ;ʋ.ĥ.Add(İ);ǘ ѽ;if(
+Р.Т.TryGetValue(İ.E.CubeGrid.EntityId,out ѽ)){Ѿ(ʋ,ѽ,Ī);}}ʋ.ĸ();}}void Ѭ(П Р,ǘ ǟ,IMyThrust d,F e,Dictionary<long,
+IMyMotorStator>Ѳ,Dictionary<long,List<g>>ѳ){ǖ ѿ=ǟ.Ǘ;IMyMotorStator ѵ=Ҁ(ǟ,Ѳ);bool ѷ=(e&F.Z)!=0;bool Ѹ=(e&F.X)!=0;bool ҁ=!Ѹ&&ѿ.Ǩ&&(ѿ.ǧ||
+ѷ);g İ=new g(d,this,e,false);if(!ҁ){Р.р.Add(İ);Р.н.Add(İ);return;}Р.п.Add(İ);if(ѵ==null){Р.с.Add(İ);return;}List<g>Ѻ;if(!
+ѳ.TryGetValue(ѵ.EntityId,out Ѻ)){Ѻ=new List<g>();ѳ.Add(ѵ.EntityId,Ѻ);}Ѻ.Add(İ);}void Ѯ(П Р,Dictionary<long,IMyMotorStator
+>Ѳ,Dictionary<long,List<g>>ѳ){foreach(KeyValuePair<long,List<g>>Ћ in ѳ){IMyMotorStator Ҋ;if(!Ѳ.TryGetValue(Ћ.Key,out Ҋ)){
+ҋ(Р,Ћ.Value);continue;}ǘ Ҍ;if(!Р.Т.TryGetValue(Ҋ.CubeGrid.EntityId,out Ҍ)){ҋ(Р,Ћ.Value);continue;}F ҍ=Ф(Р.G,Ҋ.EntityId);
+bool Ѹ=(ҍ&F.X)!=0;bool ѷ=(ҍ&F.Z)!=0;ǖ ѿ=Ҍ.Ǘ;bool ҁ=!Ѹ&&ѿ.Ǩ&&(ѷ||ѿ.ǧ&&Ћ.Value.Count>0);if(!ҁ||Ҋ.TopGrid==null||!Ҋ.
+IsFunctional||!Ҋ.Enabled||Ҋ.RotorLock){ҋ(Р,Ћ.Value);continue;}Ҏ ҏ=new Ҏ(Ҋ);ҏ.ĥ.AddRange(Ћ.Value);Р.ф.Add(ҏ);}}static void ҋ(П Р,List
+<g>ʆ){for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(!Р.с.Contains(İ)){Р.с.Add(İ);}}}IEnumerable<int>ѯ(П Р){for(int Į=0;Į<Р.Ґ.
+Count;Į++){IMyGyro d=Р.Ґ[Į];ǘ ǟ;if(!Р.Т.TryGetValue(d.CubeGrid.EntityId,out ǟ)||!ǟ.ǜ||!ґ(d)){continue;}F e=Ф(Р.G,d.EntityId);
+bool Ѹ=(e&F.X)!=0;if(Ѹ){continue;}bool Ѷ=ǟ.Ǜ>0;bool ѷ=(e&F.Z)!=0;bool Ғ=ȟ.Ȭ?ѷ||Ѷ:ѷ;bool ғ=d.CubeGrid==Me.CubeGrid;if(!Ғ&&!ғ)
+{continue;}ũ Ҕ=new ũ(d,this,e,Ғ);Р.д.Add(Ҕ);yield return 1;}}Ò Ѵ(ǘ ǟ,Dictionary<long,Ò>Ѳ){ǘ ҕ=ǟ;while(ҕ!=null&&ҕ.Ǚ!=null)
+{ǔ Җ=ҕ.ǚ;IMyMotorStator җ=Җ!=null?Җ.ǝ as IMyMotorStator:null;if(җ!=null&&җ.TopGrid==ҕ.Ǔ){Ò Ī;if(Ѳ.TryGetValue(җ.EntityId,
+out Ī)){return Ī;}}ҕ=ҕ.Ǚ;}return null;}IMyMotorStator Ҁ(ǘ ǟ,Dictionary<long,IMyMotorStator>Ѳ){ǘ ҕ=ǟ;while(ҕ!=null&&ҕ.Ǚ!=
+null){ǔ Җ=ҕ.ǚ;IMyMotorStator җ=Җ!=null?Җ.ǝ as IMyMotorStator:null;if(җ!=null&&җ.TopGrid==ҕ.Ǔ){IMyMotorStator Ī;if(Ѳ.
+TryGetValue(җ.EntityId,out Ī)){return Ī;}}ҕ=ҕ.Ǚ;}return null;}void Ѿ(H ʋ,ǘ ѽ,Ò Ī){ǘ ҕ=ѽ;while(ҕ!=null){Ѡ(ʋ.Ħ,ҕ.Ǔ);if(ҕ.ǚ!=null&&ҕ.ǚ
+.ǝ.EntityId==Ī.Q){break;}ҕ=ҕ.Ǚ;}}static bool ѩ(П Р,ǖ ѿ){return ѿ!=null&&ѿ!=Р.ю&&!ѿ.ǜ&&ѿ.Ǥ&&ѿ.ǩ!=null;}bool ґ(IMyGyro Ҕ){
+string Ҙ=Ҕ.BlockDefinition.SubtypeId;if(Ҙ.Equals("SmallBlockGyro",StringComparison.OrdinalIgnoreCase)||Ҙ.Equals(
+"LargeBlockGyro",StringComparison.OrdinalIgnoreCase)){return true;}return Ҙ.Equals("SmallPrototechGyro",StringComparison.
+OrdinalIgnoreCase)||Ҙ.Equals("LargePrototechGyro",StringComparison.OrdinalIgnoreCase)||Ҙ.Equals("SmallPrototechGyroscope",
+StringComparison.OrdinalIgnoreCase)||Ҙ.Equals("LargePrototechGyroscope",StringComparison.OrdinalIgnoreCase);}IEnumerable<int>Ҥ(){П Р=new
+П();foreach(int Ѱ in ҙ(Р)){yield return Ѱ;}foreach(int Ѱ in Қ(Р)){yield return Ѱ;}қ(Р);foreach(int Ѱ in Ҝ(Р)){yield
+return Ѱ;}foreach(int Ѱ in ҝ(Р)){yield return Ѱ;}ǘ ҟ=Ҟ(Р.Т,Me.CubeGrid);Р.ю=ҟ.Ǘ;Ҡ(Р);ҡ(Р,ҟ);Ң(Р);foreach(int Ѱ in ң(Р)){yield
+return Ѱ;}foreach(int Ѱ in ѱ(Р)){yield return Ѱ;}foreach(int Ѱ in Я(Р)){yield return Ѱ;}ъ(Р);yield return 1;}IEnumerable<int>ҙ
+(П Р){GridTerminalSystem.GetBlocks(Р.э);List<IMyBlockGroup>ҥ=new List<IMyBlockGroup>();GridTerminalSystem.GetBlockGroups(
+ҥ);List<IMyTerminalBlock>Ҧ=new List<IMyTerminalBlock>();for(int Į=0;Į<ҥ.Count;Į++){IMyBlockGroup ҧ=ҥ[Į];F Ҩ=љ(ҧ.Name);if(
+Ҩ==F.M){continue;}Ҧ.Clear();ҧ.GetBlocks(Ҧ);for(int ĵ=0;ĵ<Ҧ.Count;ĵ++){ѝ(Р.G,Ҧ[ĵ].EntityId,Ҩ);}yield return 1;}for(int Į=0
+;Į<Р.э.Count;Į++){IMyTerminalBlock d=Р.э[Į];F ҩ=љ(d.CustomName)|љ(d.CustomData);ѝ(Р.G,d.EntityId,ҩ);Ҟ(Р.Т,d.CubeGrid);
+IMyShipController Ͱ=d as IMyShipController;if(Ͱ!=null){Р.Ǣ.Add(Ͱ);}IMyThrust T=d as IMyThrust;if(T!=null){Р.Ѫ.Add(T);}IMyMotorStator Ī=d
+as IMyMotorStator;if(Ī!=null){Р.ѧ.Add(Ī);}IMyPistonBase Ҫ=d as IMyPistonBase;if(Ҫ!=null){Р.ҫ.Add(Ҫ);}IMyGyro Ҕ=d as
+IMyGyro;if(Ҕ!=null){Р.Ґ.Add(Ҕ);}IMyShipConnector Ϛ=d as IMyShipConnector;if(Ϛ!=null){Р.С.Add(Ϛ);}IMyLandingGear Ϟ=d as
+IMyLandingGear;if(Ϟ!=null){Р.Щ.Add(Ϟ);}IMyTimerBlock ϩ=d as IMyTimerBlock;if(ϩ!=null){Р.Ы.Add(ϩ);}IMyProgrammableBlock ѕ=d as
+IMyProgrammableBlock;if(ѕ!=null){Р.Ҭ.Add(ѕ);}yield return 1;}Ҟ(Р.Т,Me.CubeGrid);}IEnumerable<int>Қ(П Р){for(int Į=0;Į<Р.ѧ.Count;Į++){
+IMyMotorStator Ī=Р.ѧ[Į];if(Ī.TopGrid==null){continue;}ҭ(Р.Т,Ī.CubeGrid,Ī.TopGrid,Ī);yield return 1;}for(int Į=0;Į<Р.ҫ.Count;Į++){
+IMyPistonBase Ҫ=Р.ҫ[Į];if(Ҫ.TopGrid==null){continue;}ҭ(Р.Т,Ҫ.CubeGrid,Ҫ.TopGrid,Ҫ);yield return 1;}for(int Į=0;Į<Р.С.Count;Į++){
+IMyShipConnector Ɨ=Р.С[Į].OtherConnector;if(Ɨ!=null){Ҟ(Р.Т,Ɨ.CubeGrid);}yield return 1;}}void қ(П Р){List<ǘ>Ү=new List<ǘ>();foreach(
+KeyValuePair<long,ǘ>Ћ in Р.Т){ǘ ү=Ћ.Value;if(ү.Ǘ!=null){continue;}ǖ ѿ=new ǖ();Р.Ұ.Add(ѿ);Ү.Clear();Ү.Add(ү);ү.Ǘ=ѿ;for(int ΰ=0;ΰ<Ү.
+Count;ΰ++){ǘ ǟ=Ү[ΰ];ѿ.ǡ.Add(ǟ);if(ǟ.Ǔ.IsStatic){ѿ.ǥ=true;}for(int ұ=0;ұ<ǟ.Ǖ.Count;ұ++){ǘ Ҳ=ǟ.Ǖ[ұ].Ǡ(ǟ);if(Ҳ.Ǘ!=null){continue
+;}Ҳ.Ǘ=ѿ;Ү.Add(Ҳ);}}}}IEnumerable<int>Ҝ(П Р){for(int Į=0;Į<Р.Ǣ.Count;Į++){IMyShipController Ͱ=Р.Ǣ[Į];ǘ ǟ;if(!Р.Т.
+TryGetValue(Ͱ.CubeGrid.EntityId,out ǟ)){continue;}ǟ.Ǘ.Ǣ.Add(Ͱ);if(Ͱ.CubeGrid==Me.CubeGrid){Р.й.Add(Ͱ);}yield return 1;}for(int Į=0;
+Į<Р.Ҭ.Count;Į++){IMyProgrammableBlock ѕ=Р.Ҭ[Į];if(!і(ѕ)){continue;}ǘ ǟ;if(!Р.Т.TryGetValue(ѕ.CubeGrid.EntityId,out ǟ)){
+continue;}ǖ ѿ=ǟ.Ǘ;ѿ.ǣ.Add(ѕ);bool ҳ=ї(ѕ);if(ҳ){ѿ.Ǧ=true;}if(ѿ.ǩ==null||ѕ.EntityId<ѿ.ǩ.EntityId){ѿ.ǩ=ѕ;ѿ.ǧ=Ҵ(ѕ);ѿ.Ǩ=ҳ;}yield
+return 1;}}bool Ҵ(IMyProgrammableBlock ѕ){string Ȧ;if(!Ͳ(ѕ.CustomData,Ɉ,"Greedy",out Ȧ)){return true;}bool ğ;return bool.
+TryParse(Ȧ,out ğ)?ğ:true;}IEnumerable<int>ҝ(П Р){HashSet<Ƥ>ҵ=new HashSet<Ƥ>();for(int Į=0;Į<Р.С.Count;Į++){IMyShipConnector Ϛ=Р.
+С[Į];IMyShipConnector Ɨ=Ϛ.OtherConnector;if(Ɨ==null){continue;}Ƥ Ћ=new Ƥ(Ϛ.EntityId,Ɨ.EntityId);if(!ҵ.Add(Ћ)){continue;}ǘ
+Ҷ;ǘ ҷ;if(!Р.Т.TryGetValue(Ϛ.CubeGrid.EntityId,out Ҷ)||!Р.Т.TryGetValue(Ɨ.CubeGrid.EntityId,out ҷ)){continue;}Р.Ш.Add(new
+Ǭ{ƥ=Ϛ,Ʀ=Ɨ,Ǫ=Ҷ,ǫ=ҷ});yield return 1;}}void Ҡ(П Р){ǖ Ҹ=Р.ю;if(Ҹ==null){return;}List<ǖ>Ү=new List<ǖ>();Ҹ.Ǥ=true;Ү.Add(Ҹ);for
+(int ΰ=0;ΰ<Ү.Count;ΰ++){ǖ ѿ=Ү[ΰ];for(int Į=0;Į<Р.Ш.Count;Į++){Ǭ Җ=Р.Ш[Į];ǖ Ɨ=null;if(Җ.Ǫ.Ǘ==ѿ){Ɨ=Җ.ǫ.Ǘ;}else if(Җ.ǫ.Ǘ==ѿ)
+{Ɨ=Җ.Ǫ.Ǘ;}if(Ɨ==null||Ɨ.Ǥ){continue;}Ɨ.Ǥ=true;Ү.Add(Ɨ);}}}void ҡ(П Р,ǘ ҟ){ǖ Ҹ=Р.ю;if(Ҹ==null){return;}Ҹ.ǜ=true;ҹ(Ҹ,ҟ,0);
+bool Һ;do{Һ=false;for(int Į=0;Į<Р.Ш.Count;Į++){Ǭ Җ=Р.Ш[Į];bool һ=Җ.Ǫ.Ǘ.ǜ;bool Ҽ=Җ.ǫ.Ǘ.ǜ;if(һ==Ҽ){continue;}ǘ Ѣ=һ?Җ.Ǫ:Җ.ǫ;ǘ Ȝ
+=һ?Җ.ǫ:Җ.Ǫ;ǖ ҽ=Ȝ.Ǘ;if(ҽ.ǣ.Count>0){continue;}if(!ȟ.ȭ){continue;}ҽ.ǜ=true;int Ҿ=Ѣ.Ǜ==int.MaxValue?0:Ѣ.Ǜ;ҹ(ҽ,Ȝ,Ҿ);Һ=true;}}
+while(Һ);foreach(KeyValuePair<long,ǘ>Ћ in Р.Т){Ћ.Value.ǜ=Ћ.Value.Ǘ.ǜ;}}void Ң(П Р){for(int Į=0;Į<Р.Ұ.Count;Į++){ǖ ѿ=Р.Ұ[Į];if
+(ѿ==Р.ю||ѿ.ǜ||!ѿ.Ǥ||ѿ.ǩ==null){continue;}ǘ ҟ;if(!Р.Т.TryGetValue(ѿ.ǩ.CubeGrid.EntityId,out ҟ)){continue;}ҹ(ѿ,ҟ,0);}}void
+ҹ(ǖ ѿ,ǘ ι,int ҿ){List<ǘ>Ү=new List<ǘ>();if(ι.Ǜ>ҿ){ι.Ǜ=ҿ;ι.Ǚ=null;ι.ǚ=null;}Ү.Add(ι);for(int ΰ=0;ΰ<Ү.Count;ΰ++){ǘ ǟ=Ү[ΰ];
+for(int Į=0;Į<ǟ.Ǖ.Count;Į++){ǔ Җ=ǟ.Ǖ[Į];ǘ Ҳ=Җ.Ǡ(ǟ);if(Ҳ.Ǘ!=ѿ){continue;}int Ӏ=ǟ.Ǜ+1;if(Ӏ>=Ҳ.Ǜ){continue;}Ҳ.Ǜ=Ӏ;Ҳ.Ǚ=ǟ;Ҳ.ǚ=Җ;
+Ү.Add(Ҳ);}}}IEnumerable<int>ң(П Р){for(int Į=0;Į<Р.Ұ.Count;Į++){ǖ ѿ=Р.Ұ[Į];if(!ѿ.Ǥ||ѿ.ǜ||ѿ.ǣ.Count==0){continue;}for(int
+ĵ=0;ĵ<ѿ.Ǣ.Count;ĵ++){Р.к.Add(ѿ.Ǣ[ĵ]);}yield return 1;}}static ǘ Ҟ(Dictionary<long,ǘ>Ӂ,IMyCubeGrid Ŗ){ǘ ǟ;if(!Ӂ.
+TryGetValue(Ŗ.EntityId,out ǟ)){ǟ=new ǘ(Ŗ);Ӂ.Add(Ŗ.EntityId,ǟ);}return ǟ;}static void ҭ(Dictionary<long,ǘ>Ӂ,IMyCubeGrid ӂ,
+IMyCubeGrid Ӄ,IMyTerminalBlock Ǟ){ǘ ǂ=Ҟ(Ӂ,ӂ);ǘ ǃ=Ҟ(Ӂ,Ӄ);ǔ Җ=new ǔ(ǂ,ǃ,Ǟ);ǂ.Ǖ.Add(Җ);ǃ.Ǖ.Add(Җ);}sealed class П{public readonly List
+<IMyTerminalBlock>э=new List<IMyTerminalBlock>();public readonly List<IMyShipController>Ǣ=new List<IMyShipController>(),й
+=new List<IMyShipController>(),к=new List<IMyShipController>();public readonly List<IMyThrust>Ѫ=new List<IMyThrust>();
+public readonly List<IMyMotorStator>ѧ=new List<IMyMotorStator>();public readonly List<IMyPistonBase>ҫ=new List<IMyPistonBase>(
+);public readonly List<IMyGyro>Ґ=new List<IMyGyro>();public readonly List<IMyShipConnector>С=new List<IMyShipConnector>()
+,У=new List<IMyShipConnector>();public readonly List<IMyLandingGear>Щ=new List<IMyLandingGear>();public readonly List<
+IMyTimerBlock>Ы=new List<IMyTimerBlock>(),Ь=new List<IMyTimerBlock>(),Э=new List<IMyTimerBlock>();public readonly List<
+IMyProgrammableBlock>Ҭ=new List<IMyProgrammableBlock>();public readonly Dictionary<long,F>G=new Dictionary<long,F>();public readonly
+Dictionary<long,ǘ>Т=new Dictionary<long,ǘ>();public readonly List<ǖ>Ұ=new List<ǖ>();public readonly List<Ǭ>Ш=new List<Ǭ>();public
+readonly List<g>ĥ=new List<g>(),л=new List<g>(),м=new List<g>(),н=new List<g>(),о=new List<g>(),п=new List<g>(),р=new List<g>(),
+с=new List<g>();public readonly List<Ò>Ѩ=new List<Ò>(),г=new List<Ò>();public readonly List<H>т=new List<H>();public
+readonly List<Ҏ>ф=new List<Ҏ>();public readonly List<ŝ>у=new List<ŝ>();public readonly List<ũ>д=new List<ũ>();public readonly
+List<ǯ>Ц=new List<ǯ>();public readonly List<ǰ>Ъ=new List<ǰ>();public readonly List<Ž>ч=new List<Ž>();public ǖ ю;}sealed
+class Ҏ{readonly List<double>Ĥ=new List<double>();public readonly IMyMotorStator Ò;public readonly List<g>ĥ=new List<g>();
+public Ҏ(IMyMotorStator Ī){Ò=Ī;}public Vector3D É{get{return Ò.WorldMatrix.Up;}}public double ŉ(Vector3D m){m=n.o(m);if(Ò==
+null||Ò.Closed||Ò.TopGrid==null||!Ò.IsFunctional||m.LengthSquared()<=p){return 0;}Ĥ.Clear();ӄ(0);for(int Į=0;Į<ĥ.Count;Į++){
+g İ=ĥ[Į];if(!Ӆ(İ)){continue;}double ñ=n.Ē(m,İ.R,É);ӄ(ã(ñ));}double Õ=Ò.Angle;if(Î(Ò.LowerLimitRad)){ӄ(Ò.LowerLimitRad-Õ);
+}if(Ï(Ò.UpperLimitRad)){ӄ(Ò.UpperLimitRad-Õ);}double Ŀ=0;double ӆ=double.MaxValue;for(int Į=0;Į<Ĥ.Count;Į++){double Ł=ã(Ĥ
+[Į]);double ł=Ľ(m,Ł);double Ӈ=Math.Abs(Ł);if(ł>Ŀ+U||Math.Abs(ł-Ŀ)<=U&&Ӈ<ӆ){Ŀ=ł;ӆ=Ӈ;}}return Ŀ;}void ӄ(double ñ){ñ=ã(ñ);
+for(int Į=0;Į<Ĥ.Count;Į++){if(Math.Abs(Ĥ[Į]-ñ)<=ē){return;}}Ĥ.Add(ñ);}double Ľ(Vector3D m,double ñ){double ł=0;for(int Į=0;
+Į<ĥ.Count;Į++){g İ=ĥ[Į];if(!Ӆ(İ)){continue;}Vector3D ŗ=n.ë(İ.R,É,-ñ);double q=Vector3D.Dot(ŗ,m);if(q<=0){continue;}ł+=q*İ
+.V;}return ł;}static bool Ӆ(g İ){if(İ==null||İ.Y||İ.E==null||İ.E.Closed||!İ.E.IsFunctional){return false;}return İ.V>U;}
+double ã(double ø){ø=n.Ø(ø);bool Ĕ=Î(Ò.LowerLimitRad);bool ĕ=Ï(Ò.UpperLimitRad);if(!Ĕ&&!ĕ){return ø;}double Õ=Ò.Angle;double Ė
+=double.NaN;double ė=double.MaxValue;for(int Ę=-2;Ę<=2;Ę++){double ę=ø+Ę*MathHelper.TwoPi;double Ě=Õ+ę;if(Ĕ&&Ě<Ò.
+LowerLimitRad-ē){continue;}if(ĕ&&Ě>Ò.UpperLimitRad+ē){continue;}double ě=Math.Abs(ę);if(ě<ė){ė=ě;Ė=ę;}}if(!double.IsNaN(Ė)){return Ė;
+}double Ĝ=Õ+ø;if(Ĕ){Ĝ=Math.Max(Ĝ,Ò.LowerLimitRad);}if(ĕ){Ĝ=Math.Min(Ĝ,Ò.UpperLimitRad);}return Ĝ-Õ;}static bool Î(double
+ğ){return!double.IsNaN(ğ)&&!double.IsInfinity(ğ)&&ğ>-1e20;}static bool Ï(double ğ){return!double.IsNaN(ğ)&&!double.
+IsInfinity(ğ)&&ğ<1e20;}}readonly List<Ǭ>х=new List<Ǭ>();readonly List<IMyShipConnector>ц=new List<IMyShipConnector>();readonly
+Dictionary<long,long>ӈ=new Dictionary<long,long>();readonly Dictionary<long,bool>Ӊ=new Dictionary<long,bool>();readonly List<Ҏ>ʏ=
+new List<Ҏ>();readonly List<g>ʎ=new List<g>();void Ȋ(){ϵ=true;}void Џ(){if(Ј==null){if(!ϵ){return;}ϵ=false;Ј=Ҥ().
+GetEnumerator();}int ӊ=Runtime.MaxInstructionCount;int Ӌ=Math.Max(1000,ӊ*3/4);int ӌ=0;while(Ј!=null&&Runtime.CurrentInstructionCount<
+Ӌ&&ӌ<512){ӌ++;if(Ј.MoveNext()){continue;}Ј.Dispose();Ј=null;if(ϵ){ϵ=false;Ј=Ҥ().GetEnumerator();}}}static double ʍ(List<g
+>Ӎ,Vector3D m){m=n.o(m);if(m.LengthSquared()<=p){return 0;}double ł=0;for(int Į=0;Į<Ӎ.Count;Į++){g İ=Ӎ[Į];if(İ==null||İ.Y
+||İ.E==null||İ.E.Closed||!İ.E.IsFunctional){continue;}double q=Vector3D.Dot(İ.R,m);if(q<=0){continue;}ł+=q*İ.V;}return ł;}
+bool ʟ{get{return Ȏ==ƅ.ƃ?ɱ.Ư:Ȍ;}}bool ǻ{get{return Ȏ==ƅ.ƃ?ɱ.Ɖ:Ȕ;}}double ʭ{get{return Ȏ==ƅ.ƃ?ɱ.Ʊ:ȝ;}}double ʝ{get{if(Ȏ==ƅ.ƃ)
+{return MathHelper.Clamp(ɱ.Ʋ,0,1);}if(ȟ.Ƞ.Count==0){return 0;}return MathHelper.Clamp(ȟ.Ƞ[MathHelper.Clamp(Ȣ,0,ȟ.Ƞ.Count-
+1)],0,1);}}void ǽ(string Ǹ,bool ǹ){ϲ=Ǹ??string.Empty;ϴ=ǹ;ϓ=true;}void ӎ(){ϲ=string.Empty;ϴ=false;}void ȍ(bool i){Ȍ=i;ӏ(i)
+;}void ӏ(bool i){for(int Į=0;Į<ͺ.Count;Į++){IMyShipController Ͱ=ͺ[Į];if(Ͱ==null||Ͱ.Closed||!Ͱ.IsFunctional){continue;}if(
+Ͱ.DampenersOverride==i){continue;}Ͱ.DampenersOverride=i;}}void ɞ(){if(Ȏ==ƅ.ƃ){ӏ(ɱ.Ư);return;}if(!Ͽ){ӏ(Ȍ);return;}if(ɡ==
+null||ɡ.Closed){return;}bool Ӑ=ɡ.DampenersOverride;if(Ӑ==Ȍ){return;}Ȍ=Ӑ;ӏ(Ȍ);}void ȕ(bool i){if(i&&!Ȕ){ӑ();}Ȕ=i;if(!Ȕ){ʾ(ƌ.Ɖ
+);Ӓ(C.Ɖ);}ɝ();ӓ();}void ȏ(){ȕ(!Ȕ);}void ӑ(){if(ɡ==null||ɡ.Closed){ȝ=0;Ȟ=false;return;}Vector3D ʓ=ɡ.GetShipVelocities().
+LinearVelocity;ȝ=Vector3D.Dot(ʓ,ɡ.WorldMatrix.Forward);Ȟ=true;}void ʤ(){if(Ȟ){return;}ӑ();}void Ș(double Ö){ʤ();ȝ+=Ö;ǽ(
+"Cruise target: "+ȝ.ToString("0.###")+" m/s",false);}bool b(long Ϧ){Ə Ȓ;if(!Ϻ.TryGetValue(Ϧ,out Ȓ)){return false;}return Ȓ.ƍ&&Ȓ.Ǝ!=ƌ.M;}
+bool Ӕ(long Ϧ,out Ə Ȓ){return Ϻ.TryGetValue(Ϧ,out Ȓ);}void ˀ(g İ,ƌ ӕ){if(İ==null){return;}ˀ(İ.E,ӕ);}void ˀ(IMyThrust d,ƌ ӕ){
+if(d==null||d.Closed||ӕ==ƌ.M){return;}Ə Ȓ;if(!Ϻ.TryGetValue(d.EntityId,out Ȓ)){Ȓ=new Ə{ƍ=d.Enabled,Ǝ=ƌ.M};Ϻ.Add(d.EntityId
+,Ȓ);}Ȓ.Ǝ|=ӕ;if(d.Enabled){d.Enabled=false;}if((Ȓ.Ǝ&ƌ.Ɗ)!=0){Ϣ[d.EntityId]=Ȓ.ƍ;}}void y(g İ){if(İ==null){return;}y(İ.E);}
+void y(IMyThrust d){if(d==null||d.Closed){return;}Ə Ȓ;if(!Ϻ.TryGetValue(d.EntityId,out Ȓ)){return;}if(Ȓ.ƍ&&!d.Enabled){d.
+Enabled=true;}}void ʾ(g İ,ƌ ӕ){if(İ==null){return;}ʾ(İ.Q,İ.E,ӕ);}void ʾ(long Ϧ,IMyThrust d,ƌ ӕ){Ə Ȓ;if(!Ϻ.TryGetValue(Ϧ,out Ȓ))
+{return;}Ȓ.Ǝ&=~ӕ;if((ӕ&ƌ.Ɗ)!=0){Ϣ.Remove(Ϧ);}if(Ȓ.Ǝ!=ƌ.M){if(d!=null&&!d.Closed&&d.Enabled){d.Enabled=false;}return;}if(d
+!=null&&!d.Closed){d.Enabled=Ȓ.ƍ;}Ϻ.Remove(Ϧ);}void ʾ(ƌ ӕ){if(Ϻ.Count==0){return;}List<long>Ӗ=new List<long>(Ϻ.Keys);for(
+int Į=0;Į<Ӗ.Count;Į++){long Ϧ=Ӗ[Į];IMyThrust d=ӗ(Ϧ);ʾ(Ϧ,d,ӕ);}}IMyThrust ӗ(long Ϧ){for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(İ
+.Q==Ϧ){return İ.E;}}return null;}void Ϥ(g İ){if(İ==null){return;}Ə Ȓ;if(!Ϻ.TryGetValue(İ.Q,out Ȓ)){return;}if(Ȓ.Ǝ==ƌ.M){Ϻ
+.Remove(İ.Q);return;}if(İ.E.Enabled){İ.E.Enabled=false;}}void ш(HashSet<long>Ә){if(Ϻ.Count==0){return;}List<long>ә=new
+List<long>();foreach(KeyValuePair<long,Ə>Ћ in Ϻ){if(!Ә.Contains(Ћ.Key)){ә.Add(Ћ.Key);}}for(int Į=0;Į<ә.Count;Į++){long Ϧ=ә[Į
+];Ϻ.Remove(Ϧ);Ϣ.Remove(Ϧ);}}void ɝ(){bool Ӛ=Ȏ==ƅ.ƃ;bool ӛ=ǻ;for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];bool Ӝ=İ.E.CubeGrid==Me.
+CubeGrid;bool ӝ=!İ.Y&&(ȟ.Ȭ||İ.a);bool Ӟ=Ӛ&&Ӝ&&ӝ;bool Ӡ=ӛ&&Ӝ&&ӟ(İ)&&ӝ;İ.N(C.ƃ,Ӟ);İ.N(C.Ɖ,Ӡ);if(!Ӡ){ʾ(İ,ƌ.Ɖ);}}for(int Į=0;Į<ˁ.
+Count;Į++){ũ Ҕ=ˁ[Į];bool Ӝ=Ҕ.E.CubeGrid==Me.CubeGrid;bool ӡ=!Ҕ.Y&&(ȟ.Ȭ||Ҕ.a);Ҕ.N(C.ƃ,Ӛ&&Ӝ&&ӡ);}ω();}void Ӓ(C h){for(int Į=0;Į
+<ʆ.Count;Į++){ʆ[Į].N(h,false);}for(int Į=0;Į<ˁ.Count;Į++){ˁ[Į].N(h,false);}}bool ӟ(g İ){if(İ==null||ɡ==null||İ.E.CubeGrid
+!=Me.CubeGrid){return false;}return Vector3D.Dot(n.o(İ.R),ɡ.WorldMatrix.Backward)>=Ķ;}void ω(){ʿ.Clear();if(ɡ==null){
+return;}for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(ӟ(İ)){ʿ.Add(İ);}}ӓ();}void щ(){Ͽ=false;for(int Į=0;Į<ʆ.Count;Į++){g İ=ʆ[Į];if(İ
+.E.CubeGrid==Me.CubeGrid){Ͽ=true;break;}}ω();}void ӓ(){Ǽ=string.Empty;if(!ǻ||ʿ.Count==0){return;}if(ȟ.Ȭ){bool Ӣ=true;for(
+int Į=0;Į<ʿ.Count;Į++){if(!ʿ[Į].Y){Ӣ=false;break;}}if(Ӣ){Ǽ="Cruise cannot control main-grid "+"reverse thrusters; all are "
++ȟ.Ȳ+".";}return;}bool ӣ=false;for(int Į=0;Į<ʿ.Count;Į++){g İ=ʿ[Į];if(!İ.Y&&İ.a){ӣ=true;break;}}if(!ӣ){Ǽ=
+"Cruise cannot control main-grid "+"reverse thrusters; add "+ȟ.ȱ+".";}}void ϒ(ƅ ϐ,ƅ Ϗ){if(ϐ==ƅ.ƃ&&Ϗ!=ƅ.ƃ){Ӓ(C.ƃ);ӏ(Ȍ);}if(ϐ!=ƅ.ƃ&&Ϗ==ƅ.ƃ){ӏ(ɱ.Ư);}ɝ();}
 void ɪ(bool Ő){І.Clear();І.AppendLine(ȿ).Append("v").AppendLine(ˢ).AppendLine();І.Append("Mode: ").AppendLine(ǒ(Ȏ));І.Append
-("Controller: ").AppendLine(ɡ!=null?ɡ.CustomName:"NONE");ӥ(І);І.Append("Nacelles: ").AppendLine(ʂ.Count.ToString());І.
+("Controller: ").AppendLine(ɡ!=null?ɡ.CustomName:"NONE");Ӥ(І);І.Append("Nacelles: ").AppendLine(ʂ.Count.ToString());І.
 Append("Controlled thrust: ").Append((ʅ/1000.0).ToString("0.##")).AppendLine(" kN");І.Append("Capacity F/B: ").Append((ʇ.Ɛ/
 1000.0).ToString("0.##")).Append("/").Append((ʇ.Ƒ/1000.0).ToString("0.##")).AppendLine(" kN");І.Append("Residual: ").Append((ʵ
 .Length()/1000.0).ToString("0.##")).AppendLine(" kN");І.Append("Gyros: ").AppendLine(ˁ.Count.ToString());if(Ȏ==ƅ.ƃ){І.
@@ -529,36 +529,36 @@ AppendLine(Ǽ);}if(!string.IsNullOrEmpty(ϲ)){І.AppendLine().Append(ϴ?"WARNING
 Append(Runtime.LastRunTimeMs.ToString("0.###")).Append(" ms | avg ").Append(Љ.ƺ.ToString("0.###")).Append(" | max ").
 AppendLine(Љ.ƻ.ToString("0.###"));І.Append("Instructions: ").Append(Runtime.CurrentInstructionCount).Append("/").AppendLine(
 Runtime.MaxInstructionCount.ToString());Echo(І.ToString());if(!Ő&&Ѕ.Count==0){return;}Ї.Clear();Ї.AppendLine(
-"VECTOR THRUST REDUX").Append("MODE  ").AppendLine(ǒ(Ȏ).ToUpperInvariant());Ӧ(Ї);Ї.Append("VECTORS ").AppendLine(ʂ.Count.ToString()).Append(
+"VECTOR THRUST REDUX").Append("MODE  ").AppendLine(ǒ(Ȏ).ToUpperInvariant());ӥ(Ї);Ї.Append("VECTORS ").AppendLine(ʂ.Count.ToString()).Append(
 "THRUST ").Append((ʅ/1000.0).ToString("0.0")).AppendLine(" kN").Append("ERROR ").Append((ʵ.Length()/1000.0).ToString("0.0")).
 AppendLine(" kN");if(!string.IsNullOrEmpty(Ǽ)){Ї.Append("WARN ").AppendLine(Ǽ);}if(!string.IsNullOrEmpty(ϲ)){Ї.Append(ϴ?"WARN ":
-"CMD  ").AppendLine(ϲ);}string ӧ=Ї.ToString();for(int Į=0;Į<Ѕ.Count;Į++){Ѕ[Į].ſ(ӧ);}}void ӥ(StringBuilder ɖ){if(Ȏ!=ƅ.ƃ){ɖ.
+"CMD  ").AppendLine(ϲ);}string Ӧ=Ї.ToString();for(int Į=0;Į<Ѕ.Count;Į++){Ѕ[Į].ſ(Ӧ);}}void Ӥ(StringBuilder ɖ){if(Ȏ!=ƅ.ƃ){ɖ.
 Append("Dampeners: ").AppendLine(Ȍ?"ON":"OFF");ɖ.Append("Cruise: ").Append(Ȕ?"ON":"OFF");if(Ȟ){ɖ.Append(" @ ").Append(ȝ.
-ToString("0.###")).Append(" m/s");}ɖ.AppendLine();Ө(ɖ);return;}ɖ.Append("Dampeners: local ").Append(Ȍ?"ON":"OFF").Append(
+ToString("0.###")).Append(" m/s");}ɖ.AppendLine();ӧ(ɖ);return;}ɖ.Append("Dampeners: local ").Append(Ȍ?"ON":"OFF").Append(
 " | master ").Append(ɱ.Ư?"ON":"OFF").Append(" | effective ").AppendLine(ʟ?"ON":"OFF");ɖ.Append("Cruise: local ").Append(Ȕ?"ON":"OFF"
 );if(Ȟ){ɖ.Append(" @ ").Append(ȝ.ToString("0.###"));}ɖ.Append(" | master ").Append(ɱ.Ɖ?"ON":"OFF").Append(" @ ").Append(ɱ
 .Ʊ.ToString("0.###")).AppendLine(" m/s");ɖ.Append("Gear: local ").Append(Ȣ+1).Append("/").Append(ȟ.Ƞ.Count).Append(
-" | master ").Append(ɱ.Ƴ+1).Append("/").Append(ɱ.ƴ).Append(" (").Append((ɱ.Ʋ*100).ToString("0.##")).AppendLine("%)");}void Ӧ(
+" | master ").Append(ɱ.Ƴ+1).Append("/").Append(ɱ.ƴ).Append(" (").Append((ɱ.Ʋ*100).ToString("0.##")).AppendLine("%)");}void ӥ(
 StringBuilder ɖ){if(Ȏ!=ƅ.ƃ){ɖ.Append("DAMP  ").AppendLine(Ȍ?"ON":"OFF").Append("CRUISE ").Append(Ȕ?"ON":"OFF");if(Ȟ){ɖ.Append(" ").
 Append(ȝ.ToString("0.##")).Append("m/s");}ɖ.AppendLine().Append("GEAR  ").Append(Ȣ+1).Append("/").AppendLine(ȟ.Ƞ.Count.
 ToString());return;}ɖ.Append("DAMP  L:").Append(Ȍ?"ON":"OFF").Append(" M:").AppendLine(ɱ.Ư?"ON":"OFF").Append("CRUISE L:").
 Append(Ȕ?"ON":"OFF").Append(" M:").Append(ɱ.Ɖ?"ON":"OFF").Append(" ").Append(ɱ.Ʊ.ToString("0.##")).AppendLine("m/s").Append(
-"GEAR  L:").Append(Ȣ+1).Append("/").Append(ȟ.Ƞ.Count).Append(" M:").Append(ɱ.Ƴ+1).Append("/").AppendLine(ɱ.ƴ.ToString());}void Ө(
-StringBuilder ɖ){int ȡ=ȟ.Ƞ.Count;int ө=ȡ>0?MathHelper.Clamp(Ȣ,0,ȡ-1):0;double ȧ=ȡ>0?ȟ.Ƞ[ө]*100:0;ɖ.Append("Gear: ").Append(ө+1).
-Append("/").Append(ȡ).Append(" (").Append(ȧ.ToString("0.##")).AppendLine("%)");}readonly List<IMyTerminalBlock>Ӫ=new List<
-IMyTerminalBlock>(),ӫ=new List<IMyTerminalBlock>();readonly List<IMyBlockGroup>Ӭ=new List<IMyBlockGroup>();void ə(){Ɯ ӭ=ъ();if(!Ϸ){ϼ=ӭ;Ϸ
-=true;return;}if(ӭ==ϼ){return;}ϼ=ӭ;Ȋ();}Ɯ ъ(){Ɯ ӭ=new Ɯ();Ӫ.Clear();GridTerminalSystem.GetBlocks(Ӫ);for(int Į=0;Į<Ӫ.Count
-;Į++){IMyTerminalBlock d=Ӫ[Į];int ӯ=Ӯ(d);if(ӯ==0){continue;}ulong ӱ=Ӱ;ӱ=Ӳ(ӱ,unchecked((ulong)d.EntityId));ӱ=Ӳ(ӱ,unchecked
-((ulong)d.CubeGrid.EntityId));ӱ=Ӳ(ӱ,unchecked((ulong)ӯ));ӱ=Ӳ(ӱ,d.CubeGrid.IsStatic?1UL:0UL);F e=њ(d.CustomName)|њ(d.
+"GEAR  L:").Append(Ȣ+1).Append("/").Append(ȟ.Ƞ.Count).Append(" M:").Append(ɱ.Ƴ+1).Append("/").AppendLine(ɱ.ƴ.ToString());}void ӧ(
+StringBuilder ɖ){int ȡ=ȟ.Ƞ.Count;int Ө=ȡ>0?MathHelper.Clamp(Ȣ,0,ȡ-1):0;double ȧ=ȡ>0?ȟ.Ƞ[Ө]*100:0;ɖ.Append("Gear: ").Append(Ө+1).
+Append("/").Append(ȡ).Append(" (").Append(ȧ.ToString("0.##")).AppendLine("%)");}readonly List<IMyTerminalBlock>ө=new List<
+IMyTerminalBlock>(),Ӫ=new List<IMyTerminalBlock>();readonly List<IMyBlockGroup>ӫ=new List<IMyBlockGroup>();void ə(){Ɯ ӭ=Ӭ();if(!Ϸ){ϼ=ӭ;Ϸ
+=true;return;}if(ӭ==ϼ){return;}ϼ=ӭ;Ȋ();}Ɯ Ӭ(){Ɯ ӭ=new Ɯ();ө.Clear();GridTerminalSystem.GetBlocks(ө);for(int Į=0;Į<ө.Count
+;Į++){IMyTerminalBlock d=ө[Į];int ӯ=Ӯ(d);if(ӯ==0){continue;}ulong ӱ=Ӱ;ӱ=Ӳ(ӱ,unchecked((ulong)d.EntityId));ӱ=Ӳ(ӱ,unchecked
+((ulong)d.CubeGrid.EntityId));ӱ=Ӳ(ӱ,unchecked((ulong)ӯ));ӱ=Ӳ(ӱ,d.CubeGrid.IsStatic?1UL:0UL);F e=љ(d.CustomName)|љ(d.
 CustomData);ӱ=Ӳ(ӱ,unchecked((ulong)(int)e));IMyMotorStator Ī=d as IMyMotorStator;if(Ī!=null){ӱ=Ӳ(ӱ,Ī.TopGrid!=null?unchecked((
-ulong)Ī.TopGrid.EntityId):0UL);ӱ=Ӳ(ӱ,ӳ(Ī.LowerLimitRad));ӱ=Ӳ(ӱ,ӳ(Ī.UpperLimitRad));}IMyPistonBase ҫ=d as IMyPistonBase;if(ҫ!=
-null){ӱ=Ӳ(ӱ,ҫ.TopGrid!=null?unchecked((ulong)ҫ.TopGrid.EntityId):0UL);}IMyShipConnector Ϛ=d as IMyShipConnector;if(Ϛ!=null){
-ӱ=Ӳ(ӱ,Ϛ.OtherConnector!=null?unchecked((ulong)Ϛ.OtherConnector.EntityId):0UL);}IMyProgrammableBlock і=d as
-IMyProgrammableBlock;if(і!=null){bool Ӵ=ї(і);ӱ=Ӳ(ӱ,Ӵ?1UL:0UL);if(Ӵ){ӱ=Ӳ(ӱ,ј(і)?1UL:0UL);ӱ=Ӳ(ӱ,ҵ(і)?1UL:0UL);}}ӵ(ref ӭ,ӱ,d.EntityId);}Ӷ(ref ӭ
-);return ӭ;}void Ӷ(ref Ɯ ӭ){Ӭ.Clear();GridTerminalSystem.GetBlockGroups(Ӭ);for(int Į=0;Į<Ӭ.Count;Į++){IMyBlockGroup Ҩ=Ӭ[Į
-];F ҩ=њ(Ҩ.Name);if(ҩ==F.M){continue;}ӫ.Clear();Ҩ.GetBlocks(ӫ);ulong ӷ=Ӱ;ӷ=Ӳ(ӷ,Ӹ(Ҩ.Name));ӷ=Ӳ(ӷ,unchecked((ulong)(int)ҩ));
-ulong ӹ=0;ulong Ӻ=0;for(int ĵ=0;ĵ<ӫ.Count;ĵ++){ulong ӻ=Ӳ(Ӱ,unchecked((ulong)ӫ[ĵ].EntityId));ӹ^=Ӽ(ӻ,(int)(ӫ[ĵ].EntityId&63));Ӻ
-+=ӻ*ӽ;}ӷ=Ӳ(ӷ,ӹ);ӷ=Ӳ(ӷ,Ӻ);long Ӿ=unchecked((long)Ӹ(Ҩ.Name));ӵ(ref ӭ,ӷ,Ӿ);}}static void ӵ(ref Ɯ ӭ,ulong ӱ,long ӿ){ӭ.Ɲ++;ӭ.ƞ
+ulong)Ī.TopGrid.EntityId):0UL);ӱ=Ӳ(ӱ,ӳ(Ī.LowerLimitRad));ӱ=Ӳ(ӱ,ӳ(Ī.UpperLimitRad));}IMyPistonBase Ҫ=d as IMyPistonBase;if(Ҫ!=
+null){ӱ=Ӳ(ӱ,Ҫ.TopGrid!=null?unchecked((ulong)Ҫ.TopGrid.EntityId):0UL);}IMyShipConnector Ϛ=d as IMyShipConnector;if(Ϛ!=null){
+ӱ=Ӳ(ӱ,Ϛ.OtherConnector!=null?unchecked((ulong)Ϛ.OtherConnector.EntityId):0UL);}IMyProgrammableBlock ѕ=d as
+IMyProgrammableBlock;if(ѕ!=null){bool Ӵ=і(ѕ);ӱ=Ӳ(ӱ,Ӵ?1UL:0UL);if(Ӵ){ӱ=Ӳ(ӱ,ї(ѕ)?1UL:0UL);ӱ=Ӳ(ӱ,Ҵ(ѕ)?1UL:0UL);}}ӵ(ref ӭ,ӱ,d.EntityId);}Ӷ(ref ӭ
+);return ӭ;}void Ӷ(ref Ɯ ӭ){ӫ.Clear();GridTerminalSystem.GetBlockGroups(ӫ);for(int Į=0;Į<ӫ.Count;Į++){IMyBlockGroup ҧ=ӫ[Į
+];F Ҩ=љ(ҧ.Name);if(Ҩ==F.M){continue;}Ӫ.Clear();ҧ.GetBlocks(Ӫ);ulong ӷ=Ӱ;ӷ=Ӳ(ӷ,Ӹ(ҧ.Name));ӷ=Ӳ(ӷ,unchecked((ulong)(int)Ҩ));
+ulong ӹ=0;ulong Ӻ=0;for(int ĵ=0;ĵ<Ӫ.Count;ĵ++){ulong ӻ=Ӳ(Ӱ,unchecked((ulong)Ӫ[ĵ].EntityId));ӹ^=Ӽ(ӻ,(int)(Ӫ[ĵ].EntityId&63));Ӻ
++=ӻ*ӽ;}ӷ=Ӳ(ӷ,ӹ);ӷ=Ӳ(ӷ,Ӻ);long Ӿ=unchecked((long)Ӹ(ҧ.Name));ӵ(ref ӭ,ӷ,Ӿ);}}static void ӵ(ref Ɯ ӭ,ulong ӱ,long ӿ){ӭ.Ɲ++;ӭ.ƞ
 ^=Ӽ(ӱ,(int)(ӿ&63));ӭ.Ɵ+=ӱ*ӽ;}static int Ӯ(IMyTerminalBlock d){if(d is IMyMotorStator){return 1;}if(d is IMyPistonBase){
 return 2;}if(d is IMyThrust){return 3;}if(d is IMyGyro){return 4;}if(d is IMyShipController){return 5;}if(d is
 IMyShipConnector){return 6;}if(d is IMyLandingGear){return 7;}if(d is IMyProgrammableBlock){return 8;}if(d is IMyTimerBlock){return 9;}
@@ -569,9 +569,9 @@ return ulong.MaxValue;}if(double.IsPositiveInfinity(ğ)){return ulong.MaxValue-1
 ulong ğ){ơ^=ğ;ơ*=ӽ;ơ^=ğ>>32;ơ*=ӽ;return ơ;}static ulong Ӽ(ulong ğ,int К){К&=63;if(К==0){return ğ;}return ğ<<К|ğ>>(64-К);}
 const ulong Ӱ=14695981039346656037UL,ӽ=1099511628211UL;void ɜ(){HashSet<long>Ԁ=new HashSet<long>();for(int Į=0;Į<ц.Count;Į++)
 {IMyShipConnector Ϛ=ц[Į];if(Ϛ==null||Ϛ.Closed){continue;}long ԁ=Ϛ.OtherConnector!=null?Ϛ.OtherConnector.EntityId:0;long Ԃ
-;if(!Ӊ.TryGetValue(Ϛ.EntityId,out Ԃ)||Ԃ!=ԁ){Ӊ[Ϛ.EntityId]=ԁ;Ȋ();}Ԁ.Add(Ϛ.EntityId);}ԃ(Ԁ);HashSet<long>Ԅ=new HashSet<long>
-();for(int Į=0;Į<ϗ.Count;Į++){IMyLandingGear ԅ=ϗ[Į].ǭ;if(ԅ==null||ԅ.Closed){continue;}bool Ԇ;if(!ӊ.TryGetValue(ԅ.EntityId
-,out Ԇ)||Ԇ!=ԅ.IsLocked){ӊ[ԅ.EntityId]=ԅ.IsLocked;Ȋ();}Ԅ.Add(ԅ.EntityId);}ԇ(Ԅ);}void ԃ(HashSet<long>Ԉ){if(Ӊ.Count==0){
-return;}List<long>ԉ=new List<long>();foreach(KeyValuePair<long,long>Ћ in Ӊ){if(!Ԉ.Contains(Ћ.Key)){ԉ.Add(Ћ.Key);}}for(int Į=0;
-Į<ԉ.Count;Į++){Ӊ.Remove(ԉ[Į]);}}void ԇ(HashSet<long>Ԉ){if(ӊ.Count==0){return;}List<long>ԉ=new List<long>();foreach(
-KeyValuePair<long,bool>Ћ in ӊ){if(!Ԉ.Contains(Ћ.Key)){ԉ.Add(Ћ.Key);}}for(int Į=0;Į<ԉ.Count;Į++){ӊ.Remove(ԉ[Į]);}}}
+;if(!ӈ.TryGetValue(Ϛ.EntityId,out Ԃ)||Ԃ!=ԁ){ӈ[Ϛ.EntityId]=ԁ;Ȋ();}Ԁ.Add(Ϛ.EntityId);}ԃ(Ԁ);HashSet<long>Ԅ=new HashSet<long>
+();for(int Į=0;Į<ϗ.Count;Į++){IMyLandingGear ԅ=ϗ[Į].ǭ;if(ԅ==null||ԅ.Closed){continue;}bool Ԇ;if(!Ӊ.TryGetValue(ԅ.EntityId
+,out Ԇ)||Ԇ!=ԅ.IsLocked){Ӊ[ԅ.EntityId]=ԅ.IsLocked;Ȋ();}Ԅ.Add(ԅ.EntityId);}ԇ(Ԅ);}void ԃ(HashSet<long>Ԉ){if(ӈ.Count==0){
+return;}List<long>ԉ=new List<long>();foreach(KeyValuePair<long,long>Ћ in ӈ){if(!Ԉ.Contains(Ћ.Key)){ԉ.Add(Ћ.Key);}}for(int Į=0;
+Į<ԉ.Count;Į++){ӈ.Remove(ԉ[Į]);}}void ԇ(HashSet<long>Ԉ){if(Ӊ.Count==0){return;}List<long>ԉ=new List<long>();foreach(
+KeyValuePair<long,bool>Ћ in Ӊ){if(!Ԉ.Contains(Ћ.Key)){ԉ.Add(Ћ.Key);}}for(int Į=0;Į<ԉ.Count;Į++){Ӊ.Remove(ԉ[Į]);}}}

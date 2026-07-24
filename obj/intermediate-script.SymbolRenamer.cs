@@ -184,6 +184,7 @@ class Program : MyGridProgram
                 D =
                     C.M;
 
+                j();
                 return;
             }
 
@@ -8025,7 +8026,7 @@ public static double Ē(
     }
 
 
-    void ы(
+    void ъ(
         П Р)
     {
         HashSet<long> а =
@@ -8286,11 +8287,7 @@ public static double Ē(
 
         Ά();
 
-        ϼ =
-            ъ();
 
-        Ϸ =
-            true;
 
         ϓ =
             true;
@@ -8300,19 +8297,19 @@ public static double Ē(
     void Ю(
         П Р)
     {
-        HashSet<string> ь =
+        HashSet<string> ы =
             new HashSet<string>(
                 StringComparer.Ordinal);
 
-        List<int> э =
+        List<int> ь =
             new List<int>();
 
         for (int Į = 0;
-            Į < Р.ю.Count;
+            Į < Р.э.Count;
             Į++)
         {
             IMyTerminalBlock d =
-                Р.ю[Į];
+                Р.э[Į];
 
             ǘ ǟ;
 
@@ -8324,7 +8321,7 @@ public static double Ē(
                             .EntityId,
                         out ǟ) ||
                 ǟ.Ǘ !=
-                    Р.я)
+                    Р.ю)
             {
                 continue;
             }
@@ -8334,72 +8331,72 @@ public static double Ē(
                     Р.G,
                     d.EntityId);
 
-            IMyTextPanel ѐ =
+            IMyTextPanel я =
                 d as
                     IMyTextPanel;
 
-            if (ѐ != null &&
+            if (я != null &&
                 (e &
                  F.Ɔ) != 0)
             {
-                ё(
+                ѐ(
                     Р
                         .ч,
-                    ь,
+                    ы,
                     d,
-                    ѐ,
+                    я,
                     0);
             }
 
-            IMyTextSurfaceProvider ђ =
+            IMyTextSurfaceProvider ё =
                 d as
                     IMyTextSurfaceProvider;
 
-            if (ђ == null ||
-                ђ.SurfaceCount <= 0)
+            if (ё == null ||
+                ё.SurfaceCount <= 0)
             {
                 continue;
             }
 
-            э.Clear();
+            ь.Clear();
 
-            ѓ(
+            ђ(
                 d.CustomData,
-                ђ.SurfaceCount,
-                э);
+                ё.SurfaceCount,
+                ь);
 
             if ((e &
                  F.Ɔ) != 0 &&
-                э.Count ==
+                ь.Count ==
                     0)
             {
-                э.Add(
+                ь.Add(
                     0);
             }
 
             for (int ΰ = 0;
                 ΰ <
-                    э.Count;
+                    ь.Count;
                 ΰ++)
             {
                 int ż =
-                    э[ΰ];
+                    ь[ΰ];
 
-                ё(
+                ѐ(
                     Р
                         .ч,
-                    ь,
+                    ы,
                     d,
-                    ђ.GetSurface(
+                    ё.GetSurface(
                         ż),
                     ż);
             }
         }
     }
 
-    void ѓ(
+    void ђ(
         string ȼ,
-        int є,
+        int ѓ,
         List<int> Ĺ)
     {
         if (string.IsNullOrEmpty(
@@ -8430,7 +8427,7 @@ public static double Ē(
                 continue;
             }
 
-            string ѕ =
+            string є =
                 ν
                     .Substring(
                         Ϫ
@@ -8440,10 +8437,10 @@ public static double Ē(
             int ΰ;
 
             if (!int.TryParse(
-                    ѕ,
+                    є,
                     out ΰ) ||
                 ΰ < 0 ||
-                ΰ >= є ||
+                ΰ >= ѓ ||
                 Ĺ.Contains(
                     ΰ))
             {
@@ -8455,7 +8452,7 @@ public static double Ē(
         }
     }
 
-    static void ё(
+    static void ѐ(
         List<Ž> Ĺ,
         HashSet<string> w,
         IMyTerminalBlock ź,
@@ -8494,29 +8491,29 @@ public static double Ē(
                 F.Z) != 0;
     }
 
-    bool ї(
-        IMyProgrammableBlock і)
+    bool і(
+        IMyProgrammableBlock ѕ)
     {
-        if (і ==
+        if (ѕ ==
             null)
         {
             return false;
         }
 
         return δ(
-                   і
+                   ѕ
                        .CustomData,
                    Ɉ) >=
                0;
     }
 
-    bool ј(
-        IMyProgrammableBlock і)
+    bool ї(
+        IMyProgrammableBlock ѕ)
     {
         string Ȧ;
 
         if (!Ͳ(
-                і.CustomData,
+                ѕ.CustomData,
                 Ɉ,
 "CanSlave",
                 out Ȧ))
@@ -8533,7 +8530,7 @@ public static double Ē(
             : true;
     }
 
-    F њ(
+    F љ(
         string ž)
     {
         if (string.IsNullOrEmpty(
@@ -8545,7 +8542,7 @@ public static double Ē(
         F Ǹ =
             F.M;
 
-        if (љ(
+        if (ј(
                 ž,
                 ȟ.ȱ))
         {
@@ -8553,7 +8550,7 @@ public static double Ē(
                 F.Z;
         }
 
-        if (љ(
+        if (ј(
                 ž,
                 ȟ.Ȳ))
         {
@@ -8561,7 +8558,7 @@ public static double Ē(
                 F.X;
         }
 
-        if (љ(
+        if (ј(
                 ž,
                 ȟ.ȳ))
         {
@@ -8569,7 +8566,7 @@ public static double Ē(
                 F.Ɔ;
         }
 
-        if (љ(
+        if (ј(
                 ž,
                 ȟ.ȴ))
         {
@@ -8577,7 +8574,7 @@ public static double Ē(
                 F.Ƈ;
         }
 
-        if (љ(
+        if (ј(
                 ž,
                 ȟ.ȵ))
         {
@@ -8588,41 +8585,41 @@ public static double Ē(
         return Ǹ;
     }
 
-    static bool љ(
+    static bool ј(
         string ž,
-        string ћ)
+        string њ)
     {
         return !string.IsNullOrEmpty(
                    ž) &&
                !string.IsNullOrEmpty(
-                   ћ) &&
+                   њ) &&
                ž.IndexOf(
-                   ћ,
+                   њ,
                    StringComparison
                        .OrdinalIgnoreCase) >=
                0;
     }
 
-    static void ў(
+    static void ѝ(
         Dictionary<long, F> e,
         long Ϧ,
-        F ќ)
+        F ћ)
     {
-        if (ќ ==
+        if (ћ ==
             F.M)
         {
             return;
         }
 
-        F ѝ;
+        F ќ;
 
         e.TryGetValue(
             Ϧ,
-            out ѝ);
+            out ќ);
 
         e[Ϧ] =
-            ѝ |
-            ќ;
+            ќ |
+            ћ;
     }
 
     static F Ф(
@@ -8640,38 +8637,38 @@ public static double Ē(
 
 
     static Ǭ Ч(
-        List<Ǭ> џ,
+        List<Ǭ> ў,
         IMyShipConnector Ϛ)
     {
         for (int Į = 0;
-            Į < џ.Count;
+            Į < ў.Count;
             Į++)
         {
-            if (џ[Į]
+            if (ў[Į]
                         .ƥ
                         .EntityId ==
                     Ϛ.EntityId ||
-                џ[Į]
+                ў[Į]
                         .Ʀ
                         .EntityId ==
                     Ϛ.EntityId)
             {
-                return џ[Į];
+                return ў[Į];
             }
         }
 
         return null;
     }
 
-    static void ѡ(
-        List<IMyCubeGrid> Ѡ,
+    static void Ѡ(
+        List<IMyCubeGrid> џ,
         IMyCubeGrid Ŗ)
     {
         for (int Į = 0;
-            Į < Ѡ.Count;
+            Į < џ.Count;
             Į++)
         {
-            if (Ѡ[Į]
+            if (џ[Į]
                     .EntityId ==
                 Ŗ.EntityId)
             {
@@ -8679,41 +8676,41 @@ public static double Ē(
             }
         }
 
-        Ѡ.Add(
+        џ.Add(
             Ŗ);
     }
 
-    static void и<Ѣ>(
-        List<Ѣ> Ȝ,
-        List<Ѣ> ѣ)
+    static void и<ѡ>(
+        List<ѡ> Ȝ,
+        List<ѡ> Ѣ)
     {
         Ȝ.Clear();
         Ȝ.AddRange(
-            ѣ);
+            Ѣ);
     }
-    IEnumerable<int> Ѳ(
+    IEnumerable<int> ѱ(
         П Р)
     {
-        Dictionary<long, Ò> Ѥ =
+        Dictionary<long, Ò> ѣ =
             new Dictionary<long, Ò>();
 
-        Dictionary<long, IMyMotorStator> ѥ =
+        Dictionary<long, IMyMotorStator> Ѥ =
             new Dictionary<long, IMyMotorStator>();
 
-        Dictionary<long, List<g>> Ѧ =
+        Dictionary<long, List<g>> ѥ =
             new Dictionary<long, List<g>>();
 
-        Dictionary<long, List<g>> ѧ =
+        Dictionary<long, List<g>> Ѧ =
             new Dictionary<long, List<g>>();
 
 
         for (int Į = 0;
             Į <
-                Р.Ѩ.Count;
+                Р.ѧ.Count;
             Į++)
         {
             IMyMotorStator d =
-                Р.Ѩ[Į];
+                Р.ѧ[Į];
 
             ǘ ǟ;
 
@@ -8743,19 +8740,19 @@ public static double Ē(
                         e,
                         false);
 
-                Ѥ.Add(
+                ѣ.Add(
                     d.EntityId,
                     Ī);
 
                 Р
-                    .ѩ
+                    .Ѩ
                     .Add(Ī);
             }
-            else if (Ѫ(
+            else if (ѩ(
                          Р,
                          ǟ.Ǘ))
             {
-                ѥ.Add(
+                Ѥ.Add(
                     d.EntityId,
                     d);
             }
@@ -8767,12 +8764,12 @@ public static double Ē(
         for (int Į = 0;
             Į <
                 Р
-                    .ѫ
+                    .Ѫ
                     .Count;
             Į++)
         {
             IMyThrust d =
-                Р.ѫ[Į];
+                Р.Ѫ[Į];
 
             ǘ ǟ;
 
@@ -8794,6 +8791,18 @@ public static double Ē(
 
             if (ǟ.ǜ)
             {
+                ѫ(
+                    Р,
+                    ǟ,
+                    d,
+                    e,
+                    ѣ,
+                    ѥ);
+            }
+            else if (ѩ(
+                         Р,
+                         ǟ.Ǘ))
+            {
                 Ѭ(
                     Р,
                     ǟ,
@@ -8801,18 +8810,6 @@ public static double Ē(
                     e,
                     Ѥ,
                     Ѧ);
-            }
-            else if (Ѫ(
-                         Р,
-                         ǟ.Ǘ))
-            {
-                ѭ(
-                    Р,
-                    ǟ,
-                    d,
-                    e,
-                    ѥ,
-                    ѧ);
             }
             else if (ǟ
                          .Ǘ
@@ -8837,67 +8834,67 @@ public static double Ē(
             yield return 1;
         }
 
+        ѭ(
+            Р,
+            ѥ);
+
         Ѯ(
             Р,
+            Ѥ,
             Ѧ);
 
-        ѯ(
-            Р,
-            ѥ,
-            ѧ);
-
-        foreach (int ѱ in
-            Ѱ(
+        foreach (int Ѱ in
+            ѯ(
                 Р))
         {
-            yield return ѱ;
+            yield return Ѱ;
         }
     }
 
-    void Ѭ(
+    void ѫ(
         П Р,
         ǘ ǟ,
         IMyThrust d,
         F e,
-        Dictionary<long, Ò> ѳ,
-        Dictionary<long, List<g>> Ѵ)
+        Dictionary<long, Ò> Ѳ,
+        Dictionary<long, List<g>> ѳ)
     {
-        Ò Ѷ =
-            ѵ(
+        Ò ѵ =
+            Ѵ(
                 ǟ,
-                ѳ);
+                Ѳ);
 
-        bool ѷ =
+        bool Ѷ =
             ǟ.Ǜ >
             0;
 
-        bool Ѹ =
+        bool ѷ =
             (e &
              F.Z) != 0;
 
-        bool ѹ =
+        bool Ѹ =
             (e &
              F.X) != 0;
 
-        bool Ѻ =
-            !ѹ &&
+        bool ѹ =
+            !Ѹ &&
             (ȟ.Ȭ
-                ? Ѹ ||
-                  ѷ ||
-                  Ѷ != null
-                : Ѹ);
+                ? ѷ ||
+                  Ѷ ||
+                  ѵ != null
+                : ѷ);
 
         g İ =
             new g(
                 d,
                 this,
                 e,
-                Ѻ);
+                ѹ);
 
         Р.ĥ.Add(
             İ);
 
-        if (Ѻ)
+        if (ѹ)
         {
             Р
                 .л
@@ -8914,9 +8911,9 @@ public static double Ē(
                 .Add(İ);
         }
 
-        if (Ѷ == null)
+        if (ѵ == null)
         {
-            if (Ѻ)
+            if (ѹ)
             {
                 Р
                     .м
@@ -8926,61 +8923,61 @@ public static double Ē(
             return;
         }
 
-        List<g> ѻ;
+        List<g> Ѻ;
 
-        if (!Ѵ
+        if (!ѳ
                 .TryGetValue(
-                    Ѷ.Q,
-                    out ѻ))
+                    ѵ.Q,
+                    out Ѻ))
         {
-            ѻ =
+            Ѻ =
                 new List<g>();
 
-            Ѵ.Add(
-                Ѷ.Q,
-                ѻ);
+            ѳ.Add(
+                ѵ.Q,
+                Ѻ);
         }
 
-        ѻ.Add(
+        Ѻ.Add(
             İ);
     }
 
-    void Ѯ(
+    void ѭ(
         П Р,
-        Dictionary<long, List<g>> Ѵ)
+        Dictionary<long, List<g>> ѳ)
     {
         for (int Į = 0;
             Į <
                 Р
-                    .ѩ
+                    .Ѩ
                     .Count;
             Į++)
         {
             Ò Ī =
                 Р
-                    .ѩ[Į];
+                    .Ѩ[Į];
 
-            List<g> ѻ;
+            List<g> Ѻ;
 
-            bool Ѽ =
-                Ѵ
+            bool ѻ =
+                ѳ
                     .TryGetValue(
                         Ī.Q,
-                        out ѻ);
+                        out Ѻ);
 
-            bool ѽ =
+            bool Ѽ =
                 false;
 
-            if (Ѽ)
+            if (ѻ)
             {
                 for (int ĵ = 0;
-                    ĵ < ѻ.Count;
+                    ĵ < Ѻ.Count;
                     ĵ++)
                 {
-                    if (ѻ[ĵ]
+                    if (Ѻ[ĵ]
                         .P)
                     {
-                        ѽ =
+                        Ѽ =
                             true;
 
                         break;
@@ -8992,7 +8989,7 @@ public static double Ē(
                 !Ī.Y &&
                 (Ī.a ||
                  ȟ.Ȭ &&
-                 ѽ);
+                 Ѽ);
 
             Ī.N(
                 C.O,
@@ -9000,14 +8997,14 @@ public static double Ē(
 
             if (!f)
             {
-                if (Ѽ)
+                if (ѻ)
                 {
                     for (int ĵ = 0;
-                        ĵ < ѻ.Count;
+                        ĵ < Ѻ.Count;
                         ĵ++)
                     {
                         g İ =
-                            ѻ[ĵ];
+                            Ѻ[ĵ];
 
                         if (İ.P &&
                             !Р
@@ -9030,8 +9027,13 @@ public static double Ē(
                 .г
                 .Add(Ī);
 
-            if (!ѽ)
+            if (!Ѽ)
             {
+                if (Ī.a)
+                {
+                    Ī.Ó();
+                }
+
                 continue;
             }
 
@@ -9045,11 +9047,11 @@ public static double Ē(
                 .Add(ʋ);
 
             for (int ĵ = 0;
-                ĵ < ѻ.Count;
+                ĵ < Ѻ.Count;
                 ĵ++)
             {
                 g İ =
-                    ѻ[ĵ];
+                    Ѻ[ĵ];
 
                 if (!İ.P)
                 {
@@ -9062,7 +9064,7 @@ public static double Ē(
                 ʋ.ĥ.Add(
                     İ);
 
-                ǘ Ѿ;
+                ǘ ѽ;
 
                 if (Р
                         .Т
@@ -9071,11 +9073,11 @@ public static double Ē(
                                 .E
                                 .CubeGrid
                                 .EntityId,
-                            out Ѿ))
+                            out ѽ))
                 {
-                    ѿ(
+                    Ѿ(
                         ʋ,
-                        Ѿ,
+                        ѽ,
                         Ī);
                 }
             }
@@ -9085,35 +9087,35 @@ public static double Ē(
         }
     }
 
-    void ѭ(
+    void Ѭ(
         П Р,
         ǘ ǟ,
         IMyThrust d,
         F e,
-        Dictionary<long, IMyMotorStator> ѳ,
-        Dictionary<long, List<g>> Ѵ)
+        Dictionary<long, IMyMotorStator> Ѳ,
+        Dictionary<long, List<g>> ѳ)
     {
-        ǖ Ҁ =
+        ǖ ѿ =
             ǟ.Ǘ;
 
-        IMyMotorStator Ѷ =
-            ҁ(
+        IMyMotorStator ѵ =
+            Ҁ(
                 ǟ,
-                ѳ);
+                Ѳ);
 
-        bool Ѹ =
+        bool ѷ =
             (e &
              F.Z) != 0;
 
-        bool ѹ =
+        bool Ѹ =
             (e &
              F.X) != 0;
 
-        bool Ҋ =
-            !ѹ &&
-            Ҁ.Ǩ &&
-            (Ҁ.ǧ ||
-             Ѹ);
+        bool ҁ =
+            !Ѹ &&
+            ѿ.Ǩ &&
+            (ѿ.ǧ ||
+             ѷ);
 
         g İ =
             new g(
@@ -9122,7 +9124,7 @@ public static double Ē(
                 e,
                 false);
 
-        if (!Ҋ)
+        if (!ҁ)
         {
             Р
                 .р
@@ -9139,7 +9141,7 @@ public static double Ē(
             .п
             .Add(İ);
 
-        if (Ѷ == null)
+        if (ѵ == null)
         {
             Р
                 .с
@@ -9148,114 +9150,114 @@ public static double Ē(
             return;
         }
 
-        List<g> ѻ;
+        List<g> Ѻ;
 
-        if (!Ѵ
+        if (!ѳ
                 .TryGetValue(
-                    Ѷ.EntityId,
-                    out ѻ))
+                    ѵ.EntityId,
+                    out Ѻ))
         {
-            ѻ =
+            Ѻ =
                 new List<g>();
 
-            Ѵ.Add(
-                Ѷ.EntityId,
-                ѻ);
+            ѳ.Add(
+                ѵ.EntityId,
+                Ѻ);
         }
 
-        ѻ.Add(
+        Ѻ.Add(
             İ);
     }
 
-    void ѯ(
+    void Ѯ(
         П Р,
-        Dictionary<long, IMyMotorStator> ѳ,
-        Dictionary<long, List<g>> Ѵ)
+        Dictionary<long, IMyMotorStator> Ѳ,
+        Dictionary<long, List<g>> ѳ)
     {
         foreach (
             KeyValuePair<long, List<g>> Ћ
-            in Ѵ)
+            in ѳ)
         {
-            IMyMotorStator ҋ;
+            IMyMotorStator Ҋ;
 
-            if (!ѳ.TryGetValue(
+            if (!Ѳ.TryGetValue(
                     Ћ.Key,
-                    out ҋ))
+                    out Ҋ))
             {
-                Ҍ(
+                ҋ(
                     Р,
                     Ћ.Value);
 
                 continue;
             }
 
-            ǘ ҍ;
+            ǘ Ҍ;
 
             if (!Р
                     .Т
                     .TryGetValue(
-                        ҋ
+                        Ҋ
                             .CubeGrid
                             .EntityId,
-                        out ҍ))
+                        out Ҍ))
             {
-                Ҍ(
+                ҋ(
                     Р,
                     Ћ.Value);
 
                 continue;
             }
 
-            F Ҏ =
+            F ҍ =
                 Ф(
                     Р.G,
-                    ҋ.EntityId);
-
-            bool ѹ =
-                (Ҏ &
-                 F.X) != 0;
+                    Ҋ.EntityId);
 
             bool Ѹ =
-                (Ҏ &
+                (ҍ &
+                 F.X) != 0;
+
+            bool ѷ =
+                (ҍ &
                  F.Z) != 0;
 
-            ǖ Ҁ =
-                ҍ.Ǘ;
+            ǖ ѿ =
+                Ҍ.Ǘ;
 
-            bool Ҋ =
-                !ѹ &&
-                Ҁ.Ǩ &&
-                (Ѹ ||
-                 Ҁ.ǧ &&
+            bool ҁ =
+                !Ѹ &&
+                ѿ.Ǩ &&
+                (ѷ ||
+                 ѿ.ǧ &&
                  Ћ.Value.Count > 0);
 
-            if (!Ҋ ||
-                ҋ.TopGrid == null ||
-                !ҋ.IsFunctional ||
-                !ҋ.Enabled ||
-                ҋ.RotorLock)
+            if (!ҁ ||
+                Ҋ.TopGrid == null ||
+                !Ҋ.IsFunctional ||
+                !Ҋ.Enabled ||
+                Ҋ.RotorLock)
             {
-                Ҍ(
+                ҋ(
                     Р,
                     Ћ.Value);
 
                 continue;
             }
 
-            ҏ Ґ =
-                new ҏ(
-                    ҋ);
+            Ҏ ҏ =
+                new Ҏ(
+                    Ҋ);
 
-            Ґ.ĥ.AddRange(
+            ҏ.ĥ.AddRange(
                 Ћ.Value);
 
             Р
                 .ф
-                .Add(Ґ);
+                .Add(ҏ);
         }
     }
 
-    static void Ҍ(
+    static void ҋ(
         П Р,
         List<g> ʆ)
     {
@@ -9278,16 +9280,16 @@ public static double Ē(
         }
     }
 
-    IEnumerable<int> Ѱ(
+    IEnumerable<int> ѯ(
         П Р)
     {
         for (int Į = 0;
             Į <
-                Р.ґ.Count;
+                Р.Ґ.Count;
             Į++)
         {
             IMyGyro d =
-                Р.ґ[Į];
+                Р.Ґ[Į];
 
             ǘ ǟ;
 
@@ -9299,7 +9301,7 @@ public static double Ē(
                             .EntityId,
                         out ǟ) ||
                 !ǟ.ǜ ||
-                !Ғ(
+                !ґ(
                     d))
             {
                 continue;
@@ -9310,150 +9312,150 @@ public static double Ē(
                     Р.G,
                     d.EntityId);
 
-            bool ѹ =
+            bool Ѹ =
                 (e &
                  F.X) != 0;
 
-            if (ѹ)
+            if (Ѹ)
             {
                 continue;
             }
 
-            bool ѷ =
+            bool Ѷ =
                 ǟ.Ǜ >
                 0;
 
-            bool Ѹ =
+            bool ѷ =
                 (e &
                  F.Z) != 0;
 
-            bool ғ =
+            bool Ғ =
                 ȟ.Ȭ
-                    ? Ѹ ||
-                      ѷ
-                    : Ѹ;
+                    ? ѷ ||
+                      Ѷ
+                    : ѷ;
 
-            bool Ҕ =
+            bool ғ =
                 d.CubeGrid ==
                 Me.CubeGrid;
 
-            if (!ғ &&
-                !Ҕ)
+            if (!Ғ &&
+                !ғ)
             {
                 continue;
             }
 
-            ũ ҕ =
+            ũ Ҕ =
                 new ũ(
                     d,
                     this,
                     e,
-                    ғ);
+                    Ғ);
 
             Р.д.Add(
-                ҕ);
+                Ҕ);
 
             yield return 1;
         }
     }
 
-    Ò ѵ(
+    Ò Ѵ(
         ǘ ǟ,
-        Dictionary<long, Ò> ѳ)
+        Dictionary<long, Ò> Ѳ)
     {
-        ǘ Җ =
+        ǘ ҕ =
             ǟ;
 
-        while (Җ != null &&
-               Җ.Ǚ != null)
+        while (ҕ != null &&
+               ҕ.Ǚ != null)
         {
-            ǔ җ =
-                Җ.ǚ;
+            ǔ Җ =
+                ҕ.ǚ;
 
-            IMyMotorStator Ҙ =
-                җ != null
-                    ? җ.ǝ as
+            IMyMotorStator җ =
+                Җ != null
+                    ? Җ.ǝ as
                         IMyMotorStator
                     : null;
 
-            if (Ҙ != null &&
-                Ҙ.TopGrid ==
-                    Җ.Ǔ)
+            if (җ != null &&
+                җ.TopGrid ==
+                    ҕ.Ǔ)
             {
                 Ò Ī;
 
-                if (ѳ.TryGetValue(
-                        Ҙ.EntityId,
+                if (Ѳ.TryGetValue(
+                        җ.EntityId,
                         out Ī))
                 {
                     return Ī;
                 }
             }
 
-            Җ =
-                Җ.Ǚ;
+            ҕ =
+                ҕ.Ǚ;
         }
 
         return null;
     }
 
-    IMyMotorStator ҁ(
+    IMyMotorStator Ҁ(
         ǘ ǟ,
-        Dictionary<long, IMyMotorStator> ѳ)
+        Dictionary<long, IMyMotorStator> Ѳ)
     {
-        ǘ Җ =
+        ǘ ҕ =
             ǟ;
 
-        while (Җ != null &&
-               Җ.Ǚ != null)
+        while (ҕ != null &&
+               ҕ.Ǚ != null)
         {
-            ǔ җ =
-                Җ.ǚ;
+            ǔ Җ =
+                ҕ.ǚ;
 
-            IMyMotorStator Ҙ =
-                җ != null
-                    ? җ.ǝ as
+            IMyMotorStator җ =
+                Җ != null
+                    ? Җ.ǝ as
                         IMyMotorStator
                     : null;
 
-            if (Ҙ != null &&
-                Ҙ.TopGrid ==
-                    Җ.Ǔ)
+            if (җ != null &&
+                җ.TopGrid ==
+                    ҕ.Ǔ)
             {
                 IMyMotorStator Ī;
 
-                if (ѳ.TryGetValue(
-                        Ҙ.EntityId,
+                if (Ѳ.TryGetValue(
+                        җ.EntityId,
                         out Ī))
                 {
                     return Ī;
                 }
             }
 
-            Җ =
-                Җ.Ǚ;
+            ҕ =
+                ҕ.Ǚ;
         }
 
         return null;
     }
 
-    void ѿ(
+    void Ѿ(
         H ʋ,
-        ǘ Ѿ,
+        ǘ ѽ,
         Ò Ī)
     {
-        ǘ Җ =
-            Ѿ;
+        ǘ ҕ =
+            ѽ;
 
-        while (Җ != null)
+        while (ҕ != null)
         {
-            ѡ(
+            Ѡ(
                 ʋ.Ħ,
-                Җ.Ǔ);
+                ҕ.Ǔ);
 
-            if (Җ.ǚ !=
+            if (ҕ.ǚ !=
                     null &&
-                Җ.ǚ
+                ҕ.ǚ
                     .ǝ
                     .EntityId ==
                 Ī.Q)
@@ -9461,40 +9463,40 @@ public static double Ē(
                 break;
             }
 
-            Җ =
-                Җ.Ǚ;
+            ҕ =
+                ҕ.Ǚ;
         }
     }
 
-    static bool Ѫ(
+    static bool ѩ(
         П Р,
-        ǖ Ҁ)
+        ǖ ѿ)
     {
-        return Ҁ != null &&
-               Ҁ !=
-                   Р.я &&
-               !Ҁ
+        return ѿ != null &&
+               ѿ !=
+                   Р.ю &&
+               !ѿ
                    .ǜ &&
-               Ҁ
+               ѿ
                    .Ǥ &&
-               Ҁ
+               ѿ
                    .ǩ !=
                    null;
     }
 
-    bool Ғ(
-        IMyGyro ҕ)
+    bool ґ(
+        IMyGyro Ҕ)
     {
-        string ҙ =
-            ҕ
+        string Ҙ =
+            Ҕ
                 .BlockDefinition
                 .SubtypeId;
 
-        if (ҙ.Equals(
+        if (Ҙ.Equals(
 "SmallBlockGyro",
                 StringComparison
                     .OrdinalIgnoreCase) ||
-            ҙ.Equals(
+            Ҙ.Equals(
 "LargeBlockGyro",
                 StringComparison
                     .OrdinalIgnoreCase))
@@ -9502,175 +9504,175 @@ public static double Ē(
             return true;
         }
 
-        return ҙ.Equals(
+        return Ҙ.Equals(
 "SmallPrototechGyro",
                    StringComparison
                        .OrdinalIgnoreCase) ||
-               ҙ.Equals(
+               Ҙ.Equals(
 "LargePrototechGyro",
                    StringComparison
                        .OrdinalIgnoreCase) ||
-               ҙ.Equals(
+               Ҙ.Equals(
 "SmallPrototechGyroscope",
                    StringComparison
                        .OrdinalIgnoreCase) ||
-               ҙ.Equals(
+               Ҙ.Equals(
 "LargePrototechGyroscope",
                    StringComparison
                        .OrdinalIgnoreCase);
     }
-    IEnumerable<int> ҥ()
+    IEnumerable<int> Ҥ()
     {
         П Р =
             new П();
 
-        foreach (int ѱ in
+        foreach (int Ѱ in
+            ҙ(
+                Р))
+        {
+            yield return Ѱ;
+        }
+
+        foreach (int Ѱ in
             Қ(
                 Р))
         {
-            yield return ѱ;
+            yield return Ѱ;
         }
 
-        foreach (int ѱ in
-            қ(
-                Р))
-        {
-            yield return ѱ;
-        }
-
-        Ҝ(
+        қ(
             Р);
 
-        foreach (int ѱ in
+        foreach (int Ѱ in
+            Ҝ(
+                Р))
+        {
+            yield return Ѱ;
+        }
+
+        foreach (int Ѱ in
             ҝ(
                 Р))
         {
-            yield return ѱ;
+            yield return Ѱ;
         }
 
-        foreach (int ѱ in
+        ǘ ҟ =
             Ҟ(
-                Р))
-        {
-            yield return ѱ;
-        }
-
-        ǘ Ҡ =
-            ҟ(
                 Р.Т,
                 Me.CubeGrid);
 
-        Р.я =
-            Ҡ.Ǘ;
+        Р.ю =
+            ҟ.Ǘ;
+
+        Ҡ(
+            Р);
 
         ҡ(
-            Р);
+            Р,
+            ҟ);
 
         Ң(
-            Р,
-            Ҡ);
-
-        ң(
             Р);
 
-        foreach (int ѱ in
-            Ҥ(
+        foreach (int Ѱ in
+            ң(
                 Р))
         {
-            yield return ѱ;
+            yield return Ѱ;
         }
 
-        foreach (int ѱ in
-            Ѳ(
+        foreach (int Ѱ in
+            ѱ(
                 Р))
         {
-            yield return ѱ;
+            yield return Ѱ;
         }
 
-        foreach (int ѱ in
+        foreach (int Ѱ in
             Я(
                 Р))
         {
-            yield return ѱ;
+            yield return Ѱ;
         }
 
-        ы(
+        ъ(
             Р);
 
         yield return 1;
     }
 
 
-    IEnumerable<int> Қ(
+    IEnumerable<int> ҙ(
         П Р)
     {
         GridTerminalSystem.GetBlocks(
-            Р.ю);
+            Р.э);
 
-        List<IMyBlockGroup> Ҧ =
+        List<IMyBlockGroup> ҥ =
             new List<IMyBlockGroup>();
 
         GridTerminalSystem.GetBlockGroups(
-            Ҧ);
+            ҥ);
 
-        List<IMyTerminalBlock> ҧ =
+        List<IMyTerminalBlock> Ҧ =
             new List<IMyTerminalBlock>();
 
         for (int Į = 0;
-            Į < Ҧ.Count;
+            Į < ҥ.Count;
             Į++)
         {
-            IMyBlockGroup Ҩ =
-                Ҧ[Į];
+            IMyBlockGroup ҧ =
+                ҥ[Į];
 
-            F ҩ =
-                њ(
-                    Ҩ.Name);
+            F Ҩ =
+                љ(
+                    ҧ.Name);
 
-            if (ҩ ==
+            if (Ҩ ==
                 F.M)
             {
                 continue;
             }
 
-            ҧ.Clear();
+            Ҧ.Clear();
 
-            Ҩ.GetBlocks(
-                ҧ);
+            ҧ.GetBlocks(
+                Ҧ);
 
             for (int ĵ = 0;
-                ĵ < ҧ.Count;
+                ĵ < Ҧ.Count;
                 ĵ++)
             {
-                ў(
+                ѝ(
                     Р.G,
-                    ҧ[ĵ]
+                    Ҧ[ĵ]
                         .EntityId,
-                    ҩ);
+                    Ҩ);
             }
 
             yield return 1;
         }
 
         for (int Į = 0;
-            Į < Р.ю.Count;
+            Į < Р.э.Count;
             Į++)
         {
             IMyTerminalBlock d =
-                Р.ю[Į];
+                Р.э[Į];
 
-            F Ҫ =
-                њ(
+            F ҩ =
+                љ(
                     d.CustomName) |
-                њ(
+                љ(
                     d.CustomData);
 
-            ў(
+            ѝ(
                 Р.G,
                 d.EntityId,
-                Ҫ);
+                ҩ);
 
-            ҟ(
+            Ҟ(
                 Р.Т,
                 d.CubeGrid);
 
@@ -9690,7 +9692,7 @@ public static double Ē(
 
             if (T != null)
             {
-                Р.ѫ.Add(
+                Р.Ѫ.Add(
                     T);
             }
 
@@ -9700,28 +9702,28 @@ public static double Ē(
 
             if (Ī != null)
             {
-                Р.Ѩ.Add(
+                Р.ѧ.Add(
                     Ī);
             }
 
-            IMyPistonBase ҫ =
+            IMyPistonBase Ҫ =
                 d as
                     IMyPistonBase;
 
-            if (ҫ != null)
+            if (Ҫ != null)
             {
-                Р.Ҭ.Add(
-                    ҫ);
+                Р.ҫ.Add(
+                    Ҫ);
             }
 
-            IMyGyro ҕ =
+            IMyGyro Ҕ =
                 d as
                     IMyGyro;
 
-            if (ҕ != null)
+            if (Ҕ != null)
             {
-                Р.ґ.Add(
-                    ҕ);
+                Р.Ґ.Add(
+                    Ҕ);
             }
 
             IMyShipConnector Ϛ =
@@ -9756,37 +9758,37 @@ public static double Ē(
                     ϩ);
             }
 
-            IMyProgrammableBlock і =
+            IMyProgrammableBlock ѕ =
                 d as
                     IMyProgrammableBlock;
 
-            if (і != null)
+            if (ѕ != null)
             {
                 Р
-                    .ҭ
+                    .Ҭ
                     .Add(
-                        і);
+                        ѕ);
             }
 
             yield return 1;
         }
 
-        ҟ(
+        Ҟ(
             Р.Т,
             Me.CubeGrid);
     }
 
 
-    IEnumerable<int> қ(
+    IEnumerable<int> Қ(
         П Р)
     {
         for (int Į = 0;
             Į <
-                Р.Ѩ.Count;
+                Р.ѧ.Count;
             Į++)
         {
             IMyMotorStator Ī =
-                Р.Ѩ[Į];
+                Р.ѧ[Į];
 
             if (Ī.TopGrid ==
                 null)
@@ -9794,7 +9796,7 @@ public static double Ē(
                 continue;
             }
 
-            Ү(
+            ҭ(
                 Р.Т,
                 Ī.CubeGrid,
                 Ī.TopGrid,
@@ -9805,23 +9807,23 @@ public static double Ē(
 
         for (int Į = 0;
             Į <
-                Р.Ҭ.Count;
+                Р.ҫ.Count;
             Į++)
         {
-            IMyPistonBase ҫ =
-                Р.Ҭ[Į];
+            IMyPistonBase Ҫ =
+                Р.ҫ[Į];
 
-            if (ҫ.TopGrid ==
+            if (Ҫ.TopGrid ==
                 null)
             {
                 continue;
             }
 
-            Ү(
+            ҭ(
                 Р.Т,
-                ҫ.CubeGrid,
-                ҫ.TopGrid,
-                ҫ);
+                Ҫ.CubeGrid,
+                Ҫ.TopGrid,
+                Ҫ);
 
             yield return 1;
         }
@@ -9838,7 +9840,7 @@ public static double Ē(
 
             if (Ɨ != null)
             {
-                ҟ(
+                Ҟ(
                     Р.Т,
                     Ɨ.CubeGrid);
             }
@@ -9847,84 +9849,84 @@ public static double Ē(
         }
     }
 
-    void Ҝ(
+    void қ(
         П Р)
     {
-        List<ǘ> ү =
+        List<ǘ> Ү =
             new List<ǘ>();
 
         foreach (
             KeyValuePair<long, ǘ> Ћ
             in Р.Т)
         {
-            ǘ Ұ =
+            ǘ ү =
                 Ћ.Value;
 
-            if (Ұ.Ǘ !=
+            if (ү.Ǘ !=
                 null)
             {
                 continue;
             }
 
-            ǖ Ҁ =
+            ǖ ѿ =
                 new ǖ();
 
-            Р.ұ.Add(
-                Ҁ);
+            Р.Ұ.Add(
+                ѿ);
 
-            ү.Clear();
-            ү.Add(Ұ);
+            Ү.Clear();
+            Ү.Add(ү);
 
-            Ұ.Ǘ =
-                Ҁ;
+            ү.Ǘ =
+                ѿ;
 
             for (int ΰ = 0;
-                ΰ < ү.Count;
+                ΰ < Ү.Count;
                 ΰ++)
             {
                 ǘ ǟ =
-                    ү[ΰ];
+                    Ү[ΰ];
 
-                Ҁ.ǡ.Add(
+                ѿ.ǡ.Add(
                     ǟ);
 
                 if (ǟ.Ǔ.IsStatic)
                 {
-                    Ҁ.ǥ =
+                    ѿ.ǥ =
                         true;
                 }
 
-                for (int Ҳ = 0;
-                    Ҳ <
+                for (int ұ = 0;
+                    ұ <
                         ǟ
                             .Ǖ
                             .Count;
-                    Ҳ++)
+                    ұ++)
                 {
-                    ǘ ҳ =
+                    ǘ Ҳ =
                         ǟ
                             .Ǖ[
-                                Ҳ]
+                                ұ]
                             .Ǡ(ǟ);
 
-                    if (ҳ.Ǘ !=
+                    if (Ҳ.Ǘ !=
                         null)
                     {
                         continue;
                     }
 
-                    ҳ.Ǘ =
-                        Ҁ;
+                    Ҳ.Ǘ =
+                        ѿ;
 
-                    ү.Add(
-                        ҳ);
+                    Ү.Add(
+                        Ҳ);
                 }
             }
         }
     }
 
 
-    IEnumerable<int> ҝ(
+    IEnumerable<int> Ҝ(
         П Р)
     {
         for (int Į = 0;
@@ -9966,16 +9968,16 @@ public static double Ē(
         for (int Į = 0;
             Į <
                 Р
-                    .ҭ
+                    .Ҭ
                     .Count;
             Į++)
         {
-            IMyProgrammableBlock і =
+            IMyProgrammableBlock ѕ =
                 Р
-                    .ҭ[Į];
+                    .Ҭ[Į];
 
-            if (!ї(
-                    і))
+            if (!і(
+                    ѕ))
             {
                 continue;
             }
@@ -9985,7 +9987,7 @@ public static double Ē(
             if (!Р
                     .Т
                     .TryGetValue(
-                        і
+                        ѕ
                             .CubeGrid
                             .EntityId,
                         out ǟ))
@@ -9993,57 +9995,57 @@ public static double Ē(
                 continue;
             }
 
-            ǖ Ҁ =
+            ǖ ѿ =
                 ǟ.Ǘ;
 
-            Ҁ
+            ѿ
                 .ǣ
                 .Add(
-                    і);
+                    ѕ);
 
-            bool Ҵ =
-                ј(
-                    і);
+            bool ҳ =
+                ї(
+                    ѕ);
 
-            if (Ҵ)
+            if (ҳ)
             {
-                Ҁ
+                ѿ
                     .Ǧ =
                     true;
             }
 
-            if (Ҁ
+            if (ѿ
                     .ǩ ==
                     null ||
-                і
+                ѕ
                     .EntityId <
-                Ҁ
+                ѿ
                     .ǩ
                     .EntityId)
             {
-                Ҁ
+                ѿ
                     .ǩ =
-                    і;
+                    ѕ;
 
-                Ҁ.ǧ =
-                    ҵ(
-                        і);
+                ѿ.ǧ =
+                    Ҵ(
+                        ѕ);
 
-                Ҁ.Ǩ =
-                    Ҵ;
+                ѿ.Ǩ =
+                    ҳ;
             }
 
             yield return 1;
         }
     }
 
-    bool ҵ(
-        IMyProgrammableBlock і)
+    bool Ҵ(
+        IMyProgrammableBlock ѕ)
     {
         string Ȧ;
 
         if (!Ͳ(
-                і.CustomData,
+                ѕ.CustomData,
                 Ɉ,
 "Greedy",
                 out Ȧ))
@@ -10061,10 +10063,10 @@ public static double Ē(
     }
 
 
-    IEnumerable<int> Ҟ(
+    IEnumerable<int> ҝ(
         П Р)
     {
-        HashSet<Ƥ> Ҷ =
+        HashSet<Ƥ> ҵ =
             new HashSet<Ƥ>();
 
         for (int Į = 0;
@@ -10088,14 +10090,14 @@ public static double Ē(
                     Ϛ.EntityId,
                     Ɨ.EntityId);
 
-            if (!Ҷ.Add(
+            if (!ҵ.Add(
                     Ћ))
             {
                 continue;
             }
 
+            ǘ Ҷ;
             ǘ ҷ;
-            ǘ Ҹ;
 
             if (!Р
                     .Т
@@ -10103,14 +10105,14 @@ public static double Ē(
                         Ϛ
                             .CubeGrid
                             .EntityId,
-                        out ҷ) ||
+                        out Ҷ) ||
                 !Р
                     .Т
                     .TryGetValue(
                         Ɨ
                             .CubeGrid
                             .EntityId,
-                        out Ҹ))
+                        out ҷ))
             {
                 continue;
             }
@@ -10127,41 +10129,41 @@ public static double Ē(
                             Ɨ,
 
                         Ǫ =
-                            ҷ,
+                            Ҷ,
 
                         ǫ =
-                            Ҹ
+                            ҷ
                     });
 
             yield return 1;
         }
     }
 
-    void ҡ(
+    void Ҡ(
         П Р)
     {
-        ǖ ҹ =
-            Р.я;
+        ǖ Ҹ =
+            Р.ю;
 
-        if (ҹ == null)
+        if (Ҹ == null)
         {
             return;
         }
 
-        List<ǖ> ү =
+        List<ǖ> Ү =
             new List<ǖ>();
 
-        ҹ.Ǥ =
+        Ҹ.Ǥ =
             true;
 
-        ү.Add(ҹ);
+        Ү.Add(Ҹ);
 
         for (int ΰ = 0;
-            ΰ < ү.Count;
+            ΰ < Ү.Count;
             ΰ++)
         {
-            ǖ Ҁ =
-                ү[ΰ];
+            ǖ ѿ =
+                Ү[ΰ];
 
             for (int Į = 0;
                 Į <
@@ -10170,24 +10172,24 @@ public static double Ē(
                         .Count;
                 Į++)
             {
-                Ǭ җ =
+                Ǭ Җ =
                     Р
                         .Ш[Į];
 
                 ǖ Ɨ =
                     null;
 
-                if (җ.Ǫ.Ǘ ==
-                    Ҁ)
+                if (Җ.Ǫ.Ǘ ==
+                    ѿ)
                 {
                     Ɨ =
-                        җ.ǫ.Ǘ;
+                        Җ.ǫ.Ǘ;
                 }
-                else if (җ.ǫ.Ǘ ==
-                         Ҁ)
+                else if (Җ.ǫ.Ǘ ==
+                         ѿ)
                 {
                     Ɨ =
-                        җ.Ǫ.Ǘ;
+                        Җ.Ǫ.Ǘ;
                 }
 
                 if (Ɨ == null ||
@@ -10201,36 +10203,36 @@ public static double Ē(
                     .Ǥ =
                     true;
 
-                ү.Add(Ɨ);
+                Ү.Add(Ɨ);
             }
         }
     }
 
-    void Ң(
+    void ҡ(
         П Р,
-        ǘ Ҡ)
+        ǘ ҟ)
     {
-        ǖ ҹ =
-            Р.я;
+        ǖ Ҹ =
+            Р.ю;
 
-        if (ҹ == null)
+        if (Ҹ == null)
         {
             return;
         }
 
-        ҹ.ǜ =
+        Ҹ.ǜ =
             true;
 
-        Һ(
-            ҹ,
-            Ҡ,
+        ҹ(
+            Ҹ,
+            ҟ,
             0);
 
-        bool һ;
+        bool Һ;
 
         do
         {
-            һ =
+            Һ =
                 false;
 
             for (int Į = 0;
@@ -10240,42 +10242,42 @@ public static double Ē(
                         .Count;
                 Į++)
             {
-                Ǭ җ =
+                Ǭ Җ =
                     Р
                         .Ш[Į];
 
-                bool Ҽ =
-                    җ
+                bool һ =
+                    Җ
                         .Ǫ
                         .Ǘ
                         .ǜ;
 
-                bool ҽ =
-                    җ
+                bool Ҽ =
+                    Җ
                         .ǫ
                         .Ǘ
                         .ǜ;
 
-                if (Ҽ ==
-                    ҽ)
+                if (һ ==
+                    Ҽ)
                 {
                     continue;
                 }
 
-                ǘ ѣ =
-                    Ҽ
-                        ? җ.Ǫ
-                        : җ.ǫ;
+                ǘ Ѣ =
+                    һ
+                        ? Җ.Ǫ
+                        : Җ.ǫ;
 
                 ǘ Ȝ =
-                    Ҽ
-                        ? җ.ǫ
-                        : җ.Ǫ;
+                    һ
+                        ? Җ.ǫ
+                        : Җ.Ǫ;
 
-                ǖ Ҿ =
+                ǖ ҽ =
                     Ȝ.Ǘ;
 
-                if (Ҿ
+                if (ҽ
                         .ǣ
                         .Count > 0)
                 {
@@ -10287,26 +10289,26 @@ public static double Ē(
                     continue;
                 }
 
-                Ҿ
+                ҽ
                     .ǜ =
                     true;
 
-                int ҿ =
-                    ѣ.Ǜ ==
+                int Ҿ =
+                    Ѣ.Ǜ ==
                         int.MaxValue
                         ? 0
-                        : ѣ.Ǜ;
+                        : Ѣ.Ǜ;
 
-                Һ(
-                    Ҿ,
+                ҹ(
+                    ҽ,
                     Ȝ,
-                    ҿ);
+                    Ҿ);
 
-                һ =
+                Һ =
                     true;
             }
         }
-        while (һ);
+        while (Һ);
 
         foreach (
             KeyValuePair<long, ǘ> Ћ
@@ -10320,63 +10322,63 @@ public static double Ē(
         }
     }
 
-    void ң(
+    void Ң(
         П Р)
     {
         for (int Į = 0;
             Į <
-                Р.ұ.Count;
+                Р.Ұ.Count;
             Į++)
         {
-            ǖ Ҁ =
-                Р.ұ[Į];
+            ǖ ѿ =
+                Р.Ұ[Į];
 
-            if (Ҁ ==
-                    Р.я ||
-                Ҁ.ǜ ||
-                !Ҁ
+            if (ѿ ==
+                    Р.ю ||
+                ѿ.ǜ ||
+                !ѿ
                     .Ǥ ||
-                Ҁ
+                ѿ
                     .ǩ ==
                     null)
             {
                 continue;
             }
 
-            ǘ Ҡ;
+            ǘ ҟ;
 
             if (!Р
                     .Т
                     .TryGetValue(
-                        Ҁ
+                        ѿ
                             .ǩ
                             .CubeGrid
                             .EntityId,
-                        out Ҡ))
+                        out ҟ))
             {
                 continue;
             }
 
-            Һ(
-                Ҁ,
-                Ҡ,
+            ҹ(
+                ѿ,
+                ҟ,
                 0);
         }
     }
 
-    void Һ(
-        ǖ Ҁ,
+    void ҹ(
+        ǖ ѿ,
         ǘ ι,
-        int Ӏ)
+        int ҿ)
     {
-        List<ǘ> ү =
+        List<ǘ> Ү =
             new List<ǘ>();
 
         if (ι.Ǜ >
-            Ӏ)
+            ҿ)
         {
             ι.Ǜ =
-                Ӏ;
+                ҿ;
 
             ι.Ǚ =
                 null;
@@ -10385,14 +10387,14 @@ public static double Ē(
                 null;
         }
 
-        ү.Add(ι);
+        Ү.Add(ι);
 
         for (int ΰ = 0;
-            ΰ < ү.Count;
+            ΰ < Ү.Count;
             ΰ++)
         {
             ǘ ǟ =
-                ү[ΰ];
+                Ү[ΰ];
 
             for (int Į = 0;
                 Į <
@@ -10401,59 +10403,59 @@ public static double Ē(
                         .Count;
                 Į++)
             {
-                ǔ җ =
+                ǔ Җ =
                     ǟ
                         .Ǖ[Į];
 
-                ǘ ҳ =
-                    җ.Ǡ(ǟ);
+                ǘ Ҳ =
+                    Җ.Ǡ(ǟ);
 
-                if (ҳ.Ǘ !=
-                    Ҁ)
+                if (Ҳ.Ǘ !=
+                    ѿ)
                 {
                     continue;
                 }
 
-                int Ӂ =
+                int Ӏ =
                     ǟ.Ǜ + 1;
 
-                if (Ӂ >=
-                    ҳ.Ǜ)
+                if (Ӏ >=
+                    Ҳ.Ǜ)
                 {
                     continue;
                 }
 
-                ҳ.Ǜ =
-                    Ӂ;
+                Ҳ.Ǜ =
+                    Ӏ;
 
-                ҳ.Ǚ =
+                Ҳ.Ǚ =
                     ǟ;
 
-                ҳ.ǚ =
-                    җ;
+                Ҳ.ǚ =
+                    Җ;
 
-                ү.Add(
-                    ҳ);
+                Ү.Add(
+                    Ҳ);
             }
         }
     }
 
-    IEnumerable<int> Ҥ(
+    IEnumerable<int> ң(
         П Р)
     {
         for (int Į = 0;
             Į <
-                Р.ұ.Count;
+                Р.Ұ.Count;
             Į++)
         {
-            ǖ Ҁ =
-                Р.ұ[Į];
+            ǖ ѿ =
+                Р.Ұ[Į];
 
-            if (!Ҁ
+            if (!ѿ
                     .Ǥ ||
-                Ҁ
+                ѿ
                     .ǜ ||
-                Ҁ
+                ѿ
                     .ǣ
                     .Count == 0)
             {
@@ -10462,7 +10464,7 @@ public static double Ē(
 
             for (int ĵ = 0;
                 ĵ <
-                    Ҁ
+                    ѿ
                         .Ǣ
                         .Count;
                 ĵ++)
@@ -10470,7 +10472,7 @@ public static double Ē(
                 Р
                     .к
                     .Add(
-                        Ҁ
+                        ѿ
                             .Ǣ[ĵ]);
             }
 
@@ -10479,20 +10481,20 @@ public static double Ē(
     }
 
 
-    static ǘ ҟ(
-        Dictionary<long, ǘ> ӂ,
+    static ǘ Ҟ(
+        Dictionary<long, ǘ> Ӂ,
         IMyCubeGrid Ŗ)
     {
         ǘ ǟ;
 
-        if (!ӂ.TryGetValue(
+        if (!Ӂ.TryGetValue(
                 Ŗ.EntityId,
                 out ǟ))
         {
             ǟ =
                 new ǘ(Ŗ);
 
-            ӂ.Add(
+            Ӂ.Add(
                 Ŗ.EntityId,
                 ǟ);
         }
@@ -10500,37 +10502,37 @@ public static double Ē(
         return ǟ;
     }
 
-    static void Ү(
-        Dictionary<long, ǘ> ӂ,
+    static void ҭ(
+        Dictionary<long, ǘ> Ӂ,
+        IMyCubeGrid ӂ,
         IMyCubeGrid Ӄ,
-        IMyCubeGrid ӄ,
         IMyTerminalBlock Ǟ)
     {
         ǘ ǂ =
-            ҟ(
-                ӂ,
-                Ӄ);
+            Ҟ(
+                Ӂ,
+                ӂ);
 
         ǘ ǃ =
-            ҟ(
-                ӂ,
-                ӄ);
+            Ҟ(
+                Ӂ,
+                Ӄ);
 
-        ǔ җ =
+        ǔ Җ =
             new ǔ(
                 ǂ,
                 ǃ,
                 Ǟ);
 
         ǂ.Ǖ.Add(
-            җ);
+            Җ);
 
         ǃ.Ǖ.Add(
-            җ);
+            Җ);
     }
     sealed class П
     {
-        public readonly List<IMyTerminalBlock> ю =
+        public readonly List<IMyTerminalBlock> э =
             new List<IMyTerminalBlock>();
 
         public readonly List<IMyShipController> Ǣ =
@@ -10538,16 +10540,16 @@ public static double Ē(
             new List<IMyShipController>(),к =
             new List<IMyShipController>();
 
-        public readonly List<IMyThrust> ѫ =
+        public readonly List<IMyThrust> Ѫ =
             new List<IMyThrust>();
 
-        public readonly List<IMyMotorStator> Ѩ =
+        public readonly List<IMyMotorStator> ѧ =
             new List<IMyMotorStator>();
 
-        public readonly List<IMyPistonBase> Ҭ =
+        public readonly List<IMyPistonBase> ҫ =
             new List<IMyPistonBase>();
 
-        public readonly List<IMyGyro> ґ =
+        public readonly List<IMyGyro> Ґ =
             new List<IMyGyro>();
 
         public readonly List<IMyShipConnector> С =
@@ -10562,7 +10564,7 @@ public static double Ē(
             new List<IMyTimerBlock>(),Э =
             new List<IMyTimerBlock>();
 
-        public readonly List<IMyProgrammableBlock> ҭ =
+        public readonly List<IMyProgrammableBlock> Ҭ =
             new List<IMyProgrammableBlock>();
 
         public readonly Dictionary<long, F> G =
@@ -10571,7 +10573,7 @@ public static double Ē(
         public readonly Dictionary<long, ǘ> Т =
             new Dictionary<long, ǘ>();
 
-        public readonly List<ǖ> ұ =
+        public readonly List<ǖ> Ұ =
             new List<ǖ>();
 
         public readonly List<Ǭ> Ш =
@@ -10587,15 +10589,15 @@ public static double Ē(
             new List<g>(),с =
             new List<g>();
 
-        public readonly List<Ò> ѩ =
+        public readonly List<Ò> Ѩ =
             new List<Ò>(),г =
             new List<Ò>();
 
         public readonly List<H> т =
             new List<H>();
 
-        public readonly List<ҏ> ф =
-            new List<ҏ>();
+        public readonly List<Ҏ> ф =
+            new List<Ҏ>();
 
         public readonly List<ŝ> у =
             new List<ŝ>();
@@ -10612,10 +10614,10 @@ public static double Ē(
         public readonly List<Ž> ч =
             new List<Ž>();
 
-        public ǖ я;
+        public ǖ ю;
     }
 
-    sealed class ҏ
+    sealed class Ҏ
     {
         readonly List<double> Ĥ =
             new List<double>();
@@ -10625,7 +10627,7 @@ public static double Ē(
         public readonly List<g> ĥ =
             new List<g>();
 
-        public ҏ(
+        public Ҏ(
             IMyMotorStator Ī)
         {
             Ò = Ī;
@@ -10661,7 +10663,7 @@ public static double Ē(
 
             Ĥ.Clear();
 
-            Ӆ(0);
+            ӄ(0);
 
             for (int Į = 0;
                 Į < ĥ.Count;
@@ -10670,7 +10672,7 @@ public static double Ē(
                 g İ =
                     ĥ[Į];
 
-                if (!ӆ(
+                if (!Ӆ(
                         İ))
                 {
                     continue;
@@ -10683,7 +10685,7 @@ public static double Ē(
                             .R,
                         É);
 
-                Ӆ(
+                ӄ(
                     ã(
                         ñ));
             }
@@ -10694,7 +10696,7 @@ public static double Ē(
             if (Î(
                     Ò.LowerLimitRad))
             {
-                Ӆ(
+                ӄ(
                     Ò.LowerLimitRad -
                     Õ);
             }
@@ -10702,13 +10704,13 @@ public static double Ē(
             if (Ï(
                     Ò.UpperLimitRad))
             {
-                Ӆ(
+                ӄ(
                     Ò.UpperLimitRad -
                     Õ);
             }
 
             double Ŀ = 0;
-            double Ӈ =
+            double ӆ =
                 double.MaxValue;
 
             for (int Į = 0;
@@ -10725,7 +10727,7 @@ public static double Ē(
                         m,
                         Ł);
 
-                double ӈ =
+                double Ӈ =
                     Math.Abs(Ł);
 
                 if (ł >
@@ -10735,21 +10737,21 @@ public static double Ē(
                         ł -
                         Ŀ) <=
                         U &&
-                    ӈ <
-                        Ӈ)
+                    Ӈ <
+                        ӆ)
                 {
                     Ŀ =
                         ł;
 
-                    Ӈ =
-                        ӈ;
+                    ӆ =
+                        Ӈ;
                 }
             }
 
             return Ŀ;
         }
 
-        void Ӆ(
+        void ӄ(
             double ñ)
         {
             ñ =
@@ -10787,7 +10789,7 @@ public static double Ē(
                 g İ =
                     ĥ[Į];
 
-                if (!ӆ(
+                if (!Ӆ(
                         İ))
                 {
                     continue;
@@ -10819,7 +10821,7 @@ public static double Ē(
             return ł;
         }
 
-        static bool ӆ(
+        static bool Ӆ(
             g İ)
         {
             if (İ == null ||
@@ -10969,14 +10971,14 @@ public static double Ē(
     readonly List<IMyShipConnector> ц =
         new List<IMyShipConnector>();
 
-    readonly Dictionary<long, long> Ӊ =
+    readonly Dictionary<long, long> ӈ =
         new Dictionary<long, long>();
 
-    readonly Dictionary<long, bool> ӊ =
+    readonly Dictionary<long, bool> Ӊ =
         new Dictionary<long, bool>();
 
-    readonly List<ҏ> ʏ =
-        new List<ҏ>();
+    readonly List<Ҏ> ʏ =
+        new List<Ҏ>();
 
     readonly List<g> ʎ =
         new List<g>();
@@ -11000,30 +11002,30 @@ public static double Ē(
                 false;
 
             Ј =
-                ҥ()
+                Ҥ()
                     .GetEnumerator();
         }
 
-        int Ӌ =
+        int ӊ =
             Runtime.MaxInstructionCount;
 
-        int ӌ =
+        int Ӌ =
             Math.Max(
                 1000,
-                Ӌ *
+                ӊ *
                 3 /
                 4);
 
-        int Ӎ = 0;
+        int ӌ = 0;
 
         while (Ј !=
                    null &&
                Runtime
                    .CurrentInstructionCount <
-                   ӌ &&
-               Ӎ < 512)
+                   Ӌ &&
+               ӌ < 512)
         {
-            Ӎ++;
+            ӌ++;
 
             if (Ј
                 .MoveNext())
@@ -11042,14 +11044,14 @@ public static double Ē(
                     false;
 
                 Ј =
-                    ҥ()
+                    Ҥ()
                         .GetEnumerator();
             }
         }
     }
 
     static double ʍ(
-        List<g> ӎ,
+        List<g> Ӎ,
         Vector3D m)
     {
         m =
@@ -11067,11 +11069,11 @@ public static double Ē(
 
         for (int Į = 0;
             Į <
-                ӎ.Count;
+                Ӎ.Count;
             Į++)
         {
             g İ =
-                ӎ[Į];
+                Ӎ[Į];
 
             if (İ == null ||
                 İ.Y ||
@@ -11189,7 +11191,7 @@ public static double Ē(
             true;
     }
 
-    void ӏ()
+    void ӎ()
     {
         ϲ =
             string.Empty;
@@ -11205,11 +11207,11 @@ public static double Ē(
         Ȍ =
             i;
 
-        Ӑ(
+        ӏ(
             i);
     }
 
-    void Ӑ(
+    void ӏ(
         bool i)
     {
         for (int Į = 0;
@@ -11244,7 +11246,7 @@ public static double Ē(
         if (Ȏ ==
             ƅ.ƃ)
         {
-            Ӑ(
+            ӏ(
                 ɱ
                     .Ư);
 
@@ -11253,7 +11255,7 @@ public static double Ē(
 
         if (!Ͽ)
         {
-            Ӑ(
+            ӏ(
                 Ȍ);
 
             return;
@@ -11266,20 +11268,20 @@ public static double Ē(
             return;
         }
 
-        bool ӑ =
+        bool Ӑ =
             ɡ
                 .DampenersOverride;
 
-        if (ӑ ==
+        if (Ӑ ==
             Ȍ)
         {
             return;
         }
 
         Ȍ =
-            ӑ;
+            Ӑ;
 
-        Ӑ(
+        ӏ(
             Ȍ);
     }
 
@@ -11289,7 +11291,7 @@ public static double Ē(
         if (i &&
             !Ȕ)
         {
-            Ӓ();
+            ӑ();
         }
 
         Ȕ = i;
@@ -11299,12 +11301,12 @@ public static double Ē(
             ʾ(
                 ƌ.Ɖ);
 
-            ӓ(
+            Ӓ(
                 C.Ɖ);
         }
 
         ɝ();
-        Ӕ();
+        ӓ();
     }
 
     void ȏ()
@@ -11313,7 +11315,7 @@ public static double Ē(
             !Ȕ);
     }
 
-    void Ӓ()
+    void ӑ()
     {
         if (ɡ ==
                 null ||
@@ -11349,7 +11351,7 @@ public static double Ē(
             return;
         }
 
-        Ӓ();
+        ӑ();
     }
 
     void Ș(
@@ -11387,7 +11389,7 @@ public static double Ē(
                    ƌ.M;
     }
 
-    bool ӕ(
+    bool Ӕ(
         long Ϧ,
         out Ə Ȓ)
     {
@@ -11399,7 +11401,7 @@ public static double Ē(
 
     void ˀ(
         g İ,
-        ƌ Ӗ)
+        ƌ ӕ)
     {
         if (İ == null)
         {
@@ -11408,16 +11410,16 @@ public static double Ē(
 
         ˀ(
             İ.E,
-            Ӗ);
+            ӕ);
     }
 
     void ˀ(
         IMyThrust d,
-        ƌ Ӗ)
+        ƌ ӕ)
     {
         if (d == null ||
             d.Closed ||
-            Ӗ ==
+            ӕ ==
                 ƌ.M)
         {
             return;
@@ -11445,7 +11447,7 @@ public static double Ē(
         }
 
         Ȓ.Ǝ |=
-            Ӗ;
+            ӕ;
 
         if (d.Enabled)
         {
@@ -11503,7 +11505,7 @@ public static double Ē(
 
     void ʾ(
         g İ,
-        ƌ Ӗ)
+        ƌ ӕ)
     {
         if (İ == null)
         {
@@ -11513,13 +11515,13 @@ public static double Ē(
         ʾ(
             İ.Q,
             İ.E,
-            Ӗ);
+            ӕ);
     }
 
     void ʾ(
         long Ϧ,
         IMyThrust d,
-        ƌ Ӗ)
+        ƌ ӕ)
     {
         Ə Ȓ;
 
@@ -11532,9 +11534,9 @@ public static double Ē(
         }
 
         Ȓ.Ǝ &=
-            ~Ӗ;
+            ~ӕ;
 
-        if ((Ӗ &
+        if ((ӕ &
              ƌ.Ɗ) != 0)
         {
             Ϣ.Remove(
@@ -11567,7 +11569,7 @@ public static double Ē(
     }
 
     void ʾ(
-        ƌ Ӗ)
+        ƌ ӕ)
     {
         if (Ϻ.Count ==
             0)
@@ -11575,29 +11577,29 @@ public static double Ē(
             return;
         }
 
-        List<long> ӗ =
+        List<long> Ӗ =
             new List<long>(
                 Ϻ.Keys);
 
         for (int Į = 0;
-            Į < ӗ.Count;
+            Į < Ӗ.Count;
             Į++)
         {
             long Ϧ =
-                ӗ[Į];
+                Ӗ[Į];
 
             IMyThrust d =
-                Ә(
+                ӗ(
                     Ϧ);
 
             ʾ(
                 Ϧ,
                 d,
-                Ӗ);
+                ӕ);
         }
     }
 
-    IMyThrust Ә(
+    IMyThrust ӗ(
         long Ϧ)
     {
         for (int Į = 0;
@@ -11652,7 +11654,7 @@ public static double Ē(
     }
 
     void ш(
-        HashSet<long> ә)
+        HashSet<long> Ә)
     {
         if (Ϻ.Count ==
             0)
@@ -11660,27 +11662,27 @@ public static double Ē(
             return;
         }
 
-        List<long> Ӛ =
+        List<long> ә =
             new List<long>();
 
         foreach (
             KeyValuePair<long, Ə> Ћ
             in Ϻ)
         {
-            if (!ә.Contains(
+            if (!Ә.Contains(
                     Ћ.Key))
             {
-                Ӛ.Add(
+                ә.Add(
                     Ћ.Key);
             }
         }
 
         for (int Į = 0;
-            Į < Ӛ.Count;
+            Į < ә.Count;
             Į++)
         {
             long Ϧ =
-                Ӛ[Į];
+                ә[Į];
 
             Ϻ.Remove(
                 Ϧ);
@@ -11693,11 +11695,11 @@ public static double Ē(
 
     void ɝ()
     {
-        bool ӛ =
+        bool Ӛ =
             Ȏ ==
             ƅ.ƃ;
 
-        bool Ӝ =
+        bool ӛ =
             ǻ;
 
         for (int Į = 0;
@@ -11707,39 +11709,39 @@ public static double Ē(
             g İ =
                 ʆ[Į];
 
-            bool ӝ =
+            bool Ӝ =
                 İ
                     .E
                     .CubeGrid ==
                 Me.CubeGrid;
 
-            bool Ӟ =
+            bool ӝ =
                 !İ.Y &&
                 (ȟ.Ȭ ||
                  İ
                      .a);
 
-            bool ӟ =
-                ӛ &&
-                ӝ &&
-                Ӟ;
-
-            bool ӡ =
+            bool Ӟ =
+                Ӛ &&
                 Ӝ &&
-                ӝ &&
-                Ӡ(
+                ӝ;
+
+            bool Ӡ =
+                ӛ &&
+                Ӝ &&
+                ӟ(
                     İ) &&
-                Ӟ;
+                ӝ;
 
             İ.N(
                 C.ƃ,
-                ӟ);
+                Ӟ);
 
             İ.N(
                 C.Ɖ,
-                ӡ);
+                Ӡ);
 
-            if (!ӡ)
+            if (!Ӡ)
             {
                 ʾ(
                     İ,
@@ -11752,31 +11754,31 @@ public static double Ē(
             Į < ˁ.Count;
             Į++)
         {
-            ũ ҕ =
+            ũ Ҕ =
                 ˁ[Į];
 
-            bool ӝ =
-                ҕ
+            bool Ӝ =
+                Ҕ
                     .E
                     .CubeGrid ==
                 Me.CubeGrid;
 
-            bool Ӣ =
-                !ҕ.Y &&
+            bool ӡ =
+                !Ҕ.Y &&
                 (ȟ.Ȭ ||
-                 ҕ.a);
+                 Ҕ.a);
 
-            ҕ.N(
+            Ҕ.N(
                 C.ƃ,
-                ӛ &&
-                ӝ &&
-                Ӣ);
+                Ӛ &&
+                Ӝ &&
+                ӡ);
         }
 
         ω();
     }
 
-    void ӓ(
+    void Ӓ(
         C h)
     {
         for (int Į = 0;
@@ -11800,7 +11802,7 @@ public static double Ē(
         }
     }
 
-    bool Ӡ(
+    bool ӟ(
         g İ)
     {
         if (İ == null ||
@@ -11841,7 +11843,7 @@ public static double Ē(
             g İ =
                 ʆ[Į];
 
-            if (Ӡ(
+            if (ӟ(
                     İ))
             {
                 ʿ.Add(
@@ -11849,7 +11851,7 @@ public static double Ē(
             }
         }
 
-        Ӕ();
+        ӓ();
     }
 
     void щ()
@@ -11877,7 +11879,7 @@ public static double Ē(
         ω();
     }
 
-    void Ӕ()
+    void ӓ()
     {
         Ǽ =
             string.Empty;
@@ -11891,7 +11893,7 @@ public static double Ē(
 
         if (ȟ.Ȭ)
         {
-            bool ӣ =
+            bool Ӣ =
                 true;
 
             for (int Į = 0;
@@ -11903,14 +11905,14 @@ public static double Ē(
                 if (!ʿ[Į]
                         .Y)
                 {
-                    ӣ =
+                    Ӣ =
                         false;
 
                     break;
                 }
             }
 
-            if (ӣ)
+            if (Ӣ)
             {
                 Ǽ =
 "Cruise cannot control main-grid "+
@@ -11922,7 +11924,7 @@ public static double Ē(
             return;
         }
 
-        bool Ӥ =
+        bool ӣ =
             false;
 
         for (int Į = 0;
@@ -11937,14 +11939,14 @@ public static double Ē(
             if (!İ.Y &&
                 İ.a)
             {
-                Ӥ =
+                ӣ =
                     true;
 
                 break;
             }
         }
 
-        if (!Ӥ)
+        if (!ӣ)
         {
             Ǽ =
 "Cruise cannot control main-grid "+
@@ -11964,10 +11966,10 @@ public static double Ē(
             Ϗ !=
                 ƅ.ƃ)
         {
-            ӓ(
+            Ӓ(
                 C.ƃ);
 
-            Ӑ(
+            ӏ(
                 Ȍ);
         }
 
@@ -11976,7 +11978,7 @@ public static double Ē(
             Ϗ ==
                 ƅ.ƃ)
         {
-            Ӑ(
+            ӏ(
                 ɱ
                     .Ư);
         }
@@ -12012,7 +12014,7 @@ public static double Ē(
                         .CustomName
                     : "NONE");
 
-        ӥ(
+        Ӥ(
             І);
 
         І
@@ -12143,7 +12145,7 @@ public static double Ē(
                 ǒ(Ȏ)
                     .ToUpperInvariant());
 
-        Ӧ(
+        ӥ(
             Ї);
 
         Ї
@@ -12186,7 +12188,7 @@ public static double Ē(
                     ϲ);
         }
 
-        string ӧ =
+        string Ӧ =
             Ї.ToString();
 
         for (int Į = 0;
@@ -12194,11 +12196,11 @@ public static double Ē(
             Į++)
         {
             Ѕ[Į]
-                .ſ(ӧ);
+                .ſ(Ӧ);
         }
     }
 
-    void ӥ(
+    void Ӥ(
         StringBuilder ɖ)
     {
         if (Ȏ !=
@@ -12229,7 +12231,7 @@ public static double Ē(
 
             ɖ.AppendLine();
 
-            Ө(
+            ӧ(
                 ɖ);
 
             return;
@@ -12305,7 +12307,7 @@ public static double Ē(
             .AppendLine("%)");
     }
 
-    void Ӧ(
+    void ӥ(
         StringBuilder ɖ)
     {
         if (Ȏ !=
@@ -12391,7 +12393,7 @@ public static double Ē(
                     .ToString());
     }
 
-    void Ө(
+    void ӧ(
         StringBuilder ɖ)
     {
         int ȡ =
@@ -12399,7 +12401,7 @@ public static double Ē(
                 .Ƞ
                 .Count;
 
-        int ө =
+        int Ө =
             ȡ > 0
                 ? MathHelper.Clamp(
                     Ȣ,
@@ -12411,14 +12413,14 @@ public static double Ē(
             ȡ > 0
                 ? ȟ
                     .Ƞ[
-                        ө] *
+                        Ө] *
                   100
                 : 0;
 
         ɖ
             .Append("Gear: ")
             .Append(
-                ө + 1)
+                Ө + 1)
             .Append("/")
             .Append(
                 ȡ)
@@ -12428,18 +12430,18 @@ public static double Ē(
                     .ToString("0.##"))
             .AppendLine("%)");
     }
-    readonly List<IMyTerminalBlock> Ӫ =
-        new List<IMyTerminalBlock>(),ӫ =
+    readonly List<IMyTerminalBlock> ө =
+        new List<IMyTerminalBlock>(),Ӫ =
         new List<IMyTerminalBlock>();
 
-    readonly List<IMyBlockGroup> Ӭ =
+    readonly List<IMyBlockGroup> ӫ =
         new List<IMyBlockGroup>();
 
 
     void ə()
     {
         Ɯ ӭ =
-            ъ();
+            Ӭ();
 
         if (!Ϸ)
         {
@@ -12464,24 +12466,24 @@ public static double Ē(
         Ȋ();
     }
 
-    Ɯ ъ()
+    Ɯ Ӭ()
     {
         Ɯ ӭ =
             new Ɯ();
 
-        Ӫ.Clear();
+        ө.Clear();
 
         GridTerminalSystem.GetBlocks(
-            Ӫ);
+            ө);
 
         for (int Į = 0;
             Į <
-                Ӫ
+                ө
                     .Count;
             Į++)
         {
             IMyTerminalBlock d =
-                Ӫ[Į];
+                ө[Į];
 
             int ӯ =
                 Ӯ(
@@ -12527,9 +12529,9 @@ public static double Ē(
                         : 0UL);
 
             F e =
-                њ(
+                љ(
                     d.CustomName) |
-                њ(
+                љ(
                     d.CustomData);
 
             ӱ =
@@ -12571,20 +12573,20 @@ public static double Ē(
                                 .UpperLimitRad));
             }
 
-            IMyPistonBase ҫ =
+            IMyPistonBase Ҫ =
                 d as
                     IMyPistonBase;
 
-            if (ҫ != null)
+            if (Ҫ != null)
             {
                 ӱ =
                     Ӳ(
                         ӱ,
-                        ҫ.TopGrid !=
+                        Ҫ.TopGrid !=
                                 null
                             ? unchecked(
                                 (ulong)
-                                    ҫ
+                                    Ҫ
                                         .TopGrid
                                         .EntityId)
                             : 0UL);
@@ -12610,16 +12612,16 @@ public static double Ē(
                             : 0UL);
             }
 
-            IMyProgrammableBlock і =
+            IMyProgrammableBlock ѕ =
                 d as
                     IMyProgrammableBlock;
 
-            if (і !=
+            if (ѕ !=
                 null)
             {
                 bool Ӵ =
-                    ї(
-                        і);
+                    і(
+                        ѕ);
 
                 ӱ =
                     Ӳ(
@@ -12633,16 +12635,16 @@ public static double Ē(
                     ӱ =
                         Ӳ(
                             ӱ,
-                            ј(
-                                і)
+                            ї(
+                                ѕ)
                                 ? 1UL
                                 : 0UL);
 
                     ӱ =
                         Ӳ(
                             ӱ,
-                            ҵ(
-                                і)
+                            Ҵ(
+                                ѕ)
                                 ? 1UL
                                 : 0UL);
                 }
@@ -12663,34 +12665,34 @@ public static double Ē(
     void Ӷ(
         ref Ɯ ӭ)
     {
-        Ӭ.Clear();
+        ӫ.Clear();
 
         GridTerminalSystem.GetBlockGroups(
-            Ӭ);
+            ӫ);
 
         for (int Į = 0;
             Į <
-                Ӭ
+                ӫ
                     .Count;
             Į++)
         {
-            IMyBlockGroup Ҩ =
-                Ӭ[Į];
+            IMyBlockGroup ҧ =
+                ӫ[Į];
 
-            F ҩ =
-                њ(
-                    Ҩ.Name);
+            F Ҩ =
+                љ(
+                    ҧ.Name);
 
-            if (ҩ ==
+            if (Ҩ ==
                 F.M)
             {
                 continue;
             }
 
-            ӫ.Clear();
+            Ӫ.Clear();
 
-            Ҩ.GetBlocks(
-                ӫ);
+            ҧ.GetBlocks(
+                Ӫ);
 
             ulong ӷ =
                 Ӱ;
@@ -12699,21 +12701,21 @@ public static double Ē(
                 Ӳ(
                     ӷ,
                     Ӹ(
-                        Ҩ.Name));
+                        ҧ.Name));
 
             ӷ =
                 Ӳ(
                     ӷ,
                     unchecked(
                         (ulong)
-                            (int)ҩ));
+                            (int)Ҩ));
 
             ulong ӹ = 0;
             ulong Ӻ = 0;
 
             for (int ĵ = 0;
                 ĵ <
-                    ӫ
+                    Ӫ
                         .Count;
                 ĵ++)
             {
@@ -12722,14 +12724,14 @@ public static double Ē(
                         Ӱ,
                         unchecked(
                             (ulong)
-                                ӫ[ĵ]
+                                Ӫ[ĵ]
                                     .EntityId));
 
                 ӹ ^=
                     Ӽ(
                         ӻ,
                         (int)(
-                            ӫ[ĵ]
+                            Ӫ[ĵ]
                                 .EntityId &
                             63));
 
@@ -12752,7 +12754,7 @@ public static double Ē(
                 unchecked(
                     (long)
                         Ӹ(
-                            Ҩ.Name));
+                            ҧ.Name));
 
             ӵ(
                 ref ӭ,
@@ -12973,14 +12975,14 @@ public static double Ē(
 
             long Ԃ;
 
-            if (!Ӊ
+            if (!ӈ
                     .TryGetValue(
                         Ϛ.EntityId,
                         out Ԃ) ||
                 Ԃ !=
                     ԁ)
             {
-                Ӊ[
+                ӈ[
                     Ϛ.EntityId] =
                     ԁ;
 
@@ -13013,14 +13015,14 @@ public static double Ē(
 
             bool Ԇ;
 
-            if (!ӊ
+            if (!Ӊ
                     .TryGetValue(
                         ԅ.EntityId,
                         out Ԇ) ||
                 Ԇ !=
                     ԅ.IsLocked)
             {
-                ӊ[
+                Ӊ[
                     ԅ.EntityId] =
                     ԅ.IsLocked;
 
@@ -13038,7 +13040,7 @@ public static double Ē(
     void ԃ(
         HashSet<long> Ԉ)
     {
-        if (Ӊ.Count ==
+        if (ӈ.Count ==
             0)
         {
             return;
@@ -13049,6 +13051,39 @@ public static double Ē(
 
         foreach (
             KeyValuePair<long, long> Ћ
+            in ӈ)
+        {
+            if (!Ԉ.Contains(
+                    Ћ.Key))
+            {
+                ԉ.Add(
+                    Ћ.Key);
+            }
+        }
+
+        for (int Į = 0;
+            Į < ԉ.Count;
+            Į++)
+        {
+            ӈ.Remove(
+                ԉ[Į]);
+        }
+    }
+
+    void ԇ(
+        HashSet<long> Ԉ)
+    {
+        if (Ӊ.Count ==
+            0)
+        {
+            return;
+        }
+
+        List<long> ԉ =
+            new List<long>();
+
+        foreach (
+            KeyValuePair<long, bool> Ћ
             in Ӊ)
         {
             if (!Ԉ.Contains(
@@ -13064,39 +13099,6 @@ public static double Ē(
             Į++)
         {
             Ӊ.Remove(
-                ԉ[Į]);
-        }
-    }
-
-    void ԇ(
-        HashSet<long> Ԉ)
-    {
-        if (ӊ.Count ==
-            0)
-        {
-            return;
-        }
-
-        List<long> ԉ =
-            new List<long>();
-
-        foreach (
-            KeyValuePair<long, bool> Ћ
-            in ӊ)
-        {
-            if (!Ԉ.Contains(
-                    Ћ.Key))
-            {
-                ԉ.Add(
-                    Ћ.Key);
-            }
-        }
-
-        for (int Į = 0;
-            Į < ԉ.Count;
-            Į++)
-        {
-            ӊ.Remove(
                 ԉ[Į]);
         }
     }

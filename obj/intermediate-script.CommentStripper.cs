@@ -184,6 +184,7 @@ class Program : MyGridProgram
                 controlRoles =
                     ControlRole.None;
 
+                ClearOverride();
                 return;
             }
 
@@ -8286,11 +8287,7 @@ public static double RotorCommandAngle(
 
         SweepOwnedHeartbeatsAfterScan();
 
-        lastTopologyFingerprint =
-            CalculateTopologyFingerprint();
 
-        topologyFingerprintInitialized =
-            true;
 
         forceStatusRefresh =
             true;
@@ -9032,6 +9029,11 @@ public static double RotorCommandAngle(
 
             if (!hasControlledThrusters)
             {
+                if (rotor.IsExplicitlyUsed)
+                {
+                    rotor.Stop();
+                }
+
                 continue;
             }
 

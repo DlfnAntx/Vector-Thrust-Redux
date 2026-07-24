@@ -187,6 +187,7 @@ class Program : MyGridProgram
                 controlRoles =
                     ControlRole.None;
 
+                ClearOverride();
                 return;
             }
 
@@ -8416,11 +8417,9 @@ class Program : MyGridProgram
 
         SweepOwnedHeartbeatsAfterScan();
 
-        lastTopologyFingerprint =
-            CalculateTopologyFingerprint();
+        //lastTopologyFingerprint = CalculateTopologyFingerprint();
 
-        topologyFingerprintInitialized =
-            true;
+        //topologyFingerprintInitialized = true;
 
         forceStatusRefresh =
             true;
@@ -9172,8 +9171,13 @@ class Program : MyGridProgram
 
             if (!hasControlledThrusters)
             {
-                // Explicitly used rotor without usable thrust: Redux may
-                // stop/park it, but it is not a vector nacelle.
+                // Explicit [VT-use] grants authority, but without usable thrust
+                // there is no vector solution to calculate. Stop stale motion.
+                if (rotor.IsExplicitlyUsed)
+                {
+                    rotor.Stop();
+                }
+
                 continue;
             }
 
